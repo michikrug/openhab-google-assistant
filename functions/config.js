@@ -36,6 +36,6 @@
 module.exports = {
 		//userpass: 'user@foo.com:Password1',
 		host: process.env.HOST,
-		port: 443,
+		port: process.env.PORT,
 		path: '/rest/items/',
 };

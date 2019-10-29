@@ -7,6 +7,7 @@
     "url": "https://github.com/openhab/openhab-google-assistant.git"
   },
   "dependencies": {
-    "colr": "^1.2.2"
+    "colr": "^1.2.2",
+    "express": "^4.17.1"
   }
 }

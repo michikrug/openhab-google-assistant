@@ -22,14 +22,42 @@ class GenericDevice {
     return item.tags && item.tags.map(t => t.toLowerCase()).includes(tag.toLowerCase());
   }
 
+  static get type() {
+    return '';
+  }
+
+  static get traits() {
+    return [];
+  }
+
   static getAttributes(item) {
+    return {};
+  }
+
+  static get tag() {
+    return '';
+  }
+
+  static appliesTo(item) {
+    return this.hasTag(item, this.tag);
+  }
+
+  static getState(item) {
     return {};
   }
 }
 
+/* Switch items that act as switch devices */
+
 class Switch extends GenericDevice {
   static get type() {
     return 'action.devices.types.SWITCH';
+  }
+
+  static get traits() {
+    return [
+      'action.devices.traits.OnOff'
+    ];
   }
 
   static get tag() {
@@ -45,21 +73,73 @@ class Switch extends GenericDevice {
       on: item.state === 'ON'
     };
   }
-
-  static get traits() {
-    return [
-      'action.devices.traits.OnOff'
-    ];
-  }
 }
 
-class Outlet extends GenericDevice {
+class Outlet extends Switch {
   static get type() {
     return 'action.devices.types.OUTLET';
   }
 
   static get tag() {
     return 'Outlet';
+  }
+}
+
+class Fan extends Switch {
+  static get type() {
+    return 'action.devices.types.FAN';
+  }
+
+  static get tag() {
+    return 'Fan';
+  }
+}
+
+class CoffeeMaker extends Switch {
+  static get type() {
+    return 'action.devices.types.COFFEE_MAKER';
+  }
+
+  static get tag() {
+    return 'CoffeeMaker';
+  }
+}
+
+class WaterHeater extends Switch {
+  static get type() {
+    return 'action.devices.types.WATERHEATER';
+  }
+
+  static get tag() {
+    return 'WaterHeater';
+  }
+}
+
+class Fireplace extends Switch {
+  static get type() {
+    return 'action.devices.types.FIREPLACE';
+  }
+
+  static get tag() {
+    return 'Fireplace';
+  }
+}
+
+/* Switch items that act as open-close devices */
+
+class Valve extends GenericDevice {
+  static get type() {
+    return 'action.devices.types.VALVE';
+  }
+
+  static get traits() {
+    return [
+      'action.devices.traits.OpenClose'
+    ];
+  }
+
+  static get tag() {
+    return 'Valve';
   }
 
   static appliesTo(item) {
@@ -68,24 +148,18 @@ class Outlet extends GenericDevice {
 
   static getState(item) {
     return {
-      on: item.state === 'ON'
+      openPercent: item.state === 'ON' ? 100 : 0
     };
-  }
-
-  static get traits() {
-    return [
-      'action.devices.traits.OnOff'
-    ];
   }
 }
 
-class Scene extends GenericDevice {
-  static get type() {
-    return 'action.devices.types.SCENE';
-  }
+/* Switch items that act as start-stop devices */
 
-  static get tag() {
-    return 'Scene';
+class StartStopSwitch extends GenericDevice {
+  static get traits() {
+    return [
+      'action.devices.traits.StartStop'
+    ];
   }
 
   static appliesTo(item) {
@@ -93,7 +167,38 @@ class Scene extends GenericDevice {
   }
 
   static getState(item) {
-    return {};
+    return {
+      isRunning: item.state === 'ON',
+      isPaused: item.state !== 'ON'
+    };
+  }
+}
+
+class Sprinkler extends StartStopSwitch {
+  static get type() {
+    return 'action.devices.types.SPRINKLER';
+  }
+
+  static get tag() {
+    return 'Sprinkler';
+  }
+}
+
+class Vacuum extends StartStopSwitch {
+  static get type() {
+    return 'action.devices.types.VACUUM';
+  }
+
+  static get tag() {
+    return 'Vacuum';
+  }
+}
+
+/* Switch items that act as scene devices */
+
+class Scene extends GenericDevice {
+  static get type() {
+    return 'action.devices.types.SCENE';
   }
 
   static get traits() {
@@ -107,11 +212,27 @@ class Scene extends GenericDevice {
       sceneReversible: true
     };
   }
+
+  static get tag() {
+    return 'Scene';
+  }
+
+  static appliesTo(item) {
+    return this.hasTag(item, this.tag) && (item.type === 'Switch' || (item.type === 'Group' && item.groupType && item.groupType === 'Switch'));
+  }
 }
+
+/* Switch items that act as lock devices */
 
 class Lock extends GenericDevice {
   static get type() {
     return 'action.devices.types.LOCK';
+  }
+
+  static get traits() {
+    return [
+      'action.devices.traits.LockUnlock'
+    ];
   }
 
   static get tag() {
@@ -143,45 +264,32 @@ class Lock extends GenericDevice {
       isLocked: item.state === 'ON'
     };
   }
-
-  static get traits() {
-    return [
-      'action.devices.traits.LockUnlock'
-    ];
-  }
 }
 
+/* Switch items that act as lighting devices */
 
-class SimpleLight extends GenericDevice {
+class SimpleLight extends Switch {
   static get type() {
     return 'action.devices.types.LIGHT';
   }
-
 
   static get tag() {
     return 'Lighting';
   }
-
-  static appliesTo(item) {
-    return this.hasTag(item, this.tag) && (item.type === 'Switch' || (item.type === 'Group' && item.groupType && item.groupType === 'Switch'));
-  }
-
-  static getState(item) {
-    return {
-      on: item.state === 'ON'
-    };
-  }
-
-  static get traits() {
-    return [
-      'action.devices.traits.OnOff'
-    ];
-  }
 }
+
+/* Dimmer items that act as lighting devices */
 
 class DimmableLight extends GenericDevice {
   static get type() {
     return 'action.devices.types.LIGHT';
+  }
+
+  static get traits() {
+    return [
+      'action.devices.traits.OnOff',
+      'action.devices.traits.Brightness'
+    ];
   }
 
   static get tag() {
@@ -198,20 +306,28 @@ class DimmableLight extends GenericDevice {
       brightness: item.state
     };
   }
-
-  static get traits() {
-    return [
-      'action.devices.traits.OnOff',
-      'action.devices.traits.Brightness'
-    ];
-  }
 }
+
+/* Color items that act as lighting devices */
 
 class ColorLight extends GenericDevice {
   static get type() {
     return 'action.devices.types.LIGHT';
   }
 
+  static get traits() {
+    return [
+      'action.devices.traits.OnOff',
+      'action.devices.traits.Brightness',
+      'action.devices.traits.ColorSetting'
+    ];
+  }
+
+  static getAttributes(item) {
+    return {
+      colorModel: 'hsv'
+    };
+  }
 
   static get tag() {
     return 'Lighting';
@@ -234,29 +350,16 @@ class ColorLight extends GenericDevice {
       }
     };
   }
-
-  static get traits() {
-    return [
-      'action.devices.traits.OnOff',
-      'action.devices.traits.Brightness',
-      'action.devices.traits.ColorSetting'
-    ];
-  }
-
-  static getAttributes(item) {
-    return {
-      colorModel: 'hsv'
-    };
-  }
 }
 
-class Blinds extends GenericDevice {
-  static get type() {
-    return 'action.devices.types.BLINDS';
-  }
+/* Rollershutter items that act as open-close / start-stop devices */
 
-  static get tag() {
-    return 'Blinds';
+class GenericOpenCloseDevice extends GenericDevice {
+  static get traits() {
+    return [
+      'action.devices.traits.OpenClose',
+      'action.devices.traits.StartStop'
+    ];
   }
 
   static appliesTo(item) {
@@ -268,18 +371,114 @@ class Blinds extends GenericDevice {
       openPercent: 100 - Number(item.state)
     };
   }
+}
 
-  static get traits() {
-    return [
-      'action.devices.traits.OpenClose',
-      'action.devices.traits.StartStop'
-    ];
+class Awning extends GenericOpenCloseDevice {
+  static get type() {
+    return 'action.devices.types.AWNING';
+  }
+
+  static get tag() {
+    return 'Awning';
+  }
+}
+
+class Blinds extends GenericOpenCloseDevice {
+  static get type() {
+    return 'action.devices.types.BLINDS';
+  }
+
+  static get tag() {
+    return 'Blinds';
+  }
+}
+
+class Curtain extends GenericOpenCloseDevice {
+  static get type() {
+    return 'action.devices.types.CURTAIN';
+  }
+
+  static get tag() {
+    return 'Curtain';
+  }
+}
+
+class Door extends GenericOpenCloseDevice {
+  static get type() {
+    return 'action.devices.types.DOOR';
+  }
+
+  static get tag() {
+    return 'Door';
+  }
+}
+
+class Garage extends GenericOpenCloseDevice {
+  static get type() {
+    return 'action.devices.types.GARAGE';
+  }
+
+  static get tag() {
+    return 'Garage';
+  }
+}
+
+class Gate extends GenericOpenCloseDevice {
+  static get type() {
+    return 'action.devices.types.GATE';
+  }
+
+  static get tag() {
+    return 'Gate';
+  }
+}
+
+class Pergola extends GenericOpenCloseDevice {
+  static get type() {
+    return 'action.devices.types.PERGOLA';
+  }
+
+  static get tag() {
+    return 'Pergola';
+  }
+}
+
+class Shutter extends GenericOpenCloseDevice {
+  static get type() {
+    return 'action.devices.types.SHUTTER';
+  }
+
+  static get tag() {
+    return 'Shutter';
+  }
+}
+
+class Window extends GenericOpenCloseDevice {
+  static get type() {
+    return 'action.devices.types.WINDOW';
+  }
+
+  static get tag() {
+    return 'Window';
   }
 }
 
 class Thermostat extends GenericDevice {
   static get type() {
     return 'action.devices.types.THERMOSTAT';
+  }
+
+  static get traits() {
+    return [
+      'action.devices.traits.TemperatureSetting'
+    ];
+  }
+
+  static getAttributes(item) {
+    return {
+      availableThermostatModes: 'off,heat,cool,on,heatcool',
+      thermostatTemperatureUnit: this.usesFahrenheit(item) ? 'F' : 'C'
+    };
   }
 
   static get tag() {
@@ -313,19 +512,6 @@ class Thermostat extends GenericDevice {
       state.thermostatHumidityAmbient = Number(parseFloat(members.thermostatHumidityAmbient.state).toFixed(0));
     }
     return state;
-  }
-
-  static get traits() {
-    return [
-      'action.devices.traits.TemperatureSetting'
-    ];
-  }
-
-  static getAttributes(item) {
-    return {
-      availableThermostatModes: 'off,heat,cool,on,heatcool',
-      thermostatTemperatureUnit: this.usesFahrenheit(item) ? 'F' : 'C'
-    };
   }
 
   static getMembers(item) {
@@ -384,6 +570,6 @@ class Thermostat extends GenericDevice {
   }
 }
 
-const Devices = [Switch, Outlet, Scene, Lock, SimpleLight, DimmableLight, ColorLight, Blinds, Thermostat];
+const Devices = [Switch, Outlet, Fan, CoffeeMaker, WaterHeater, Fireplace, Valve, Sprinkler, Vacuum, Scene, Lock, SimpleLight, DimmableLight, ColorLight, Awning, Blinds, Curtain, Door, Garage, Gate, Pergola, Shutter, Window, Thermostat];
 
-module.exports = { Devices, Switch, Outlet, Scene, Lock, SimpleLight, DimmableLight, ColorLight, Blinds, Thermostat }
+module.exports = { Devices, Switch, Outlet, Fan, CoffeeMaker, WaterHeater, Fireplace, Valve, Sprinkler, Vacuum, Scene, Lock, SimpleLight, DimmableLight, ColorLight, Awning, Blinds, Curtain, Door, Garage, Gate, Shutter, Pergola, Window, Thermostat }

@@ -19,6 +19,7 @@
  */
 const Thermostat = require('./devices.js').Thermostat;
 const DeviceTypes = require('./devices.js').Devices;
+const Lock = require('./devices.js').Lock;
 
 class GenericCommand {
   constructor(apiHandler) {

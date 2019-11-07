@@ -122,6 +122,10 @@ class Lock extends GenericDevice {
     return this.hasTag(item, this.tag) && (item.type === 'Switch' || (item.type === 'Group' && item.groupType && item.groupType === 'Switch'));
   }
 
+  static getPinCode(item){
+    return item.tags ? item.tags.filter(i => i.includes('Protected:')).map(tag => tag.replace('Protected:', '')).shift() : undefined;
+  }
+
   static getState(item) {
     return {
       isLocked: item.state === 'ON'

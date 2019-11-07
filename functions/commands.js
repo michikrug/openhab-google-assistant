@@ -18,6 +18,7 @@
  *
  */
 const Thermostat = require('./devices.js').Thermostat;
+const Lock = require('./devices.js').Lock;
 
 class GenericCommand {
   constructor(apiHandler) {
@@ -25,26 +26,29 @@ class GenericCommand {
   }
 
   _triggerCommand(devices = [], targetState = '', responseStates = {}) {
-    const commandsResponse = [];
     const promises = devices.map((device) => {
-      return this._apiHandler.sendCommand(device.id, targetState).then(() => {
-        if (Object.keys(responseStates).length) {
-          responseStates.online = true;
-        }
-        commandsResponse.push({
-          ids: [device.id],
-          status: 'SUCCESS',
-          states: responseStates
-        });
-      }).catch((error) => {
-        commandsResponse.push({
-          ids: [device.id],
-          status: 'ERROR',
-          errorCode: error.statusCode == 404 ? 'deviceNotFound' : error.statusCode == 400 ? 'notSupported' : 'deviceOffline'
-        });
-      });
+      return this._triggerSingleCommand(device, targetState, responseStates);
     });
-    return Promise.all(promises).then(() => commandsResponse);
+    return Promise.all(promises);
+  }
+
+  _triggerSingleCommand(device, targetState = '', responseStates = {}) {
+    return this._apiHandler.sendCommand(device.id, targetState).then(() => {
+      if (Object.keys(responseStates).length) {
+        responseStates.online = true;
+      }
+      return {
+        ids: [device.id],
+        status: 'SUCCESS',
+        states: responseStates
+      };
+    }).catch((error) => {
+      return {
+        ids: [device.id],
+        status: 'ERROR',
+        errorCode: error.statusCode == 404 ? 'deviceNotFound' : error.statusCode == 400 ? 'notSupported' : 'deviceOffline'
+      };
+    });
   }
 }
 
@@ -62,7 +66,7 @@ class OnOffCommand extends GenericCommand {
   }
 
   execute(devices, params) {
-    console.log(`openhabGoogleAssistant - commands.OnOff: ${JSON.stringify({ devices: devices, params: params })}`);
+    console.log(`openhabGoogleAssistant - commands.OnOff: ${JSON.stringify({devices: devices, params: params})}`);
     const state = params.on ? 'ON' : 'OFF';
     return this._triggerCommand(devices, state, {
       on: params.on
@@ -84,11 +88,50 @@ class LockUnlockCommand extends GenericCommand {
   }
 
   execute(devices, params) {
-    console.log(`openhabGoogleAssistant - commands.LockUnlock: ${JSON.stringify({ devices: devices, params: params })}`);
+    console.log(`openhabGoogleAssistant - commands.LockUnlock: ${JSON.stringify({devices: devices, params: params})}`);
     const state = params.lock ? 'ON' : 'OFF';
-    return this._triggerCommand(devices, state, {
-      on: params.on
+    const promises = devices.map((device) => {
+      return this._apiHandler.getItem(device.id).then((item) => {
+        const pinCode = Lock.getPinCode(item);
+        if (pinCode) {
+          if (!params.code) {
+            // authentication required
+            return LockUnlockCommand._challengeNeededResponse(device.id, 'pinNeeded');
+          } else if (params.code === pinCode) {
+            // auth succeeded
+            return this._triggerSingleCommand(device, state, {
+              on: params.lock
+            });
+          } else {
+            // incorrect pin
+            return LockUnlockCommand._challengeNeededResponse(device.id, 'challengeFailedPinNeeded');
+          }
+        } else {
+          // no pincode
+          return this._triggerSingleCommand(device, state, {
+            on: params.lock
+          });
+        }
+      }).catch((error) => {
+        return {
+          ids: [device.id],
+          status: 'ERROR',
+          errorCode: error.statusCode == 404 ? 'deviceNotFound' : error.statusCode == 400 ? 'notSupported' : 'deviceOffline'
+        };
+      });
     });
+    return Promise.all(promises);
+  }
+
+  static _challengeNeededResponse(deviceId, errorType) {
+    return {
+      ids: [deviceId],
+      status: 'ERROR',
+      errorCode: 'challengeNeeded',
+      challengeNeeded: {
+        "type": errorType
+      }
+    }
   }
 }
 
@@ -109,7 +152,10 @@ class ActivateSceneCommand extends GenericCommand {
   }
 
   execute(devices, params) {
-    console.log(`openhabGoogleAssistant - commands.ActivateScene: ${JSON.stringify({ devices: devices, params: params })}`);
+    console.log(`openhabGoogleAssistant - commands.ActivateScene: ${JSON.stringify({
+      devices: devices,
+      params: params
+    })}`);
     const state = !params.deactivate ? 'ON' : 'OFF';
     return this._triggerCommand(devices, state, {});
   }
@@ -130,7 +176,10 @@ class BrightnessAbsoluteCommand extends GenericCommand {
   }
 
   execute(devices, params) {
-    console.log(`openhabGoogleAssistant - commands.BrightnessAbsolute: ${JSON.stringify({ devices: devices, params: params })}`);
+    console.log(`openhabGoogleAssistant - commands.BrightnessAbsolute: ${JSON.stringify({
+      devices: devices,
+      params: params
+    })}`);
     const state = params.brightness.toString();
     return this._triggerCommand(devices, state, {
       brightness: params.brightness
@@ -155,7 +204,10 @@ class ColorAbsoluteCommand extends GenericCommand {
   }
 
   execute(devices, params) {
-    console.log(`openhabGoogleAssistant - commands.ColorAbsolute: ${JSON.stringify({ devices: devices, params: params })}`);
+    console.log(`openhabGoogleAssistant - commands.ColorAbsolute: ${JSON.stringify({
+      devices: devices,
+      params: params
+    })}`);
     const state = [params.color.spectrumHSV.hue, params.color.spectrumHSV.saturation * 100, params.color.spectrumHSV.value * 100].join(',');
     return this._triggerCommand(devices, state, {
       on: params.color.spectrumHSV.value > 0,
@@ -179,7 +231,7 @@ class OpenCloseCommand extends GenericCommand {
   }
 
   execute(devices, params) {
-    console.log(`openhabGoogleAssistant - commands.OpenClose: ${JSON.stringify({ devices: devices, params: params })}`);
+    console.log(`openhabGoogleAssistant - commands.OpenClose: ${JSON.stringify({devices: devices, params: params})}`);
     const state = params.openPercent == 0 ? 'DOWN' : params.openPercent == 100 ? 'UP' : (100 - params.openPercent).toString();
     return this._triggerCommand(devices, state, {
       openPercent: params.openPercent
@@ -201,7 +253,7 @@ class StartStopCommand extends GenericCommand {
   }
 
   execute(devices, params) {
-    console.log(`openhabGoogleAssistant - commands.StartStop: ${JSON.stringify({ devices: devices, params: params })}`);
+    console.log(`openhabGoogleAssistant - commands.StartStop: ${JSON.stringify({devices: devices, params: params})}`);
     const state = params.start ? 'MOVE' : 'STOP';
     return this._triggerCommand(devices, state, {
       isRunning: params.start,
@@ -224,13 +276,16 @@ class ThermostatTemperatureSetpointCommand extends GenericCommand {
   }
 
   execute(devices, params) {
-    console.log(`openhabGoogleAssistant - commands.ThermostatTemperatureSetpoint: ${JSON.stringify({ devices: devices, params: params })}`);
+    console.log(`openhabGoogleAssistant - commands.ThermostatTemperatureSetpoint: ${JSON.stringify({
+      devices: devices,
+      params: params
+    })}`);
     const commandsResponse = [];
     const promises = devices.map((device) => {
       return this._apiHandler.getItem(device.id).then((item) => {
         const members = Thermostat.getMembers(item);
         if (!members.thermostatTemperatureSetpoint) {
-          return Promise.reject({ statusCode: 400 });
+          return Promise.reject({statusCode: 400});
         }
         let targetState = params.thermostatTemperatureSetpoint.toString();
         if (Thermostat.usesFahrenheit(item)) {
@@ -271,13 +326,16 @@ class ThermostatSetModeCommand extends GenericCommand {
   }
 
   execute(devices, params) {
-    console.log(`openhabGoogleAssistant - commands.ThermostatSetMode: ${JSON.stringify({ devices: devices, params: params })}`);
+    console.log(`openhabGoogleAssistant - commands.ThermostatSetMode: ${JSON.stringify({
+      devices: devices,
+      params: params
+    })}`);
     const commandsResponse = [];
     const promises = devices.map((device) => {
       return this._apiHandler.getItem(device.id).then((item) => {
         const members = Thermostat.getMembers(item);
         if (!members.thermostatMode) {
-          return Promise.reject({ statusCode: 400 });
+          return Promise.reject({statusCode: 400});
         }
         const targetState = Thermostat.denormalizeThermostatMode(members.thermostatMode.state, params.thermostatMode);
         const state = Thermostat.getState(item);
@@ -303,4 +361,15 @@ class ThermostatSetModeCommand extends GenericCommand {
 
 const Commands = [OnOffCommand, LockUnlockCommand, ActivateSceneCommand, BrightnessAbsoluteCommand, ColorAbsoluteCommand, OpenCloseCommand, StartStopCommand, ThermostatTemperatureSetpointCommand, ThermostatSetModeCommand];
 
-module.exports = { Commands, OnOffCommand, LockUnlockCommand, ActivateSceneCommand, BrightnessAbsoluteCommand, ColorAbsoluteCommand, OpenCloseCommand, StartStopCommand, ThermostatTemperatureSetpointCommand, ThermostatSetModeCommand };
+module.exports = {
+  Commands,
+  OnOffCommand,
+  LockUnlockCommand,
+  ActivateSceneCommand,
+  BrightnessAbsoluteCommand,
+  ColorAbsoluteCommand,
+  OpenCloseCommand,
+  StartStopCommand,
+  ThermostatTemperatureSetpointCommand,
+  ThermostatSetModeCommand
+};

@@ -87,17 +87,17 @@ class LockUnlockCommand extends GenericCommand {
     return command === this.type && ('lock' in params) && typeof params.lock === 'boolean';
   }
 
-  execute(devices, params) {
-    console.log(`openhabGoogleAssistant - commands.LockUnlock: ${JSON.stringify({devices: devices, params: params})}`);
+  execute(devices, params, challenge) {
+    console.log(`openhabGoogleAssistant - commands.LockUnlock: ${JSON.stringify({devices: devices, params: params, challenge: challenge})}`);
     const state = params.lock ? 'ON' : 'OFF';
     const promises = devices.map((device) => {
       return this._apiHandler.getItem(device.id).then((item) => {
         const pinCode = Lock.getPinCode(item);
         if (pinCode) {
-          if (!params.code) {
+          if (!challenge.pin) {
             // authentication required
             return LockUnlockCommand._challengeNeededResponse(device.id, 'pinNeeded');
-          } else if (params.code === pinCode) {
+          } else if (challenge.pin === pinCode) {
             // auth succeeded
             return this._triggerSingleCommand(device, state, {
               on: params.lock

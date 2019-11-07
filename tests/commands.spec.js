@@ -54,7 +54,7 @@ describe('LockUnlock command', function () {
     let lock = new devices.Lock();
     lock.id = 1;
 
-    await lockUnlockCommand.execute([lock], {lock: 'ON', code: '4567'}).then(result => {
+    await lockUnlockCommand.execute([lock], {lock: 'ON'}, {pin: '4567'}).then(result => {
       expect(result[0].ids).to.be.deep.equal([1]);
       expect(result[0].status).to.be.equal('ERROR');
       expect(result[0].errorCode).to.be.equal('challengeNeeded');
@@ -73,7 +73,7 @@ describe('LockUnlock command', function () {
     let lock = new devices.Lock();
     lock.id = 1;
 
-    await lockUnlockCommand.execute([lock], {lock: 'ON', code: '1234'}).then(result => {
+    await lockUnlockCommand.execute([lock], {lock: 'ON'}, {pin: '1234'}).then(result => {
       expect(result[0].ids).to.be.deep.equal([1]);
       expect(result[0].status).to.be.equal('SUCCESS');
       expect(result[0].states).to.be.deep.equal({on: 'ON', online: true});
@@ -90,7 +90,7 @@ describe('LockUnlock command', function () {
     let lockTwo = new devices.Lock();
     lockTwo.id = 2;
 
-    await lockUnlockCommand.execute([lock, lockTwo], {lock: 'ON', code: '1234'}).then(result => {
+    await lockUnlockCommand.execute([lock, lockTwo], {lock: 'ON'}, {pin: '1234'}).then(result => {
       expect(result[0].ids).to.be.deep.equal([1]);
       expect(result[0].status).to.be.equal('SUCCESS');
       expect(result[0].states).to.be.deep.equal({on: 'ON', online: true});

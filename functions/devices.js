@@ -123,7 +123,19 @@ class Lock extends GenericDevice {
   }
 
   static getPinCode(item){
-    return item.tags ? item.tags.filter(i => i.includes('Protected:')).map(tag => tag.replace('Protected:', '')).shift() : undefined;
+    return this.getTagValue(item, 'Protected');
+  }
+
+  static getPinCodeForLocking(item){
+    return this.getTagValue(item, 'LockProtected');
+  }
+
+  static getPinCodeForUnlocking(item){
+    return this.getTagValue(item, 'UnlockProtected');
+  }
+
+  static getTagValue(item, tagKey){
+    return item.tags ? item.tags.filter(i => i.startsWith(tagKey + ':')).map(tag => tag.replace(tagKey + ':', '')).shift() : undefined;
   }
 
   static getState(item) {

@@ -92,7 +92,7 @@ class LockUnlockCommand extends GenericCommand {
     const state = params.lock ? 'ON' : 'OFF';
     const promises = devices.map((device) => {
       return this._apiHandler.getItem(device.id).then((item) => {
-        const pinCode = Lock.getPinCode(item);
+        const pinCode = Lock.getPinCode(item) || (params.lock ? Lock.getPinCodeForLocking(item) : Lock.getPinCodeForUnlocking(item));
         if (pinCode) {
           if (!challenge || !challenge.pin) {
             // authentication required

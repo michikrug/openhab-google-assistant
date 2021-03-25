@@ -168,7 +168,7 @@ class DefaultCommand {
           const targetValue = this.convertParamsToValue(params, item, device);
           let sendCommandPromise = Promise.resolve();
           if (typeof targetItem === 'string' && typeof targetValue === 'string') {
-            sendCommandPromise = apiHandler.sendCommand(targetItem, targetValue);
+            sendCommandPromise = apiHandler.sendCommand(targetItem, targetValue, device.id);
           }
           return sendCommandPromise.then(() => {
             commandsResponse.push({

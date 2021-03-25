@@ -18,7 +18,7 @@
  * @author Michael Krug - Rework
  *
  */
-const https = require('http');
+const https = require('https');
 
 class ApiHandler {
   /**
@@ -47,12 +47,7 @@ class ApiHandler {
    * @param {object} data
    */
   updateCache(data) {
-    if (data.length) {
-      data.forEach((item) => {
-        item.members = data.filter((member) => member.groupNames && member.groupNames.includes(item.name));
-        this._cache[item.name] = { item: item, timestamp: Date.now() };
-      });
-    } else {
+    if (data.name) {
       this._cache[data.name] = { item: data, timestamp: Date.now() };
     }
   }
@@ -147,9 +142,9 @@ class ApiHandler {
   /**
    * @param {string} itemName
    * @param {string} payload
+   * @param {string} deviceId
    */
-  sendCommand(itemName, payload) {
-    this._cache[itemName] = { item: null, timestamp: 0 };
+  sendCommand(itemName, payload, deviceId) {
     const options = this.getOptions('POST', itemName, payload.length);
     return new Promise((resolve, reject) => {
       const req = https.request(options, (response) => {
@@ -159,6 +154,10 @@ class ApiHandler {
           );
           reject({ statusCode: response.statusCode, message: 'sendCommand failed' });
           return;
+        }
+        this._cache[itemName] = { item: null, timestamp: 0 };
+        if (itemName !== deviceId) {
+          this._cache[deviceId] = { item: null, timestamp: 0 };
         }
         resolve();
       });

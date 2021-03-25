@@ -56,10 +56,11 @@ class ApiHandler {
    * @param {string} itemName
    */
   getFromCache(itemName) {
-    const cachedItem = this._cache[itemName];
-    if (cachedItem && Date.now() - cachedItem.timestamp < 60 * 1000) {
-      console.info('openhabGoogleAssistant - getItem - using cache for item');
-      return cachedItem.item;
+    if (itemName) {
+      const cachedItem = this._cache[itemName];
+      if (cachedItem && Date.now() - cachedItem.timestamp < 60 * 1000) {
+        return cachedItem.item;
+      }
     }
   }
 
@@ -101,10 +102,8 @@ class ApiHandler {
    * @param {string} itemName
    */
   getItem(itemName = '') {
-    if (itemName) {
-      const cached = this.getFromCache(itemName);
-      if (cached) return Promise.resolve(cached);
-    }
+    const cached = this.getFromCache(itemName);
+    if (cached) return Promise.resolve(cached);
 
     const options = this.getOptions('GET', itemName);
     return new Promise((resolve, reject) => {
@@ -155,10 +154,8 @@ class ApiHandler {
           reject({ statusCode: response.statusCode, message: 'sendCommand failed' });
           return;
         }
-        this._cache[itemName] = { item: null, timestamp: 0 };
-        if (itemName !== deviceId) {
-          this._cache[deviceId] = { item: null, timestamp: 0 };
-        }
+        delete this._cache[itemName];
+        delete this._cache[deviceId];
         resolve();
       });
       req.on('error', reject);

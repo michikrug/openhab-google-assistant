@@ -144,7 +144,6 @@ class OpenHAB {
     return this._apiHandler.getItems().then((items) => {
       let discoveredDevicesList = [];
       items.forEach((item) => {
-        item.members = items.filter((member) => member.groupNames && member.groupNames.includes(item.name));
         const DeviceType = OpenHAB.getDeviceForItem(item);
         if (DeviceType) {
           console.log(

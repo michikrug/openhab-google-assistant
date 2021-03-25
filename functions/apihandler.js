@@ -18,7 +18,7 @@
  * @author Michael Krug - Rework
  *
  */
-const https = require('https');
+const https = require('http');
 
 class ApiHandler {
   /**
@@ -33,6 +33,7 @@ class ApiHandler {
     }
     this._config = config;
     this._authToken = '';
+    this._cache = {};
   }
 
   /**
@@ -43,13 +44,40 @@ class ApiHandler {
   }
 
   /**
+   * @param {object} data
+   */
+  updateCache(data) {
+    if (data.length) {
+      data.forEach((item) => {
+        item.members = data.filter((member) => member.groupNames && member.groupNames.includes(item.name));
+        this._cache[item.name] = { item: item, timestamp: Date.now() };
+      });
+    } else {
+      this._cache[data.name] = { item: data, timestamp: Date.now() };
+    }
+  }
+
+  /**
+   * @param {string} itemName
+   */
+  getFromCache(itemName) {
+    const cachedItem = this._cache[itemName];
+    if (cachedItem && Date.now() - cachedItem.timestamp < 60 * 1000) {
+      console.info('openhabGoogleAssistant - getItem - using cache for item');
+      return cachedItem.item;
+    }
+  }
+
+  /**
    * @param {string} method
    * @param {string} itemName
    * @param {number} length
    */
   getOptions(method = 'GET', itemName = '', length = 0) {
     const queryString =
-      '?metadata=ga,synonyms' + (itemName ? '' : '&fields=groupNames,groupType,name,label,metadata,type,state');
+      method === 'GET'
+        ? '?metadata=ga,synonyms' + (itemName ? '' : '&fields=groupNames,groupType,name,label,metadata,type,state')
+        : '';
     const options = {
       hostname: this._config.host,
       port: this._config.port,
@@ -78,11 +106,18 @@ class ApiHandler {
    * @param {string} itemName
    */
   getItem(itemName = '') {
+    if (itemName) {
+      const cached = this.getFromCache(itemName);
+      if (cached) return Promise.resolve(cached);
+    }
+
     const options = this.getOptions('GET', itemName);
     return new Promise((resolve, reject) => {
       const req = https.request(options, (response) => {
         if (200 !== response.statusCode) {
-          console.error('getItem failed for path: ' + options.path + ' code: ' + response.statusCode);
+          console.error(
+            'openhabGoogleAssistant - getItem - failed for path: ' + options.path + ' code: ' + response.statusCode
+          );
           reject({ statusCode: response.statusCode, message: 'getItem failed' });
           return;
         }
@@ -95,7 +130,9 @@ class ApiHandler {
         });
 
         response.on('end', () => {
-          resolve(JSON.parse(body));
+          const data = JSON.parse(body);
+          this.updateCache(data);
+          resolve(data);
         });
       });
       req.on('error', reject);
@@ -116,10 +153,13 @@ class ApiHandler {
     return new Promise((resolve, reject) => {
       const req = https.request(options, (response) => {
         if (![200, 201].includes(response.statusCode)) {
-          console.error('sendCommand failed for path: ' + options.path + ' code: ' + response.statusCode);
+          console.error(
+            'openhabGoogleAssistant - sendCommand - failed for path: ' + options.path + ' code: ' + response.statusCode
+          );
           reject({ statusCode: response.statusCode, message: 'sendCommand failed' });
           return;
         }
+        this._cache[itemName] = { item: null, timestamp: 0 };
         resolve();
       });
       req.on('error', reject);

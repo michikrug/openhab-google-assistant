@@ -1,6 +1,77 @@
 const DefaultDevice = require('./default.js');
 
 class TV extends DefaultDevice {
+  static get openhabMetadata() {
+    return {
+      TV: [
+        {
+          name: 'volumeMaxLevel',
+          type: 'INTEGER',
+          label: 'volumeMaxLevel',
+          description: 'The maximum volume level (0-100)'
+        },
+        {
+          name: 'volumeDefaultPercentage',
+          type: 'INTEGER',
+          label: 'volumeDefaultPercentage',
+          description: 'The volume (in percentage) for the default volume (0-100)'
+        },
+        {
+          name: 'levelStepSize',
+          type: 'INTEGER',
+          label: 'levelStepSize',
+          description: 'The default step size for relative volume queries (1-100)'
+        },
+        {
+          name: 'transportControlSupportedCommands',
+          type: 'TEXT',
+          label: 'transportControlSupportedCommands',
+          description: 'List of strings describing supported transport control commands: "NEXT,PREVIOUS,PAUSE,RESUME"'
+        },
+        {
+          name: 'availableInputs',
+          type: 'TEXT',
+          label: 'availableInputs',
+          description: 'List of input audio or video feeds in the format: "inputKey=inputName:inputSynonym:...,..."'
+        },
+        {
+          name: 'orderedInputs',
+          type: 'BOOLEAN',
+          label: 'orderedInputs',
+          description: 'True if the list of inputs is ordered. Enables "next" and "previous" functionality'
+        },
+        {
+          name: 'availableChannels',
+          type: 'TEXT',
+          label: 'availableChannels',
+          description: 'List of available media channels in the format: "inputKey=inputName:inputSynonym:...,..."',
+          limitToOptions: false
+        },
+        {
+          name: 'availableApplications',
+          type: 'TEXT',
+          label: 'availableApplications',
+          description: 'List of applications in the format: "inputKey=inputName:inputSynonym:...,..."',
+          limitToOptions: false
+        },
+        {
+          name: 'lang',
+          type: 'TEXT',
+          label: 'lang',
+          description: 'Language to be used for the traits',
+          limitToOptions: true,
+          options: 'en,de,da,nl,fr,hi,id,it,ja,ko,no,pt-BR,es,sv,th'.split(',').map((o) => ({ value: o, label: o }))
+        }
+      ],
+      tvPower: [],
+      tvMute: [],
+      tvChannel: [],
+      tvInput: [],
+      tvTransport: [],
+      tvApplication: []
+    };
+  }
+
   static get type() {
     return 'action.devices.types.TV';
   }

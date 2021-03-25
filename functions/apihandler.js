@@ -149,6 +149,7 @@ class ApiHandler {
    * @param {string} payload
    */
   sendCommand(itemName, payload) {
+    this._cache[itemName] = { item: null, timestamp: 0 };
     const options = this.getOptions('POST', itemName, payload.length);
     return new Promise((resolve, reject) => {
       const req = https.request(options, (response) => {
@@ -159,7 +160,6 @@ class ApiHandler {
           reject({ statusCode: response.statusCode, message: 'sendCommand failed' });
           return;
         }
-        this._cache[itemName] = { item: null, timestamp: 0 };
         resolve();
       });
       req.on('error', reject);

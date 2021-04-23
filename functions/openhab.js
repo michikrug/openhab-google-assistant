@@ -245,13 +245,21 @@ class OpenHAB {
 
   onStateReport(req, res, app) {
     const userId = req.headers['x-openhab-user'];
-    const body = req.body;
-    this.handleStateReport(body, userId, app)
-      .then(() => {
-        res.json({});
+    this._apiHandler
+      .getItem(req.body.deviceId)
+      .then((item) => {
+        this.handleStateReport(item, userId, app)
+          .then(() => {
+            res.json({});
+          })
+          .catch((error) => {
+            res.json({
+              status: 'ERROR',
+              errorCode: error.error.message
+            });
+          });
       })
       .catch((error) => {
-        console.log(error);
         res.json({
           status: 'ERROR',
           errorCode: error.statusCode == 404 ? 'deviceNotFound' : 'deviceNotReady'
@@ -263,18 +271,17 @@ class OpenHAB {
    * @param {object} item
    */
   handleStateReport(item, userId, app) {
-    const payload = { devices: {} };
+    const payload = { devices: { states: {} } };
     const DeviceType = OpenHAB.getDeviceForItem(item);
-    console.log(DeviceType);
     if (!DeviceType) {
       throw { statusCode: 404 };
     }
     if (item.state === 'NULL' && !('getMembers' in DeviceType)) {
       throw { statusCode: 406 };
     }
-    payload.devices[item.name] = DeviceType.getState(item);
+    payload.devices.states[item.name] = DeviceType.getState(item);
     return app.reportState({
-      requestId: Date.now(),
+      requestId: Date.now().toString(),
       agentUserId: userId,
       payload: payload
     });

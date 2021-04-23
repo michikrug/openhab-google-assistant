@@ -253,10 +253,7 @@ class OpenHAB {
             res.json({});
           })
           .catch((error) => {
-            res.json({
-              status: 'ERROR',
-              errorCode: error.error.message
-            });
+            throw error;
           });
       })
       .catch((error) => {

@@ -88,7 +88,7 @@ class OpenHAB {
 
     return {
       requestId: body.requestId,
-      payload: Object.assign({ agentUserId: this.apiHandler._openhabUser }, payload)
+      payload: Object.assign({ agentUserId: this._apiHandler._openhabUser }, payload)
     };
   }
 

@@ -5,7 +5,11 @@ const openhabGA = require('./functions/index.js');
 app.use(express.json());
 
 app.use('/', (req, res) => {
-  openhabGA.openhabGoogleAssistant(req, res);
+  if (req.path === '/reportstate') {
+    openhabGA.openhabGoogleAssistant.onStateReport(req, res);
+  } else {
+    openhabGA.openhabGoogleAssistant(req, res);
+  }
 });
 
 const port = process.env.OH_SERVER_PORT || 3000;

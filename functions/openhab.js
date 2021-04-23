@@ -88,7 +88,7 @@ class OpenHAB {
 
     return {
       requestId: body.requestId,
-      payload: payload
+      payload: Object.assign({ agentUserId: this.apiHandler._openhabUser }, payload)
     };
   }
 
@@ -240,6 +240,43 @@ class OpenHAB {
       let responses = [];
       responseDetails.forEach((response) => (responses = responses.concat(response)));
       return { commands: responses };
+    });
+  }
+
+  onStateReport(req, res, app) {
+    const userId = req.headers['x-openhab-user'];
+    const body = req.body;
+    this.handleStateReport(body, userId, app)
+      .then(() => {
+        res.json({});
+      })
+      .catch((error) => {
+        console.log(error);
+        res.json({
+          status: 'ERROR',
+          errorCode: error.statusCode == 404 ? 'deviceNotFound' : 'deviceNotReady'
+        });
+      });
+  }
+
+  /**
+   * @param {object} item
+   */
+  handleStateReport(item, userId, app) {
+    const payload = { devices: {} };
+    const DeviceType = OpenHAB.getDeviceForItem(item);
+    console.log(DeviceType);
+    if (!DeviceType) {
+      throw { statusCode: 404 };
+    }
+    if (item.state === 'NULL' && !('getMembers' in DeviceType)) {
+      throw { statusCode: 406 };
+    }
+    payload.devices[item.name] = DeviceType.getState(item);
+    return app.reportState({
+      requestId: Date.now(),
+      agentUserId: userId,
+      payload: payload
     });
   }
 }

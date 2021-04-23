@@ -31,10 +31,14 @@
  * path
  *    Base URL path for openHAB items
  *
+ * jwt
+ *    A JWT (JSON Web Token) that is able to access the home graph API
+ *
  **/
 module.exports = {
   //userpass: process.env.OH_USERPASS || 'user@foo.com:Password1',
   host: process.env.OH_HOST || '<YOUR-CLOUD-HOST>',
   port: process.env.OH_PORT || 443,
-  path: process.env.OH_PATH || '/YOUR/REST/ENDPOINT'
+  path: process.env.OH_PATH || '/YOUR/REST/ENDPOINT',
+  jwt: process.env.OH_JWT || '<PATH-TO-YOUR-JWT-FILE>'
 };

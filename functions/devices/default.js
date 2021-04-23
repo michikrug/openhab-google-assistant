@@ -72,14 +72,14 @@ class DefaultDevice {
             : [])
         ]
       },
-      willReportState: false,
+      willReportState: config.willReportState === true,
       roomHint: config.roomHint,
       structureHint: config.structureHint,
       deviceInfo: {
         manufacturer: 'openHAB',
         model: `${itemType}:${item.name}`,
-        hwVersion: '2.5.0',
-        swVersion: '2.5.0'
+        hwVersion: '3.0.0',
+        swVersion: '2.1.0'
       },
       attributes: this.getAttributes(item),
       customData: {

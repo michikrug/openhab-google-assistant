@@ -33,6 +33,7 @@ class ApiHandler {
     }
     this._config = config;
     this._authToken = '';
+    this._openhabUser = '';
     this._cache = {};
   }
 
@@ -118,6 +119,8 @@ class ApiHandler {
 
         response.setEncoding('utf8');
         let body = '';
+
+        this._openhabUser = response.headers['x-openhab-user'];
 
         response.on('data', (data) => {
           body += data.toString('utf-8');

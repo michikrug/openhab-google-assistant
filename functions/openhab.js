@@ -249,8 +249,8 @@ class OpenHAB {
       .getItem(req.body.deviceId)
       .then((item) => {
         this.handleStateReport(item, userId, app)
-          .then(() => {
-            res.json({});
+          .then((resu) => {
+            res.json(resu);
           })
           .catch((error) => {
             throw error;

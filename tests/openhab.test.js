@@ -1,4 +1,5 @@
 const OpenHAB = require('../functions/openhab.js');
+const packageVersion = require('../package.json').version;
 
 describe('OpenHAB', () => {
   test('getCommandType', () => {
@@ -105,10 +106,10 @@ describe('OpenHAB', () => {
               itemType: 'Switch'
             },
             deviceInfo: {
-              hwVersion: '2.5.0',
               manufacturer: 'openHAB',
               model: 'Switch:SwitchItem',
-              swVersion: '2.5.0'
+              hwVersion: '3.0.0',
+              swVersion: packageVersion
             },
             id: 'SwitchItem',
             name: {
@@ -168,10 +169,10 @@ describe('OpenHAB', () => {
               itemType: 'Switch'
             },
             deviceInfo: {
-              hwVersion: '2.5.0',
               manufacturer: 'openHAB',
               model: 'Switch:SwitchItem',
-              swVersion: '2.5.0'
+              hwVersion: '3.0.0',
+              swVersion: packageVersion
             },
             id: 'SwitchItem',
             name: {
@@ -194,10 +195,10 @@ describe('OpenHAB', () => {
               itemType: 'Group'
             },
             deviceInfo: {
-              hwVersion: '2.5.0',
               manufacturer: 'openHAB',
               model: 'Group:TVItem',
-              swVersion: '2.5.0'
+              hwVersion: '3.0.0',
+              swVersion: packageVersion
             },
             id: 'TVItem',
             name: {

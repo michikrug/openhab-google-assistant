@@ -44,6 +44,7 @@ describe('OpenHAB', () => {
       expect(result).toStrictEqual({
         requestId: '1234',
         payload: {
+          agentUserId: undefined,
           devices: [],
           errorCode: 'actionNotAvailable',
           status: 'ERROR'
@@ -53,7 +54,7 @@ describe('OpenHAB', () => {
 
     test('onSync empty', async () => {
       const handleSyncMock = jest.spyOn(openHAB, 'handleSync');
-      const payload = { devices: [] };
+      const payload = { agentUserId: undefined, devices: [] };
       handleSyncMock.mockReturnValue(Promise.resolve(payload));
       const result = await openHAB.onSync({ requestId: '1234' }, {});
       expect(handleSyncMock).toBeCalledTimes(1);

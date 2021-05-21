@@ -92,6 +92,7 @@ class DefaultDevice {
     };
     if (config.willReportState) {
       metadata.traits.push('action.devices.traits.RunCycle');
+      metadata.traits.push('action.devices.traits.ObjectDetection');
     }
     if (config.inverted === true) {
       metadata.customData.inverted = true;

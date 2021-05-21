@@ -264,7 +264,7 @@ class OpenHAB {
    * @param {object} item
    */
   handleStateReport(item, userId, homegraphClient) {
-    const payload = {
+    let payload = {
       devices: {
         states: {
           MyOutlet: {
@@ -285,6 +285,22 @@ class OpenHAB {
               priority: 0,
               status: 'SUCCESS',
               currentCycleRemainingTime: 0
+            }
+          }
+        }
+      }
+    };
+    payload = {
+      devices: {
+        notifications: {
+          MyOutlet: {
+            ObjectDetected: {
+              priority: 0,
+              detectionTimestamp: 1534875126750,
+              objects: {
+                named: ['Alice'],
+                unclassified: 2
+              }
             }
           }
         }

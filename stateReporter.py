@@ -6,7 +6,7 @@ from http.client import HTTPConnection, HTTPSConnection
 
 
 class StateReporter():
-    def __init__(self, oh_host='localhost', oh_port=8080, ga_host='', ga_port='443', ga_user=''):
+    def __init__(self, oh_host='localhost', oh_port=8080, ga_host='', ga_port=443, ga_user=''):
         self.oh_host = oh_host
         self.oh_port = oh_port
         self.ga_host = ga_host
@@ -113,11 +113,11 @@ if __name__ == "__main__":
         elif opt in ("-o", "--oh-host"):
             oh_host = arg
         elif opt in ("-p", "--oh-port"):
-            oh_port = arg
+            oh_port = int(arg)
         elif opt in ("-g", "--ga-host"):
             ga_host = arg
         elif opt in ("-a", "--ga-port"):
-            ga_port = arg
+            ga_port = int(arg)
         elif opt in ("-u", "--ga-user"):
             ga_user = arg
         elif opt in ("-i", "--item-name"):

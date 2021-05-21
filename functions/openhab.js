@@ -248,9 +248,11 @@ class OpenHAB {
     const userId = req.headers['x-openhab-user'];
     this.handleStateReport(req.body, userId, homegraphClient)
       .then((result) => {
+        console.log(JSON.stringify(result));
         res.json(result.statusText);
       })
       .catch((error) => {
+        console.log(JSON.stringify(error));
         res.json({
           status: 'ERROR',
           errorCode: !error.statusCode ? error : error.statusCode == 404 ? 'deviceNotFound' : 'deviceNotReady'
@@ -282,6 +284,17 @@ class OpenHAB {
       throw { statusCode: 406 };
     }
     payload.devices.states[item.name] = DeviceType.getState(item);
+    payload.devices.states[item.name] = {
+      on: true,
+      currentRunCycle: [
+        {
+          currentCycle: 'rinse',
+          lang: 'en'
+        }
+      ],
+      currentTotalRemainingTime: 1200,
+      currentCycleRemainingTime: 300
+    };
     return homegraphClient.devices.reportStateAndNotification({
       requestBody: {
         requestId: uuidv4(),

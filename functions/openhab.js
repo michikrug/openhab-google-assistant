@@ -264,48 +264,7 @@ class OpenHAB {
    * @param {object} item
    */
   handleStateReport(item, userId, homegraphClient) {
-    let payload = {
-      devices: {
-        states: {
-          MyOutlet: {
-            on: true,
-            currentRunCycle: [
-              {
-                currentCycle: 'rinse',
-                lang: 'en'
-              }
-            ],
-            currentTotalRemainingTime: 0,
-            currentCycleRemainingTime: 0
-          }
-        },
-        notifications: {
-          MyOutlet: {
-            RunCycle: {
-              priority: 0,
-              status: 'SUCCESS',
-              currentCycleRemainingTime: 0
-            }
-          }
-        }
-      }
-    };
-    payload = {
-      devices: {
-        notifications: {
-          MyOutlet: {
-            ObjectDetected: {
-              priority: 0,
-              detectionTimestamp: 1534875126750,
-              objects: {
-                named: ['Alice'],
-                unclassified: 2
-              }
-            }
-          }
-        }
-      }
-    };
+    let payload = { devices: { states: {}, notifications: {} } };
     const DeviceType = OpenHAB.getDeviceForItem(item);
     if (!DeviceType) {
       throw { statusCode: 404 };
@@ -313,7 +272,11 @@ class OpenHAB {
     if (item.state === 'NULL' && !('getMembers' in DeviceType)) {
       throw { statusCode: 406 };
     }
-    // payload.devices.states[item.name] = DeviceType.getState(item);
+    payload.devices.states[item.name] = DeviceType.getState(item);
+    const notification = DeviceType.getNotification(item);
+    if (notification) {
+      payload.devices.notifications[item.name] = DeviceType.getNotification(item);
+    }
     return homegraphClient.devices.reportStateAndNotification({
       requestBody: {
         requestId: uuidv4(),

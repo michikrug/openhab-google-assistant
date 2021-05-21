@@ -74,8 +74,8 @@ class DefaultDevice {
             : [])
         ]
       },
-      willReportState: config.willReportState === true,
-      notificationSupportedByAgent: config.willReportState === true,
+      willReportState: config.reportState === true,
+      notificationSupportedByAgent: true,
       roomHint: config.roomHint,
       structureHint: config.structureHint,
       deviceInfo: {
@@ -90,10 +90,6 @@ class DefaultDevice {
         itemType: itemType
       }
     };
-    if (config.willReportState) {
-      metadata.traits.push('action.devices.traits.RunCycle');
-      metadata.traits.push('action.devices.traits.ObjectDetection');
-    }
     if (config.inverted === true) {
       metadata.customData.inverted = true;
     }
@@ -110,6 +106,13 @@ class DefaultDevice {
    * @param {object} item
    */
   static getState(item) {
+    return {};
+  }
+
+  /**
+   * @param {object} item
+   */
+  static getNotification(item) {
     return {};
   }
 }

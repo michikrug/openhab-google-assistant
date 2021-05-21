@@ -118,6 +118,7 @@ describe('OpenHAB', () => {
               name: 'Switch Item',
               nicknames: ['Switch Item']
             },
+            notificationSupportedByAgent: true,
             roomHint: undefined,
             structureHint: undefined,
             traits: ['action.devices.traits.OnOff'],
@@ -181,6 +182,7 @@ describe('OpenHAB', () => {
               name: 'Switch Item',
               nicknames: ['Switch Item']
             },
+            notificationSupportedByAgent: true,
             roomHint: undefined,
             structureHint: undefined,
             traits: ['action.devices.traits.OnOff'],
@@ -207,6 +209,7 @@ describe('OpenHAB', () => {
               name: 'TV Item',
               nicknames: ['TV Item']
             },
+            notificationSupportedByAgent: true,
             roomHint: undefined,
             structureHint: undefined,
             traits: ['action.devices.traits.OnOff', 'action.devices.traits.Volume'],

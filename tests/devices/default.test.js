@@ -56,6 +56,7 @@ describe('Default Device', () => {
         name: 'Default Device',
         nicknames: ['Default Device', 'Standard Device']
       },
+      notificationSupportedByAgent: true,
       roomHint: undefined,
       structureHint: undefined,
       traits: [],

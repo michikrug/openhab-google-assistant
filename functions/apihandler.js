@@ -18,6 +18,7 @@
  * @author Michael Krug - Rework
  *
  */
+const http = require('http');
 const https = require('https');
 
 class ApiHandler {
@@ -108,7 +109,8 @@ class ApiHandler {
 
     const options = this.getOptions('GET', itemName);
     return new Promise((resolve, reject) => {
-      const req = https.request(options, (response) => {
+      const protocol = options.port === 443 ? https : http;
+      const req = protocol.request(options, (response) => {
         if (200 !== response.statusCode) {
           console.error(
             'openhabGoogleAssistant - getItem - failed for path: ' + options.path + ' code: ' + response.statusCode
@@ -149,7 +151,8 @@ class ApiHandler {
   sendCommand(itemName, payload, deviceId) {
     const options = this.getOptions('POST', itemName, payload.length);
     return new Promise((resolve, reject) => {
-      const req = https.request(options, (response) => {
+      const protocol = options.port === 443 ? https : http;
+      const req = protocol.request(options, (response) => {
         if (![200, 201].includes(response.statusCode)) {
           console.error(
             'openhabGoogleAssistant - sendCommand - failed for path: ' + options.path + ' code: ' + response.statusCode

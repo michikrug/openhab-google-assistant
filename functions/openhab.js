@@ -280,7 +280,7 @@ class OpenHAB {
     if (Object.keys(notification).length) {
       payload.devices.notifications[item.name] = notification;
     }
-    if (!Object.keys(payload.devices.states).length && !Object.keys(payload.devices.states).length) {
+    if (!Object.keys(payload.devices.states).length && !Object.keys(payload.devices.notifications).length) {
       return Promise.resolve({ statusText: 'OK' });
     }
     return homegraphClient.devices.reportStateAndNotification({

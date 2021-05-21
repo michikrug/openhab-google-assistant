@@ -75,6 +75,7 @@ class DefaultDevice {
         ]
       },
       willReportState: config.willReportState === true,
+      notificationSupportedByAgent: config.willReportState === true,
       roomHint: config.roomHint,
       structureHint: config.structureHint,
       deviceInfo: {

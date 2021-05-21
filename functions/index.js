@@ -21,15 +21,28 @@
 const OpenHAB = require('./openhab.js');
 const ApiHandler = require('./apihandler.js');
 const config = require('./config.js');
-const app = require('actions-on-google').smarthome({ jwt: require(config.jwt) });
+const app = require('actions-on-google').smarthome();
 
 const apiHandler = new ApiHandler(config);
 const openHAB = new OpenHAB(apiHandler);
+
+const homegraph = require('@googleapis/homegraph');
+let homegraphClient = {};
+const auth = new homegraph.auth.GoogleAuth({
+  keyFilename: config.jwt,
+  scopes: ['https://www.googleapis.com/auth/homegraph']
+});
+auth.getClient().then((authClient) => {
+  homegraphClient = homegraph.homegraph({
+    version: 'v1',
+    auth: authClient
+  });
+});
 
 app.onDisconnect(() => openHAB.onDisconnect());
 app.onExecute((body, headers) => openHAB.onExecute(body, headers));
 app.onQuery((body, headers) => openHAB.onQuery(body, headers));
 app.onSync((body, headers) => openHAB.onSync(body, headers));
-app.onStateReport = (req, res) => openHAB.onStateReport(req, res, app);
+app.onStateReport = (req, res) => openHAB.onStateReport(req, res, homegraphClient);
 
 exports.openhabGoogleAssistant = app;

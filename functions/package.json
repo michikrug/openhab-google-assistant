@@ -12,6 +12,7 @@
   ],
   "license": "EPL-2.0",
   "dependencies": {
+    "@googleapis/homegraph": "^2.0.0",
     "actions-on-google": "^2.14.0",
     "glob": "^7.1.7",
     "uuid": "^3.4.0"

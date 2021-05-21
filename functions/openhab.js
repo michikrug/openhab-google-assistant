@@ -244,11 +244,11 @@ class OpenHAB {
     });
   }
 
-  onStateReport(req, res, app) {
+  onStateReport(req, res, homegraphClient) {
     const userId = req.headers['x-openhab-user'];
-    this.handleStateReport(req.body, userId, app)
+    this.handleStateReport(req.body, userId, homegraphClient)
       .then((result) => {
-        res.json(result);
+        res.json(result.statusText);
       })
       .catch((error) => {
         res.json({
@@ -261,8 +261,8 @@ class OpenHAB {
   /**
    * @param {object} item
    */
-  handleStateReport(item, userId, app) {
-    const payload = { devices: { states: {} } };
+  handleStateReport(item, userId, homegraphClient) {
+    const payload = { devices: { states: {}, notifications: {} } };
     const DeviceType = OpenHAB.getDeviceForItem(item);
     if (!DeviceType) {
       throw { statusCode: 404 };
@@ -271,10 +271,12 @@ class OpenHAB {
       throw { statusCode: 406 };
     }
     payload.devices.states[item.name] = DeviceType.getState(item);
-    return app.reportState({
-      requestId: uuidv4(),
-      agentUserId: userId,
-      payload: payload
+    return homegraphClient.devices.reportStateAndNotification({
+      requestBody: {
+        requestId: uuidv4(),
+        agentUserId: userId,
+        payload: payload
+      }
     });
   }
 }

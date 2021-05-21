@@ -18,6 +18,7 @@
  * @author Michael Krug - Rework
  *
  */
+const { v4: uuidv4 } = require('uuid');
 const glob = require('glob');
 
 const Commands = [];
@@ -244,15 +245,17 @@ class OpenHAB {
   }
 
   onStateReport(req, res, app) {
-    try {
-      const userId = req.headers['x-openhab-user'];
-      res.json(this.handleStateReport(req.body, userId, app));
-    } catch (error) {
-      res.json({
-        status: 'ERROR',
-        errorCode: error.statusCode == 404 ? 'deviceNotFound' : 'deviceNotReady'
+    const userId = req.headers['x-openhab-user'];
+    this.handleStateReport(req.body, userId, app)
+      .then((result) => {
+        res.json(result);
+      })
+      .catch((error) => {
+        res.json({
+          status: 'ERROR',
+          errorCode: !error.statusCode ? error : error.statusCode == 404 ? 'deviceNotFound' : 'deviceNotReady'
+        });
       });
-    }
   }
 
   /**
@@ -269,7 +272,7 @@ class OpenHAB {
     }
     payload.devices.states[item.name] = DeviceType.getState(item);
     return app.reportState({
-      requestId: Date.now().toString(),
+      requestId: uuidv4(),
       agentUserId: userId,
       payload: payload
     });

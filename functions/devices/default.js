@@ -90,6 +90,9 @@ class DefaultDevice {
         itemType: itemType
       }
     };
+    if (config.willReportState) {
+      metadata.traits.push('action.devices.traits.RunCycle');
+    }
     if (config.inverted === true) {
       metadata.customData.inverted = true;
     }

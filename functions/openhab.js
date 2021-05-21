@@ -262,7 +262,18 @@ class OpenHAB {
    * @param {object} item
    */
   handleStateReport(item, userId, homegraphClient) {
-    const payload = { devices: { states: {}, notifications: {} } };
+    const payload = {
+      devices: {
+        states: {},
+        notifications: {
+          RunCycle: {
+            priority: 0,
+            status: 'SUCCESS',
+            currentCycleRemainingTime: 0
+          }
+        }
+      }
+    };
     const DeviceType = OpenHAB.getDeviceForItem(item);
     if (!DeviceType) {
       throw { statusCode: 404 };

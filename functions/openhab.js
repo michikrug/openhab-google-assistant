@@ -273,11 +273,11 @@ class OpenHAB {
       throw { statusCode: 406 };
     }
     const state = DeviceType.getState(item);
-    if (state) {
+    if (Object.keys(state)) {
       payload.devices.states[item.name] = state;
     }
     const notification = DeviceType.getNotification(item);
-    if (notification) {
+    if (Object.keys(notification)) {
       payload.devices.notifications[item.name] = notification;
     }
     return homegraphClient.devices.reportStateAndNotification({

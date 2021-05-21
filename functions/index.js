@@ -27,17 +27,8 @@ const apiHandler = new ApiHandler(config);
 const openHAB = new OpenHAB(apiHandler);
 
 const homegraph = require('@googleapis/homegraph');
-let homegraphClient = {};
-const auth = new homegraph.auth.GoogleAuth({
-  keyFilename: config.jwt,
-  scopes: ['https://www.googleapis.com/auth/homegraph']
-});
-auth.getClient().then((authClient) => {
-  homegraphClient = homegraph.homegraph({
-    version: 'v1',
-    auth: authClient
-  });
-});
+const homegraphAuth = new homegraph.auth.JWT(null, config.jwt, null, 'https://www.googleapis.com/auth/homegraph');
+const homegraphClient = homegraph.homegraph({ version: 'v1', auth: homegraphAuth });
 
 app.onDisconnect(() => openHAB.onDisconnect());
 app.onExecute((body, headers) => openHAB.onExecute(body, headers));

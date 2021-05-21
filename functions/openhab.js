@@ -301,6 +301,7 @@ class OpenHAB {
     return homegraphClient.devices.reportStateAndNotification({
       requestBody: {
         requestId: uuidv4(),
+        eventId: uuidv4(),
         agentUserId: userId,
         payload: payload
       }

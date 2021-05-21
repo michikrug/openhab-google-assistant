@@ -45,6 +45,17 @@ class Sensor extends DefaultDevice {
     };
   }
 
+  static getNotification(item) {
+    const config = this.getConfig(item);
+    return {
+      SensorState: {
+        priority: 0,
+        name: config.sensorName,
+        currentSensorState: this.translateStateToGoogle(item)
+      }
+    };
+  }
+
   static translateStateToGoogle(item) {
     const config = this.getConfig(item);
     if ('states' in config) {

@@ -244,24 +244,15 @@ class OpenHAB {
   }
 
   onStateReport(req, res, app) {
-    const userId = req.headers['x-openhab-user'];
-    this._apiHandler
-      .getItem(req.body.deviceId)
-      .then((item) => {
-        this.handleStateReport(item, userId, app)
-          .then((resu) => {
-            res.json(resu);
-          })
-          .catch((error) => {
-            throw error;
-          });
-      })
-      .catch((error) => {
-        res.json({
-          status: 'ERROR',
-          errorCode: error.statusCode == 404 ? 'deviceNotFound' : 'deviceNotReady'
-        });
+    try {
+      const userId = req.headers['x-openhab-user'];
+      res.json(this.handleStateReport(req.body, userId, app));
+    } catch (error) {
+      res.json({
+        status: 'ERROR',
+        errorCode: error.statusCode == 404 ? 'deviceNotFound' : 'deviceNotReady'
       });
+    }
   }
 
   /**

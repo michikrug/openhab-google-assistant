@@ -2,7 +2,7 @@ import getopt
 import socket
 import sys
 from http import HTTPStatus
-from http.client import HTTPConnection
+from http.client import HTTPConnection, HTTPSConnection
 
 
 class StateReporter():
@@ -21,7 +21,10 @@ class StateReporter():
 
     def update_state(self, item_name):
         try:
-            http_get = HTTPConnection(host=self.oh_host, port=self.oh_port, timeout=3)
+            if self.oh_port == 443:
+                http_get = HTTPSConnection(host=self.oh_host, port=self.oh_port, timeout=3)
+            else:
+                http_get = HTTPConnection(host=self.oh_host, port=self.oh_port, timeout=3)
             http_get.request('GET', '/rest/items/' + item_name + '?metadata=ga,synonyms')
             response = http_get.getresponse()
             if response.status == HTTPStatus.NOT_FOUND:
@@ -34,7 +37,10 @@ class StateReporter():
             raise StateReporter.ApiConnectionError
 
         try:
-            http_post = HTTPConnection(host=self.ga_host, port=self.ga_port, timeout=3)
+            if self.ga_port == 443:
+                http_post = HTTPSConnection(host=self.ga_host, port=self.ga_port, timeout=3)
+            else:
+                http_post = HTTPConnection(host=self.ga_host, port=self.ga_port, timeout=3)
             headers = {'Content-Type': 'application/json', 'x-openhab-user': self.ga_user}
             http_post.request('POST', '/reportstate', result, headers=headers)
             response = http_post.getresponse()

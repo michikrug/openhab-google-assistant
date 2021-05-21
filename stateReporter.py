@@ -1,4 +1,5 @@
 import getopt
+import os
 import socket
 import sys
 from http import HTTPStatus
@@ -97,14 +98,12 @@ if __name__ == "__main__":
     except getopt.GetoptError:
         pass
 
-    oh_host = None
-    oh_port = None
-    ga_host = None
-    ga_port = None
-    ga_user = None
+    oh_host = os.environ.get('SR_OH_HOST', None)
+    oh_port = os.environ.get('SR_OH_PORT', 8080)
+    ga_host = os.environ.get('SR_GA_HOST', None)
+    ga_port = os.environ.get('SR_GA_PORT', 443)
+    ga_user = os.environ.get('SR_GA_USER', None)
     item_name = None
-
-    print(opts)
 
     for opt, arg in opts:
         if opt == '-h':

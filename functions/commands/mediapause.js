@@ -6,10 +6,6 @@ class MediaPause extends DefaultCommand {
     return 'action.devices.commands.mediaPause';
   }
 
-  static requiresItem() {
-    return true;
-  }
-
   static getItemName(item) {
     const members = TV.getMembers(item);
     if ('tvTransport' in members) {

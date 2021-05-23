@@ -1,6 +1,10 @@
 const Device = require('../../functions/devices/specialcolorlight.js');
 
 describe('SpecialColorLight Device', () => {
+  test('isComplexDevice', () => {
+    expect(Device.isComplexDevice).toBe(true);
+  });
+
   test('isCompatible', () => {
     expect(
       Device.isCompatible({

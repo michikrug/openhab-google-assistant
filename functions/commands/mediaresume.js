@@ -6,10 +6,6 @@ class MediaResume extends DefaultCommand {
     return 'action.devices.commands.mediaResume';
   }
 
-  static requiresItem() {
-    return true;
-  }
-
   static getItemName(item) {
     const members = TV.getMembers(item);
     if ('tvTransport' in members) {

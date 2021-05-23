@@ -10,11 +10,6 @@ class ThermostatTemperatureSetpointLow extends DefaultCommand {
   static validateParams(params) {
     return 'thermostatTemperatureSetpointLow' in params && typeof params.thermostatTemperatureSetpointLow === 'number';
   }
-
-  static requiresItem() {
-    return true;
-  }
-
   static getItemName(item) {
     const members = Thermostat.getMembers(item);
     if ('thermostatTemperatureSetpointLow' in members) {

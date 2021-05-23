@@ -10,10 +10,6 @@ describe('appSelect Command', () => {
     expect(Command.validateParams(paramsName)).toBe(true);
   });
 
-  test('requiresItem', () => {
-    expect(Command.requiresItem()).toBe(true);
-  });
-
   test('getItemName', () => {
     expect(() => {
       Command.getItemName({ name: 'Item' });

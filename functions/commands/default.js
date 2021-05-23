@@ -68,14 +68,14 @@ class DefaultCommand {
    * @param {object} device
    */
   static isInverted(device) {
-    return device.customData && device.customData.inverted === true;
+    return (device.customData && device.customData.inverted === true) || false;
   }
 
   /**
    * @param {object} device
    */
   static requiresItem(device) {
-    return false;
+    return (device.customData && device.customData.complexDevice === true) || false;
   }
 
   /**

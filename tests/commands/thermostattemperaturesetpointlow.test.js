@@ -8,10 +8,6 @@ describe('ThermostatTemperatureSetpointLow Command', () => {
     expect(Command.validateParams(params)).toBe(true);
   });
 
-  test('requiresItem', () => {
-    expect(Command.requiresItem()).toBe(true);
-  });
-
   test('getItemName', () => {
     expect(() => {
       Command.getItemName({ name: 'Item' });

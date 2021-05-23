@@ -14,10 +14,6 @@ class SelectChannel extends DefaultCommand {
     );
   }
 
-  static requiresItem() {
-    return true;
-  }
-
   static getItemName(item) {
     const members = TV.getMembers(item);
     if ('tvChannel' in members) {

@@ -1,6 +1,10 @@
 const Device = require('../../functions/devices/fan.js');
 
 describe('Fan Device', () => {
+  test('isComplexDevice', () => {
+    expect(Device.isComplexDevice).toBe(true);
+  });
+
   test('isCompatible', () => {
     expect(
       Device.isCompatible({

@@ -1,9 +1,6 @@
 const Command = require('../../functions/commands/default.js');
 
 class TestCommand1 extends Command {
-  static requiresItem() {
-    return false;
-  }
   static convertParamsToValue() {
     return 'TEST';
   }
@@ -55,6 +52,8 @@ describe('Default Command', () => {
 
   test('requiresItem', () => {
     expect(Command.requiresItem({})).toBe(false);
+    expect(Command.requiresItem({ customData: {} })).toBe(false);
+    expect(Command.requiresItem({ customData: { complexDevice: true } })).toBe(true);
   });
 
   test('handleAuthPin', () => {

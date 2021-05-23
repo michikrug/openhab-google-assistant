@@ -8,11 +8,6 @@ describe('SetModes Command', () => {
     expect(Command.validateParams(params)).toBe(true);
   });
 
-  test('requiresItem', () => {
-    expect(Command.requiresItem({})).toBe(false);
-    expect(Command.requiresItem({ customData: { deviceType: 'DynamicModesLight' } })).toBe(true);
-  });
-
   describe('getItemName', () => {
     test('getItemName', () => {
       expect(Command.getItemName({ name: 'Item' }, {})).toBe('Item');

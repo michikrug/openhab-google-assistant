@@ -10,10 +10,6 @@ class SetInput extends DefaultCommand {
     return 'newInput' in params && typeof params.newInput === 'string';
   }
 
-  static requiresItem() {
-    return true;
-  }
-
   static getItemName(item) {
     const members = TV.getMembers(item);
     if ('tvInput' in members) {

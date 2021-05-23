@@ -6,6 +6,10 @@ class DefaultDevice {
     return '';
   }
 
+  static get isComplexDevice() {
+    return false;
+  }
+
   /**
    * @param {object} item
    */
@@ -87,7 +91,8 @@ class DefaultDevice {
       attributes: this.getAttributes(item),
       customData: {
         deviceType: this.name,
-        itemType: itemType
+        itemType: itemType,
+        complexDevice: this.isComplexDevice
       }
     };
     if (config.inverted === true) {

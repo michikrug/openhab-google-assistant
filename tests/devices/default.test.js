@@ -39,6 +39,7 @@ describe('Default Device', () => {
       attributes: {},
       customData: {
         ackNeeded: true,
+        complexDevice: false,
         deviceType: 'DefaultDevice',
         inverted: true,
         itemType: 'Number',

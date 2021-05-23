@@ -13,10 +13,6 @@ class ThermostatTemperatureSetpointHigh extends DefaultCommand {
     );
   }
 
-  static requiresItem() {
-    return true;
-  }
-
   static getItemName(item) {
     const members = Thermostat.getMembers(item);
     if ('thermostatTemperatureSetpointHigh' in members) {

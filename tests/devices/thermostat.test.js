@@ -1,6 +1,10 @@
 const Device = require('../../functions/devices/thermostat.js');
 
 describe('Thermostat Device', () => {
+  test('isComplexDevice', () => {
+    expect(Device.isComplexDevice).toBe(true);
+  });
+
   test('isCompatible', () => {
     expect(
       Device.isCompatible({

@@ -6,12 +6,6 @@ describe('OnOff Command', () => {
     expect(Command.validateParams({ on: true })).toBe(true);
   });
 
-  test('requiresItem', () => {
-    expect(Command.requiresItem({})).toBe(false);
-    expect(Command.requiresItem({ customData: { deviceType: 'SpecialColorLight' } })).toBe(true);
-    expect(Command.requiresItem({ customData: { deviceType: 'TV' } })).toBe(true);
-  });
-
   describe('getItemName', () => {
     test('getItemName', () => {
       expect(Command.getItemName({ name: 'Item' }, {})).toBe('Item');

@@ -1,6 +1,10 @@
 const DefaultDevice = require('./default.js');
 
 class DynamicModesDevice extends DefaultDevice {
+  static get isComplexDevice() {
+    return true;
+  }
+
   static getTraits() {
     return ['action.devices.traits.Modes'];
   }

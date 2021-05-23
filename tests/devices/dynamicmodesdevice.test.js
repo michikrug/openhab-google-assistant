@@ -33,6 +33,10 @@ describe('DynamicModesDevice Device', () => {
     ]
   };
 
+  test('isComplexDevice', () => {
+    expect(Device.isComplexDevice).toBe(true);
+  });
+
   test('matchesItemType', () => {
     expect(Device.matchesItemType(item)).toBe(true);
     expect(Device.matchesItemType({ type: 'Color' })).toBe(false);

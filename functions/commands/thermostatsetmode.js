@@ -10,10 +10,6 @@ class ThermostatSetMode extends DefaultCommand {
     return 'thermostatMode' in params && typeof params.thermostatMode === 'string';
   }
 
-  static requiresItem() {
-    return true;
-  }
-
   static getItemName(item) {
     const members = Thermostat.getMembers(item);
     if ('thermostatMode' in members) {

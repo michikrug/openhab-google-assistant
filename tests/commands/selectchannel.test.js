@@ -8,10 +8,6 @@ describe('selectChannel Command', () => {
     expect(Command.validateParams({ channelNumber: '1' })).toBe(true);
   });
 
-  test('requiresItem', () => {
-    expect(Command.requiresItem()).toBe(true);
-  });
-
   test('getItemName', () => {
     expect(() => {
       Command.getItemName({ name: 'Item' });

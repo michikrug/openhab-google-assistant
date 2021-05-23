@@ -103,6 +103,7 @@ describe('OpenHAB', () => {
           {
             attributes: {},
             customData: {
+              complexDevice: false,
               deviceType: 'Switch',
               itemType: 'Switch'
             },
@@ -167,6 +168,7 @@ describe('OpenHAB', () => {
           {
             attributes: {},
             customData: {
+              complexDevice: false,
               deviceType: 'Switch',
               itemType: 'Switch'
             },
@@ -194,6 +196,7 @@ describe('OpenHAB', () => {
               volumeCanMuteAndUnmute: true
             },
             customData: {
+              complexDevice: true,
               deviceType: 'TV',
               itemType: 'Group'
             },
@@ -632,7 +635,9 @@ describe('OpenHAB', () => {
           devices: [
             {
               id: 'TestItem',
-              customData: {}
+              customData: {
+                complexDevice: true
+              }
             }
           ],
           execution: [

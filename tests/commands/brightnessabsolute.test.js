@@ -7,12 +7,6 @@ describe('BrightnessAbsolute Command', () => {
     expect(Command.validateParams({ brightness: '100' })).toBe(false);
   });
 
-  test('requiresItem', () => {
-    expect(Command.requiresItem({})).toBe(false);
-    expect(Command.requiresItem({ customData: {} })).toBe(false);
-    expect(Command.requiresItem({ customData: { deviceType: 'SpecialColorLight' } })).toBe(true);
-  });
-
   test('getItemName', () => {
     expect(Command.getItemName({ name: 'Item' }, {})).toBe('Item');
     expect(Command.getItemName({ name: 'Item' }, { customData: {} })).toBe('Item');

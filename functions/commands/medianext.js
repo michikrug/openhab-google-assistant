@@ -6,10 +6,6 @@ class MediaNext extends DefaultCommand {
     return 'action.devices.commands.mediaNext';
   }
 
-  static requiresItem() {
-    return true;
-  }
-
   static getItemName(item) {
     const members = TV.getMembers(item);
     if ('tvTransport' in members) {

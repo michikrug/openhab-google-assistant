@@ -5,6 +5,10 @@ class TV extends DefaultDevice {
     return 'action.devices.types.TV';
   }
 
+  static get isComplexDevice() {
+    return true;
+  }
+
   static getTraits(item) {
     const traits = [];
     const members = this.getMembers(item);

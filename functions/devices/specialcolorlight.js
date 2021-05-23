@@ -5,6 +5,10 @@ class SpecialColorLight extends DefaultDevice {
     return 'action.devices.types.LIGHT';
   }
 
+  static get isComplexDevice() {
+    return true;
+  }
+
   static getTraits() {
     return ['action.devices.traits.OnOff', 'action.devices.traits.Brightness', 'action.devices.traits.ColorSetting'];
   }

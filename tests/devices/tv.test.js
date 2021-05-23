@@ -1,6 +1,10 @@
 const Device = require('../../functions/devices/tv.js');
 
 describe('TV Device', () => {
+  test('isComplexDevice', () => {
+    expect(Device.isComplexDevice).toBe(true);
+  });
+
   test('isCompatible', () => {
     expect(
       Device.isCompatible({

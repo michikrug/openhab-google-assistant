@@ -5,10 +5,6 @@ describe('mediaPrevious Command', () => {
     expect(Command.validateParams({})).toBe(true);
   });
 
-  test('requiresItem', () => {
-    expect(Command.requiresItem()).toBe(true);
-  });
-
   describe('getItemName', () => {
     test('getItemName', () => {
       const item = {

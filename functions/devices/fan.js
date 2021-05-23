@@ -5,6 +5,10 @@ class Fan extends DefaultDevice {
     return 'action.devices.types.FAN';
   }
 
+  static get isComplexDevice() {
+    return true;
+  }
+
   static getTraits(item) {
     const traits = [];
     const members = this.getMembers(item);

@@ -11,10 +11,6 @@ class ThermostatTemperatureSetpoint extends DefaultCommand {
     return 'thermostatTemperatureSetpoint' in params && typeof params.thermostatTemperatureSetpoint === 'number';
   }
 
-  static requiresItem() {
-    return true;
-  }
-
   static getItemName(item) {
     const members = Thermostat.getMembers(item);
     if ('thermostatTemperatureSetpoint' in members) {

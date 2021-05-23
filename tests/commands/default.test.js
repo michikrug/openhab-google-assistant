@@ -256,6 +256,27 @@ describe('Default Command', () => {
       ]);
     });
 
+    test('execute with ackNeeded, state and missing ack', async () => {
+      const devices = [{ id: 'Item1', customData: { ackNeeded: true } }];
+      const result = await TestCommand2.execute(apiHandler, devices, { on: true }, { pin: '1234' });
+      expect(getItemMock).toHaveBeenCalledTimes(1);
+      expect(sendCommandMock).toHaveBeenCalledTimes(0);
+      expect(result).toStrictEqual([
+        {
+          ids: ['Item1'],
+          challengeNeeded: {
+            type: 'ackNeeded'
+          },
+          errorCode: 'challengeNeeded',
+          states: {
+            on: true,
+            online: true
+          },
+          status: 'ERROR'
+        }
+      ]);
+    });
+
     test('execute with ack', async () => {
       const devices = [{ id: 'Item1', customData: { ackNeeded: true } }];
       const result = await TestCommand1.execute(apiHandler, devices, { on: true }, { ack: true });

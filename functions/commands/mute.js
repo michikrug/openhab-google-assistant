@@ -30,8 +30,6 @@ class Mute extends DefaultCommand {
       const members = TV.getMembers(item);
       if ('tvMute' in members) {
         itemType = 'Switch';
-      } else if ('tvVolume' in members) {
-        itemType = 'Dimmer';
       }
     }
     let mute = params.mute;

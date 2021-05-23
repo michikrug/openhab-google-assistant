@@ -14,6 +14,12 @@ describe('OnOff Command', () => {
 
     test('getItemName SpecialColorLight', () => {
       expect(() => {
+        Command.getItemName({ name: 'Item' }, { customData: { deviceType: 'DynamicModesLight' } });
+      }).toThrow();
+    });
+
+    test('getItemName SpecialColorLight', () => {
+      expect(() => {
         Command.getItemName({ name: 'Item' }, { customData: { deviceType: 'SpecialColorLight' } });
       }).toThrow();
       const item = {

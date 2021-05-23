@@ -20,7 +20,7 @@ class SetModes extends DefaultCommand {
       }
       throw { statusCode: 400 };
     }
-    if (deviceType === 'Fan') {
+    if (['AirPurifier', 'Fan', 'Hood'].includes(deviceType)) {
       const members = Fan.getMembers(item);
       if ('fanMode' in members) {
         return members.fanMode.name;

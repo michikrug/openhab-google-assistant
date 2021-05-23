@@ -30,11 +30,27 @@ describe('SetModes Command', () => {
           }
         ]
       };
-      expect(
-        Command.getItemName(item, {
-          customData: { deviceType: 'DynamicModesLight' }
-        })
-      ).toBe('CurrentMode');
+      expect(Command.getItemName(item, { customData: { deviceType: 'DynamicModesLight' } })).toBe('CurrentMode');
+    });
+
+    test('getItemName Fan', () => {
+      expect(() => {
+        Command.getItemName({ name: 'Item' }, { customData: { deviceType: 'Fan' } });
+      }).toThrow();
+      const item = {
+        members: [
+          {
+            name: 'ModeItem',
+            type: 'String',
+            metadata: {
+              ga: {
+                value: 'fanMode'
+              }
+            }
+          }
+        ]
+      };
+      expect(Command.getItemName(item, { customData: { deviceType: 'Fan' } })).toBe('ModeItem');
     });
   });
 

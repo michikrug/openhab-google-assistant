@@ -49,6 +49,29 @@ describe('OnOff Command', () => {
       };
       expect(Command.getItemName(item, { customData: { deviceType: 'TV' } })).toBe('PowerItem');
     });
+
+    test('getItemName Fan', () => {
+      expect(() => {
+        Command.getItemName({ name: 'Item' }, { customData: { deviceType: 'Fan', itemType: 'Group' } });
+      }).toThrow();
+      const item = {
+        members: [
+          {
+            name: 'PowerItem',
+            type: 'Switch',
+            metadata: {
+              ga: {
+                value: 'fanPower'
+              }
+            }
+          }
+        ]
+      };
+      expect(Command.getItemName(item, { customData: { deviceType: 'Fan', itemType: 'Group' } })).toBe('PowerItem');
+      expect(Command.getItemName({ name: 'Item' }, { customData: { deviceType: 'Fan', itemType: 'Dimmer' } })).toBe(
+        'Item'
+      );
+    });
   });
 
   describe('convertParamsToValue', () => {

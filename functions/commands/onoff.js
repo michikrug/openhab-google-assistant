@@ -1,6 +1,7 @@
 const DefaultCommand = require('./default.js');
 const SpecialColorLight = require('../devices/specialcolorlight.js');
 const TV = require('../devices/tv.js');
+const Fan = require('../devices/fan.js');
 
 class OnOff extends DefaultCommand {
   static get type() {
@@ -27,6 +28,13 @@ class OnOff extends DefaultCommand {
       const members = TV.getMembers(item);
       if ('tvPower' in members) {
         return members.tvPower.name;
+      }
+      throw { statusCode: 400 };
+    }
+    if (deviceType === 'Fan' && this.getItemType(device) !== 'Dimmer') {
+      const members = Fan.getMembers(item);
+      if ('fanPower' in members) {
+        return members.fanPower.name;
       }
       throw { statusCode: 400 };
     }

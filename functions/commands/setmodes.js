@@ -1,5 +1,6 @@
 const DefaultCommand = require('./default.js');
 const DynamicModesDevice = require('../devices/dynamicmodesdevice.js');
+const Fan = require('../devices/fan.js');
 
 class SetModes extends DefaultCommand {
   static get type() {
@@ -11,10 +12,18 @@ class SetModes extends DefaultCommand {
   }
 
   static getItemName(item, device) {
-    if (this.getDeviceType(device).startsWith('DynamicModes')) {
+    const deviceType = this.getDeviceType(device);
+    if (deviceType.startsWith('DynamicModes')) {
       const members = DynamicModesDevice.getMembers(item);
       if ('modesCurrentMode' in members) {
         return members.modesCurrentMode.name;
+      }
+      throw { statusCode: 400 };
+    }
+    if (deviceType === 'Fan') {
+      const members = Fan.getMembers(item);
+      if ('fanMode' in members) {
+        return members.fanMode.name;
       }
       throw { statusCode: 400 };
     }

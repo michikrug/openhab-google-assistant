@@ -38,8 +38,7 @@ class DefaultDevice {
   static matchesItemType(item) {
     return (
       !this.requiredItemTypes.length ||
-      this.requiredItemTypes.includes(item.type) ||
-      (item.type === 'Group' && item.groupType && this.requiredItemTypes.includes(item.groupType))
+      this.requiredItemTypes.includes((item.groupType || item.type || '').split(':')[0])
     );
   }
 
@@ -62,7 +61,7 @@ class DefaultDevice {
    */
   static getMetadata(item) {
     const config = this.getConfig(item);
-    const itemType = item.type === 'Group' && item.groupType ? item.groupType : item.type;
+    const itemType = item.groupType || item.type;
     const deviceName = config.name || item.label || item.name;
     const metadata = {
       id: item.name,

@@ -12,7 +12,7 @@ class Fan extends DefaultDevice {
   static getTraits(item) {
     const traits = [];
     const members = this.getMembers(item);
-    const itemType = item.type === 'Group' && item.groupType ? item.groupType : item.type;
+    const itemType = item.groupType || item.type;
     if (itemType === 'Dimmer' || 'fanPower' in members) traits.push('action.devices.traits.OnOff');
     if (itemType === 'Dimmer' || 'fanSpeed' in members) traits.push('action.devices.traits.FanSpeed');
     if ('fanMode' in members) traits.push('action.devices.traits.Modes');
@@ -21,7 +21,7 @@ class Fan extends DefaultDevice {
   }
 
   static matchesItemType(item) {
-    const itemType = item.type === 'Group' && item.groupType ? item.groupType : item.type;
+    const itemType = item.groupType || item.type;
     return itemType === 'Dimmer' || (item.type === 'Group' && Object.keys(this.getMembers(item)).length > 0);
   }
 
@@ -119,7 +119,7 @@ class Fan extends DefaultDevice {
   }
 
   static getState(item) {
-    const itemType = item.type === 'Group' && item.groupType ? item.groupType : item.type;
+    const itemType = item.groupType || item.type;
     if (itemType === 'Dimmer') {
       return {
         currentFanSpeedSetting: item.state.toString(),

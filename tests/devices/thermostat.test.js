@@ -5,33 +5,39 @@ describe('Thermostat Device', () => {
     expect(Device.isComplexDevice).toBe(true);
   });
 
-  test('isCompatible', () => {
+  test('matchesDeviceType', () => {
     expect(
-      Device.isCompatible({
+      Device.matchesDeviceType({
         metadata: {
           ga: {
             value: 'THERMOSTAT'
           }
         }
       })
+    ).toBe(false);
+    expect(
+      Device.matchesDeviceType({
+        metadata: {
+          ga: {
+            value: 'THERMOSTAT'
+          }
+        },
+        members: [
+          {
+            metadata: {
+              ga: {
+                value: 'thermostatTemperatureAmbient'
+              }
+            }
+          }
+        ]
+      })
     ).toBe(true);
   });
 
   test('matchesItemType', () => {
-    const item = {
-      type: 'Group',
-      members: [
-        {
-          metadata: {
-            ga: {
-              value: 'thermostatTemperatureAmbient'
-            }
-          }
-        }
-      ]
-    };
-    expect(Device.matchesItemType(item)).toBe(true);
-    expect(Device.matchesItemType({ type: 'Group' })).toBe(false);
+    expect(Device.matchesItemType({ type: 'Number' })).toBe(false);
+    expect(Device.matchesItemType({ type: 'Group' })).toBe(true);
   });
 
   describe('useFahrenheit', () => {

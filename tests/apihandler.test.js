@@ -96,24 +96,9 @@ describe('ApiHandler', () => {
     test('getItem', async () => {
       const scope = nock('https://example.org')
         .get('/items/TestItem?metadata=ga,synonyms')
-        .reply(200, [{ name: 'TestItem' }]);
+        .reply(200, { name: 'TestItem' });
       const result = await apiHandler.getItem('TestItem');
-      expect(result).toStrictEqual([{ name: 'TestItem' }]);
-      expect(scope.isDone()).toBe(true);
-    });
-
-    test('getItem failed', async () => {
-      const scope = nock('https://example.org').get('/items/TestItem?metadata=ga,synonyms').reply(400, {});
-      let error = {};
-      try {
-        await apiHandler.getItem('TestItem');
-      } catch (e) {
-        error = e;
-      }
-      expect(error).toStrictEqual({
-        message: 'getItem failed',
-        statusCode: 400
-      });
+      expect(result).toStrictEqual({ name: 'TestItem' });
       expect(scope.isDone()).toBe(true);
     });
   });

@@ -38,7 +38,6 @@ describe('DynamicModesDevice Device', () => {
   });
 
   test('matchesItemType', () => {
-    expect(Device.matchesItemType(item)).toBe(true);
     expect(Device.matchesItemType({ type: 'Color' })).toBe(false);
     expect(Device.matchesItemType({ type: 'Group', groupType: 'Color' })).toBe(false);
     expect(Device.matchesItemType({ type: 'Group', groupType: 'Dimmer' })).toBe(false);

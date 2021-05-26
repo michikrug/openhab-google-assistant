@@ -5,8 +5,8 @@ class ModesDevice extends DefaultDevice {
     return ['action.devices.traits.Modes'];
   }
 
-  static matchesItemType(item) {
-    return super.matchesItemType(item) && !!this.getAttributes(item).availableModes;
+  static matchesDeviceType(item) {
+    return super.matchesDeviceType(item) && !!this.getAttributes(item).availableModes;
   }
 
   static getAttributes(item) {

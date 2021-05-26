@@ -5,14 +5,46 @@ describe('Fan Device', () => {
     expect(Device.isComplexDevice).toBe(true);
   });
 
-  test('isCompatible', () => {
+  test('matchesDeviceType', () => {
     expect(
-      Device.isCompatible({
+      Device.matchesDeviceType({
+        type: 'Dimmer',
         metadata: {
           ga: {
             value: 'FAN'
           }
         }
+      })
+    ).toBe(true);
+    expect(
+      Device.matchesDeviceType({
+        type: 'Group',
+        metadata: {
+          ga: {
+            value: 'FAN'
+          }
+        }
+      })
+    ).toBe(false);
+    expect(
+      Device.matchesDeviceType({
+        type: 'Group',
+        metadata: {
+          ga: {
+            value: 'FAN'
+          }
+        },
+        members: [
+          {
+            type: 'Number',
+            state: '10',
+            metadata: {
+              ga: {
+                value: 'fanSpeed'
+              }
+            }
+          }
+        ]
       })
     ).toBe(true);
   });

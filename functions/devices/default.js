@@ -24,8 +24,8 @@ class DefaultDevice {
   /**
    * @param {object} item
    */
-  static isCompatible(item) {
-    return (
+  static matchesDeviceType(item) {
+    return !!(
       item.metadata &&
       item.metadata.ga &&
       this.type.toLowerCase() === `action.devices.types.${item.metadata.ga.value}`.toLowerCase()
@@ -36,7 +36,7 @@ class DefaultDevice {
    * @param {object} item
    */
   static matchesItemType(item) {
-    return (
+    return !!(
       !this.requiredItemTypes.length ||
       this.requiredItemTypes.includes((item.groupType || item.type || '').split(':')[0])
     );

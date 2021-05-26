@@ -20,9 +20,13 @@ class Fan extends DefaultDevice {
     return traits;
   }
 
-  static matchesItemType(item) {
+  static get requiredItemTypes() {
+    return ['Group', 'Dimmer'];
+  }
+
+  static matchesDeviceType(item) {
     const itemType = item.groupType || item.type;
-    return itemType === 'Dimmer' || (item.type === 'Group' && Object.keys(this.getMembers(item)).length > 0);
+    return super.matchesDeviceType(item) && (itemType === 'Dimmer' || Object.keys(this.getMembers(item)).length > 0);
   }
 
   static getAttributes(item) {

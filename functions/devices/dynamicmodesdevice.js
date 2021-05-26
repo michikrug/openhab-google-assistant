@@ -9,8 +9,12 @@ class DynamicModesDevice extends DefaultDevice {
     return ['action.devices.traits.Modes'];
   }
 
-  static matchesItemType(item) {
-    return item.type === 'Group' && !!this.getAttributes(item).availableModes;
+  static get requiredItemTypes() {
+    return ['Group'];
+  }
+
+  static matchesDeviceType(item) {
+    return super.matchesDeviceType(item) && !!this.getAttributes(item).availableModes;
   }
 
   static getAttributes(item) {

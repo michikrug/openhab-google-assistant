@@ -5,21 +5,8 @@ describe('SpecialColorLight Device', () => {
     expect(Device.isComplexDevice).toBe(true);
   });
 
-  test('isCompatible', () => {
-    expect(
-      Device.isCompatible({
-        metadata: {
-          ga: {
-            value: 'LIGHT'
-          }
-        }
-      })
-    ).toBe(true);
-  });
-
-  test('matchesItemType', () => {
+  test('matchesDeviceType', () => {
     const item = {
-      type: 'Group',
       metadata: {
         ga: {
           value: 'LIGHT',
@@ -46,7 +33,6 @@ describe('SpecialColorLight Device', () => {
       ]
     };
     const item2 = {
-      type: 'Group',
       metadata: {
         ga: {
           value: 'LIGHT'
@@ -70,7 +56,6 @@ describe('SpecialColorLight Device', () => {
       ]
     };
     const item3 = {
-      type: 'Group',
       metadata: {
         ga: {
           value: 'LIGHT',
@@ -96,9 +81,13 @@ describe('SpecialColorLight Device', () => {
         }
       ]
     };
-    expect(Device.matchesItemType(item)).toBe(true);
-    expect(Device.matchesItemType(item2)).toBe(false);
-    expect(Device.matchesItemType(item3)).toBe(true);
+    expect(Device.matchesDeviceType(item)).toBe(true);
+    expect(Device.matchesDeviceType(item2)).toBe(false);
+    expect(Device.matchesDeviceType(item3)).toBe(true);
+  });
+
+  test('matchesItemType', () => {
+    expect(Device.matchesItemType({ type: 'Group' })).toBe(true);
     expect(Device.matchesItemType({ type: 'Color' })).toBe(false);
     expect(Device.matchesItemType({ type: 'Group', groupType: 'Color' })).toBe(false);
     expect(Device.matchesItemType({ type: 'Group', groupType: 'Dimmer' })).toBe(false);

@@ -11,10 +11,14 @@ class ThermostatTemperatureSetpoint extends DefaultCommand {
     return 'thermostatTemperatureSetpoint' in params && typeof params.thermostatTemperatureSetpoint === 'number';
   }
 
-  static getItemName(item) {
-    const members = Thermostat.getMembers(item);
+  static requiresItem() {
+    return true;
+  }
+
+  static getItemName(device) {
+    const members = (device.customData && device.customData.members) || {};
     if ('thermostatTemperatureSetpoint' in members) {
-      return members.thermostatTemperatureSetpoint.name;
+      return members.thermostatTemperatureSetpoint;
     }
     throw { statusCode: 400 };
   }

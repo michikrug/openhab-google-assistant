@@ -6,10 +6,6 @@ class DefaultDevice {
     return '';
   }
 
-  static get isComplexDevice() {
-    return false;
-  }
-
   /**
    * @param {object} item
    */
@@ -90,8 +86,7 @@ class DefaultDevice {
       attributes: this.getAttributes(item),
       customData: {
         deviceType: this.name,
-        itemType: itemType,
-        complexDevice: this.isComplexDevice
+        itemType: itemType
       }
     };
     if (config.inverted === true) {
@@ -102,6 +97,13 @@ class DefaultDevice {
     }
     if (typeof config.pinNeeded === 'string' || typeof config.tfaPin === 'string') {
       metadata.customData.pinNeeded = config.pinNeeded || config.tfaPin;
+    }
+    if (typeof this.getMembers === 'function') {
+      const members = this.getMembers(item);
+      metadata.customData.members = {};
+      for (const member in members) {
+        metadata.customData.members[member] = members[member].name;
+      }
     }
     return metadata;
   }

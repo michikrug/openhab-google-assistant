@@ -10,47 +10,40 @@ describe('SetModes Command', () => {
 
   describe('getItemName', () => {
     test('getItemName', () => {
-      expect(Command.getItemName({ name: 'Item' }, {})).toBe('Item');
-      expect(Command.getItemName({ name: 'Item' }, { customData: {} })).toBe('Item');
+      expect(Command.getItemName({ id: 'Item' })).toBe('Item');
+      expect(Command.getItemName({ id: 'Item', customData: {} })).toBe('Item');
     });
 
     test('getItemName DynamicModesLight', () => {
       expect(() => {
-        Command.getItemName({ name: 'Item' }, { customData: { deviceType: 'DynamicModesLight' } });
+        Command.getItemName({ id: 'Item', customData: { deviceType: 'DynamicModesLight' } });
       }).toThrow();
-      const item = {
-        members: [
-          {
-            name: 'CurrentMode',
-            metadata: {
-              ga: {
-                value: 'modesCurrentMode'
-              }
-            }
+      const device = {
+        id: 'Item',
+        customData: {
+          deviceType: 'DynamicModesLight',
+          members: {
+            modesCurrentMode: 'CurrentMode'
           }
-        ]
+        }
       };
-      expect(Command.getItemName(item, { customData: { deviceType: 'DynamicModesLight' } })).toBe('CurrentMode');
+      expect(Command.getItemName(device)).toBe('CurrentMode');
     });
 
     test('getItemName Fan', () => {
       expect(() => {
-        Command.getItemName({ name: 'Item' }, { customData: { deviceType: 'Fan' } });
+        Command.getItemName({ name: 'Item', customData: { deviceType: 'Fan' } });
       }).toThrow();
-      const item = {
-        members: [
-          {
-            name: 'ModeItem',
-            type: 'String',
-            metadata: {
-              ga: {
-                value: 'fanMode'
-              }
-            }
+      const device = {
+        id: 'Item',
+        customData: {
+          deviceType: 'Fan',
+          members: {
+            fanMode: 'ModeItem'
           }
-        ]
+        }
       };
-      expect(Command.getItemName(item, { customData: { deviceType: 'Fan' } })).toBe('ModeItem');
+      expect(Command.getItemName(device)).toBe('ModeItem');
     });
   });
 

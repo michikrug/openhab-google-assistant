@@ -103,7 +103,6 @@ describe('OpenHAB', () => {
           {
             attributes: {},
             customData: {
-              complexDevice: false,
               deviceType: 'Switch',
               itemType: 'Switch'
             },
@@ -168,7 +167,6 @@ describe('OpenHAB', () => {
           {
             attributes: {},
             customData: {
-              complexDevice: false,
               deviceType: 'Switch',
               itemType: 'Switch'
             },
@@ -196,9 +194,12 @@ describe('OpenHAB', () => {
               volumeCanMuteAndUnmute: true
             },
             customData: {
-              complexDevice: true,
               deviceType: 'TV',
-              itemType: 'Group'
+              itemType: 'Group',
+              members: {
+                tvMute: 'TVMute',
+                tvPower: 'TVPower'
+              }
             },
             deviceInfo: {
               manufacturer: 'openHAB',
@@ -636,7 +637,10 @@ describe('OpenHAB', () => {
             {
               id: 'TestItem',
               customData: {
-                complexDevice: true
+                members: {
+                  thermostatTemperatureSetpointHigh: 'Test1',
+                  thermostatTemperatureSetpointLow: 'Test2'
+                }
               }
             }
           ],

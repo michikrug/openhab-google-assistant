@@ -8,75 +8,64 @@ describe('OnOff Command', () => {
 
   describe('getItemName', () => {
     test('getItemName', () => {
-      expect(Command.getItemName({ name: 'Item' }, {})).toBe('Item');
-      expect(Command.getItemName({ name: 'Item' }, { customData: {} })).toBe('Item');
+      expect(Command.getItemName({ id: 'Item' })).toBe('Item');
+      expect(Command.getItemName({ id: 'Item', customData: {} })).toBe('Item');
     });
 
     test('getItemName SpecialColorLight', () => {
       expect(() => {
-        Command.getItemName({ name: 'Item' }, { customData: { deviceType: 'DynamicModesLight' } });
+        Command.getItemName({ id: 'Item', customData: { deviceType: 'DynamicModesLight' } });
       }).toThrow();
     });
 
     test('getItemName SpecialColorLight', () => {
       expect(() => {
-        Command.getItemName({ name: 'Item' }, { customData: { deviceType: 'SpecialColorLight' } });
+        Command.getItemName({ id: 'Item', customData: { deviceType: 'SpecialColorLight' } });
       }).toThrow();
-      const item = {
-        members: [
-          {
-            name: 'BrightnessItem',
-            metadata: {
-              ga: {
-                value: 'lightBrightness'
-              }
-            }
+      const device = {
+        id: 'Item',
+        customData: {
+          deviceType: 'SpecialColorLight',
+          members: {
+            lightBrightness: 'BrightnessItem'
           }
-        ]
+        }
       };
-      expect(Command.getItemName(item, { customData: { deviceType: 'SpecialColorLight' } })).toBe('BrightnessItem');
+      expect(Command.getItemName(device)).toBe('BrightnessItem');
     });
 
     test('getItemName TV', () => {
       expect(() => {
-        Command.getItemName({ name: 'Item' }, { customData: { deviceType: 'TV' } });
+        Command.getItemName({ name: 'Item', customData: { deviceType: 'TV' } });
       }).toThrow();
-      const item = {
-        members: [
-          {
-            name: 'PowerItem',
-            metadata: {
-              ga: {
-                value: 'tvPower'
-              }
-            }
+      const device = {
+        id: 'Item',
+        customData: {
+          deviceType: 'TV',
+          members: {
+            tvPower: 'PowerItem'
           }
-        ]
+        }
       };
-      expect(Command.getItemName(item, { customData: { deviceType: 'TV' } })).toBe('PowerItem');
+      expect(Command.getItemName(device)).toBe('PowerItem');
     });
 
     test('getItemName Fan', () => {
       expect(() => {
-        Command.getItemName({ name: 'Item' }, { customData: { deviceType: 'Fan', itemType: 'Group' } });
+        Command.getItemName({ name: 'Item', customData: { deviceType: 'Fan', itemType: 'Group' } });
       }).toThrow();
-      const item = {
-        members: [
-          {
-            name: 'PowerItem',
-            type: 'Switch',
-            metadata: {
-              ga: {
-                value: 'fanPower'
-              }
-            }
+      const device = {
+        id: 'Item',
+        customData: {
+          deviceType: 'Fan',
+          itemType: 'Group',
+          members: {
+            fanPower: 'PowerItem'
           }
-        ]
+        }
       };
-      expect(Command.getItemName(item, { customData: { deviceType: 'Fan', itemType: 'Group' } })).toBe('PowerItem');
-      expect(Command.getItemName({ name: 'Item' }, { customData: { deviceType: 'Fan', itemType: 'Dimmer' } })).toBe(
-        'Item'
-      );
+      expect(Command.getItemName(device)).toBe('PowerItem');
+      expect(Command.getItemName({ id: 'Item', customData: { deviceType: 'Fan', itemType: 'Dimmer' } })).toBe('Item');
     });
   });
 

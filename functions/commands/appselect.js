@@ -13,10 +13,14 @@ class AppSelect extends DefaultCommand {
     );
   }
 
-  static getItemName(item) {
-    const members = TV.getMembers(item);
+  static requiresItem() {
+    return true;
+  }
+
+  static getItemName(device) {
+    const members = (device.customData && device.customData.members) || {};
     if ('tvApplication' in members) {
-      return members.tvApplication.name;
+      return members.tvApplication;
     }
     throw { statusCode: 400 };
   }

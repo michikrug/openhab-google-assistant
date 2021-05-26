@@ -10,31 +10,25 @@ describe('SetFanSpeed Command', () => {
 
   describe('getItemName', () => {
     test('getItemName', () => {
-      expect(Command.getItemName({ name: 'Item' }, {})).toBe('Item');
-      expect(Command.getItemName({ name: 'Item' }, { customData: {} })).toBe('Item');
+      expect(Command.getItemName({ id: 'Item' })).toBe('Item');
+      expect(Command.getItemName({ id: 'Item', customData: {} })).toBe('Item');
     });
 
     test('getItemName Fan', () => {
       expect(() => {
-        Command.getItemName({ name: 'Item' }, { customData: { deviceType: 'Fan', itemType: 'Group' } });
+        Command.getItemName({ id: 'Item', customData: { deviceType: 'Fan', itemType: 'Group' } });
       }).toThrow();
-      const item = {
-        members: [
-          {
-            name: 'SpeedItem',
-            type: 'Dimmer',
-            metadata: {
-              ga: {
-                value: 'fanSpeed'
-              }
-            }
+      const device = {
+        customData: {
+          deviceType: 'Fan',
+          itemType: 'Group',
+          members: {
+            fanSpeed: 'SpeedItem'
           }
-        ]
+        }
       };
-      expect(Command.getItemName(item, { customData: { deviceType: 'Fan', itemType: 'Group' } })).toBe('SpeedItem');
-      expect(Command.getItemName({ name: 'Item' }, { customData: { deviceType: 'Fan', itemType: 'Dimmer' } })).toBe(
-        'Item'
-      );
+      expect(Command.getItemName(device)).toBe('SpeedItem');
+      expect(Command.getItemName({ id: 'Item', customData: { deviceType: 'Fan', itemType: 'Dimmer' } })).toBe('Item');
     });
   });
 

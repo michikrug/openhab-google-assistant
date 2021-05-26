@@ -1,7 +1,4 @@
 const DefaultCommand = require('./default.js');
-const SpecialColorLight = require('../devices/specialcolorlight.js');
-const TV = require('../devices/tv.js');
-const Fan = require('../devices/fan.js');
 
 class OnOff extends DefaultCommand {
   static get type() {
@@ -12,33 +9,31 @@ class OnOff extends DefaultCommand {
     return 'on' in params && typeof params.on === 'boolean';
   }
 
-  static getItemName(item, device) {
+  static getItemName(device) {
     const deviceType = this.getDeviceType(device);
     if (deviceType.startsWith('DynamicModes')) {
       throw { statusCode: 400 };
     }
+    const members = (device.customData && device.customData.members) || {};
     if (deviceType === 'SpecialColorLight') {
-      const members = SpecialColorLight.getMembers(item);
       if ('lightBrightness' in members) {
-        return members.lightBrightness.name;
+        return members.lightBrightness;
       }
       throw { statusCode: 400 };
     }
     if (deviceType === 'TV') {
-      const members = TV.getMembers(item);
       if ('tvPower' in members) {
-        return members.tvPower.name;
+        return members.tvPower;
       }
       throw { statusCode: 400 };
     }
     if (['AirPurifier', 'Fan', 'Hood'].includes(deviceType) && this.getItemType(device) !== 'Dimmer') {
-      const members = Fan.getMembers(item);
       if ('fanPower' in members) {
-        return members.fanPower.name;
+        return members.fanPower;
       }
       throw { statusCode: 400 };
     }
-    return item.name;
+    return device.id;
   }
 
   static convertParamsToValue(params, _, device) {

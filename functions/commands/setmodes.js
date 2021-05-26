@@ -1,6 +1,4 @@
 const DefaultCommand = require('./default.js');
-const DynamicModesDevice = require('../devices/dynamicmodesdevice.js');
-const Fan = require('../devices/fan.js');
 
 class SetModes extends DefaultCommand {
   static get type() {
@@ -11,23 +9,22 @@ class SetModes extends DefaultCommand {
     return 'updateModeSettings' in params && typeof params.updateModeSettings === 'object';
   }
 
-  static getItemName(item, device) {
+  static getItemName(device) {
     const deviceType = this.getDeviceType(device);
+    const members = (device.customData && device.customData.members) || {};
     if (deviceType.startsWith('DynamicModes')) {
-      const members = DynamicModesDevice.getMembers(item);
       if ('modesCurrentMode' in members) {
-        return members.modesCurrentMode.name;
+        return members.modesCurrentMode;
       }
       throw { statusCode: 400 };
     }
     if (['AirPurifier', 'Fan', 'Hood'].includes(deviceType)) {
-      const members = Fan.getMembers(item);
       if ('fanMode' in members) {
-        return members.fanMode.name;
+        return members.fanMode;
       }
       throw { statusCode: 400 };
     }
-    return item.name;
+    return device.id;
   }
 
   static convertParamsToValue(params) {

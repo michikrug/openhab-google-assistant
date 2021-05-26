@@ -1,5 +1,4 @@
 const DefaultCommand = require('./default.js');
-const Fan = require('../devices/fan.js');
 
 class SetFanSpeed extends DefaultCommand {
   static get type() {
@@ -10,16 +9,16 @@ class SetFanSpeed extends DefaultCommand {
     return 'fanSpeed' in params && typeof params.fanSpeed === 'string';
   }
 
-  static getItemName(item, device) {
+  static getItemName(device) {
     const deviceType = this.getDeviceType(device);
     if (['AirPurifier', 'Fan', 'Hood'].includes(deviceType) && this.getItemType(device) !== 'Dimmer') {
-      const members = Fan.getMembers(item);
+      const members = (device.customData && device.customData.members) || {};
       if ('fanSpeed' in members) {
-        return members.fanSpeed.name;
+        return members.fanSpeed;
       }
       throw { statusCode: 400 };
     }
-    return item.name;
+    return device.id;
   }
 
   static convertParamsToValue(params) {

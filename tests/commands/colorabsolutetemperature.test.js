@@ -14,29 +14,26 @@ describe('ColorAbsoluteTemperature Command', () => {
   });
 
   test('requiresItem', () => {
-    expect(Command.requiresItem()).toBe(true);
+    expect(Command.requiresItem({ id: 'Item', customData: { deviceType: 'Color' } })).toBe(false);
+    expect(Command.requiresItem({ id: 'Item', customData: { deviceType: 'SpecialColorLight' } })).toBe(true);
   });
 
   test('getItemName', () => {
-    expect(Command.getItemName({ name: 'Item' }, {})).toBe('Item');
-    expect(Command.getItemName({ name: 'Item' }, { customData: {} })).toBe('Item');
+    expect(Command.getItemName({ id: 'Item' })).toBe('Item');
+    expect(Command.getItemName({ id: 'Item', customData: {} })).toBe('Item');
     expect(() => {
-      Command.getItemName({ name: 'Item' }, { customData: { deviceType: 'SpecialColorLight' } });
+      Command.getItemName({ id: 'Item', customData: { deviceType: 'SpecialColorLight' } });
     }).toThrow();
-    const item = {
-      name: 'Item',
-      members: [
-        {
-          name: 'ColorItem',
-          metadata: {
-            ga: {
-              value: 'lightColorTemperature'
-            }
-          }
+    const device = {
+      id: 'Item',
+      customData: {
+        deviceType: 'SpecialColorLight',
+        members: {
+          lightColorTemperature: 'ColorItem'
         }
-      ]
+      }
     };
-    expect(Command.getItemName(item, { customData: { deviceType: 'SpecialColorLight' } })).toBe('ColorItem');
+    expect(Command.getItemName(device)).toBe('ColorItem');
   });
 
   describe('convertParamsToValue', () => {

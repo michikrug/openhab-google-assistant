@@ -5,11 +5,6 @@ class Thermostat extends DefaultDevice {
   static get type() {
     return 'action.devices.types.THERMOSTAT';
   }
-
-  static get isComplexDevice() {
-    return true;
-  }
-
   static getTraits() {
     return ['action.devices.traits.TemperatureSetting'];
   }

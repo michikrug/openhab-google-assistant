@@ -10,21 +10,16 @@ describe('SetInput Command', () => {
 
   test('getItemName', () => {
     expect(() => {
-      Command.getItemName({ name: 'Item' });
+      Command.getItemName({ id: 'Item' });
     }).toThrow();
-    const item = {
-      members: [
-        {
-          name: 'InputItem',
-          metadata: {
-            ga: {
-              value: 'tvInput'
-            }
-          }
+    const device = {
+      customData: {
+        members: {
+          tvInput: 'InputItem'
         }
-      ]
+      }
     };
-    expect(Command.getItemName(item)).toBe('InputItem');
+    expect(Command.getItemName(device)).toBe('InputItem');
   });
 
   test('convertParamsToValue', () => {

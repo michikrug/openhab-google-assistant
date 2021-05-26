@@ -47,13 +47,7 @@ describe('Default Command', () => {
   });
 
   test('getItemName', () => {
-    expect(Command.getItemName({ name: 'Item' }, {})).toBe('Item');
-  });
-
-  test('requiresItem', () => {
-    expect(Command.requiresItem({})).toBe(false);
-    expect(Command.requiresItem({ customData: {} })).toBe(false);
-    expect(Command.requiresItem({ customData: { complexDevice: true } })).toBe(true);
+    expect(Command.getItemName({ id: 'Item' })).toBe('Item');
   });
 
   test('handleAuthPin', () => {

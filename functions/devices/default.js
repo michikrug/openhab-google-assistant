@@ -1,4 +1,6 @@
 /* eslint-disable no-unused-vars */
+const packageVersion = require('../../package.json').version;
+
 class DefaultDevice {
   static get type() {
     return '';
@@ -33,8 +35,7 @@ class DefaultDevice {
   static matchesItemType(item) {
     return (
       !this.requiredItemTypes.length ||
-      this.requiredItemTypes.includes(item.type) ||
-      (item.type === 'Group' && item.groupType && this.requiredItemTypes.includes(item.groupType))
+      this.requiredItemTypes.includes((item.groupType || item.type || '').split(':')[0])
     );
   }
 
@@ -57,7 +58,7 @@ class DefaultDevice {
    */
   static getMetadata(item) {
     const config = this.getConfig(item);
-    const itemType = item.type === 'Group' && item.groupType ? item.groupType : item.type;
+    const itemType = item.groupType || item.type;
     const deviceName = config.name || item.label || item.name;
     const metadata = {
       id: item.name,
@@ -79,8 +80,8 @@ class DefaultDevice {
       deviceInfo: {
         manufacturer: 'openHAB',
         model: `${itemType}:${item.name}`,
-        hwVersion: '2.5.0',
-        swVersion: '2.5.0'
+        hwVersion: '3.0.0',
+        swVersion: packageVersion
       },
       attributes: this.getAttributes(item),
       customData: {

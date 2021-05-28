@@ -113,8 +113,8 @@ describe('Default Command', () => {
   describe('execute', () => {
     const getItemMock = jest.fn();
     const sendCommandMock = jest.fn();
-    sendCommandMock.mockReturnValue(Promise.resolve());
-    getItemMock.mockReturnValue(Promise.resolve({ name: 'TestItem' }));
+    sendCommandMock.mockResolvedValue();
+    getItemMock.mockResolvedValue({ name: 'TestItem' });
 
     const apiHandler = {
       getItem: getItemMock,
@@ -280,7 +280,7 @@ describe('Default Command', () => {
     });
 
     test('execute with device not found', async () => {
-      getItemMock.mockReturnValue(Promise.reject({ statusCode: '404' }));
+      getItemMock.mockRejectedValue({ statusCode: '404' });
       const devices = [{ id: 'Item1' }];
       const result = await TestCommand2.execute(apiHandler, devices, { on: true });
       expect(getItemMock).toHaveBeenCalledTimes(1);
@@ -309,7 +309,7 @@ describe('Default Command', () => {
     });
 
     test('execute with device offline', async () => {
-      sendCommandMock.mockReturnValue(Promise.reject({ statusCode: 500 }));
+      sendCommandMock.mockRejectedValue({ statusCode: 500 });
       const devices = [{ id: 'Item1' }];
       const result = await TestCommand1.execute(apiHandler, devices, { on: true });
       expect(getItemMock).toHaveBeenCalledTimes(0);
@@ -324,7 +324,7 @@ describe('Default Command', () => {
     });
 
     test('execute with errorCode', async () => {
-      sendCommandMock.mockReturnValue(Promise.reject({ errorCode: 'noAvailableChannel' }));
+      sendCommandMock.mockRejectedValue({ errorCode: 'noAvailableChannel' });
       const devices = [{ id: 'Item1' }];
       const result = await TestCommand1.execute(apiHandler, devices, { on: true });
       expect(getItemMock).toHaveBeenCalledTimes(0);

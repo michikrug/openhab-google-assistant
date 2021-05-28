@@ -38,7 +38,7 @@ describe('OpenHAB', () => {
 
     test('onSync failure', async () => {
       const handleSyncMock = jest.spyOn(openHAB, 'handleSync');
-      handleSyncMock.mockReturnValue(Promise.reject());
+      handleSyncMock.mockRejectedValue();
       const result = await openHAB.onSync({ requestId: '1234' }, {});
       expect(handleSyncMock).toBeCalledTimes(1);
       expect(result).toStrictEqual({
@@ -55,7 +55,7 @@ describe('OpenHAB', () => {
     test('onSync empty', async () => {
       const handleSyncMock = jest.spyOn(openHAB, 'handleSync');
       const payload = { agentUserId: undefined, devices: [] };
-      handleSyncMock.mockReturnValue(Promise.resolve(payload));
+      handleSyncMock.mockResolvedValue(payload);
       const result = await openHAB.onSync({ requestId: '1234' }, {});
       expect(handleSyncMock).toBeCalledTimes(1);
       expect(result).toStrictEqual({
@@ -79,7 +79,7 @@ describe('OpenHAB', () => {
     });
 
     test('handleSync no matching items', async () => {
-      getItemsMock.mockReturnValue(Promise.resolve([{ name: 'TestItem' }]));
+      getItemsMock.mockResolvedValue([{ name: 'TestItem' }]);
       const result = await openHAB.handleSync();
       expect(getItemsMock).toHaveBeenCalledTimes(1);
       expect(result).toStrictEqual({ devices: [] });
@@ -234,7 +234,7 @@ describe('OpenHAB', () => {
 
     test('onQuery failure', async () => {
       const handleQueryMock = jest.spyOn(openHAB, 'handleQuery');
-      handleQueryMock.mockReturnValue(Promise.reject());
+      handleQueryMock.mockRejectedValue();
       const result = await openHAB.onQuery({ requestId: '1234' }, {});
       expect(handleQueryMock).toBeCalledTimes(1);
       expect(handleQueryMock).toBeCalledWith([]);
@@ -251,7 +251,7 @@ describe('OpenHAB', () => {
     test('onQuery empty', async () => {
       const handleQueryMock = jest.spyOn(openHAB, 'handleQuery');
       const payload = { devices: {} };
-      handleQueryMock.mockReturnValue(Promise.resolve(payload));
+      handleQueryMock.mockResolvedValue(payload);
       const result = await openHAB.onQuery({ requestId: '1234' }, {});
       expect(handleQueryMock).toBeCalledTimes(1);
       expect(handleQueryMock).toBeCalledWith([]);
@@ -264,7 +264,7 @@ describe('OpenHAB', () => {
     test('onQuery', async () => {
       const handleQueryMock = jest.spyOn(openHAB, 'handleQuery');
       const payload = { devices: {} };
-      handleQueryMock.mockReturnValue(Promise.resolve(payload));
+      handleQueryMock.mockResolvedValue(payload);
       const devices = [{ id: 'TestItem1' }, { id: 'TestItem2' }];
       const body = {
         requestId: '1234',
@@ -301,7 +301,7 @@ describe('OpenHAB', () => {
     });
 
     test('handleQuery device offline', async () => {
-      getItemMock.mockReturnValue(Promise.reject({ statusCode: 500 }));
+      getItemMock.mockRejectedValue({ statusCode: 500 });
       const result = await openHAB.handleQuery([{ id: 'TestItem' }]);
       expect(getItemMock).toHaveBeenCalledTimes(1);
       expect(result).toStrictEqual({
@@ -315,7 +315,7 @@ describe('OpenHAB', () => {
     });
 
     test('handleQuery device not found', async () => {
-      getItemMock.mockReturnValue(Promise.resolve({ name: 'TestItem' }));
+      getItemMock.mockResolvedValue({ name: 'TestItem' });
       const result = await openHAB.handleQuery([{ id: 'TestItem' }]);
       expect(getItemMock).toHaveBeenCalledTimes(1);
       expect(result).toStrictEqual({
@@ -453,7 +453,7 @@ describe('OpenHAB', () => {
 
     test('onExecute failure', async () => {
       const handleExecuteMock = jest.spyOn(openHAB, 'handleExecute');
-      handleExecuteMock.mockReturnValue(Promise.reject());
+      handleExecuteMock.mockRejectedValue();
       const result = await openHAB.onExecute({ requestId: '1234' }, {});
       expect(handleExecuteMock).toBeCalledTimes(1);
       expect(handleExecuteMock).toBeCalledWith([]);
@@ -470,7 +470,7 @@ describe('OpenHAB', () => {
     test('onExecute empty', async () => {
       const handleExecuteMock = jest.spyOn(openHAB, 'handleExecute');
       const payload = { commands: [] };
-      handleExecuteMock.mockReturnValue(Promise.resolve(payload));
+      handleExecuteMock.mockResolvedValue(payload);
       const result = await openHAB.onExecute({ requestId: '1234' }, {});
       expect(handleExecuteMock).toBeCalledTimes(1);
       expect(handleExecuteMock).toBeCalledWith([]);
@@ -483,7 +483,7 @@ describe('OpenHAB', () => {
     test('onExecute', async () => {
       const handleExecuteMock = jest.spyOn(openHAB, 'handleExecute');
       const payload = { commands: [] };
-      handleExecuteMock.mockReturnValue(Promise.resolve(payload));
+      handleExecuteMock.mockResolvedValue(payload);
       const commands = [
         {
           devices: [{ id: '123' }, { id: '456' }],
@@ -533,7 +533,7 @@ describe('OpenHAB', () => {
     });
 
     test('handleExecute OnOff', async () => {
-      sendCommandMock.mockReturnValue(Promise.resolve());
+      sendCommandMock.mockResolvedValue();
       const commands = [
         {
           devices: [
@@ -630,7 +630,7 @@ describe('OpenHAB', () => {
           ]
         })
       );
-      sendCommandMock.mockReturnValue(Promise.resolve());
+      sendCommandMock.mockResolvedValue();
       const commands = [
         {
           devices: [

@@ -36,6 +36,13 @@ class SpecialColorLight extends DefaultDevice {
     return attributes;
   }
 
+  static getMetadata(item) {
+    const metadata = super.getMetadata(item);
+    metadata.customData.colorTemperatureRange = this.getAttributes(item).colorTemperatureRange;
+    metadata.customData.useKelvin = this.useKelvin(item);
+    return metadata;
+  }
+
   static getState(item) {
     const state = {};
     const members = this.getMembers(item);
@@ -79,8 +86,7 @@ class SpecialColorLight extends DefaultDevice {
   }
 
   static useKelvin(item) {
-    const config = this.getConfig(item);
-    return config.useKelvin === true;
+    return this.getConfig(item).useKelvin === true;
   }
 }
 

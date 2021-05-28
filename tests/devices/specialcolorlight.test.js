@@ -122,6 +122,31 @@ describe('SpecialColorLight Device', () => {
     });
   });
 
+  test('getMetadata', () => {
+    const item = {
+      name: 'LightItem',
+      type: 'Group',
+      metadata: {
+        ga: {
+          config: {
+            colorTemperatureRange: '1000,2000',
+            useKelvin: true
+          }
+        }
+      }
+    };
+    expect(Device.getMetadata(item).customData).toStrictEqual({
+      colorTemperatureRange: {
+        temperatureMaxK: 2000,
+        temperatureMinK: 1000
+      },
+      deviceType: 'SpecialColorLight',
+      itemType: 'Group',
+      members: {},
+      useKelvin: true
+    });
+  });
+
   describe('getState', () => {
     test('getState', () => {
       const item = {

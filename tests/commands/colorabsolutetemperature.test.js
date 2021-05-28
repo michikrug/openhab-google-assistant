@@ -14,8 +14,8 @@ describe('ColorAbsoluteTemperature Command', () => {
   });
 
   test('requiresItem', () => {
-    expect(Command.requiresItem({ id: 'Item', customData: { deviceType: 'Color' } })).toBe(false);
-    expect(Command.requiresItem({ id: 'Item', customData: { deviceType: 'SpecialColorLight' } })).toBe(true);
+    expect(Command.requiresItem({})).toBe(true);
+    expect(Command.requiresItem({ customData: { deviceType: 'SpecialColorLight' } })).toBe(false);
   });
 
   test('getItemName', () => {
@@ -24,16 +24,17 @@ describe('ColorAbsoluteTemperature Command', () => {
     expect(() => {
       Command.getItemName({ id: 'Item', customData: { deviceType: 'SpecialColorLight' } });
     }).toThrow();
-    const device = {
-      id: 'Item',
-      customData: {
-        deviceType: 'SpecialColorLight',
-        members: {
-          lightColorTemperature: 'ColorItem'
+    expect(
+      Command.getItemName({
+        id: 'Item',
+        customData: {
+          deviceType: 'SpecialColorLight',
+          members: {
+            lightColorTemperature: 'ColorItem'
+          }
         }
-      }
-    };
-    expect(Command.getItemName(device)).toBe('ColorItem');
+      })
+    ).toBe('ColorItem');
   });
 
   describe('convertParamsToValue', () => {
@@ -42,33 +43,41 @@ describe('ColorAbsoluteTemperature Command', () => {
     });
 
     test('convertParamsToValue SpecialColorLight', () => {
-      const item = {
-        metadata: {
-          ga: {
-            config: {
-              colorTemperatureRange: '1000,5000'
+      expect(
+        Command.convertParamsToValue(
+          params,
+          {},
+          {
+            customData: {
+              deviceType: 'SpecialColorLight',
+              colorTemperatureRange: { temperatureMinK: 1000, temperatureMaxK: 5000 }
             }
           }
-        }
-      };
-      const device = { customData: { deviceType: 'SpecialColorLight' } };
-      expect(Command.convertParamsToValue(params, item, device)).toBe('75');
-      expect(Command.convertParamsToValue(params, { state: '100,100,50' }, device)).toBe('0');
+        )
+      ).toBe('75');
+      expect(
+        Command.convertParamsToValue(
+          params,
+          { state: '100,100,50' },
+          {
+            customData: {
+              deviceType: 'SpecialColorLight'
+            }
+          }
+        )
+      ).toBe('0');
     });
 
     test('convertParamsToValue SpecialColorLight Kelvin', () => {
-      const item = {
-        metadata: {
-          ga: {
-            config: {
-              colorTemperatureRange: '1000,5000',
-              useKelvin: true
-            }
+      expect(
+        Command.convertParamsToValue(
+          params,
+          {},
+          {
+            customData: { deviceType: 'SpecialColorLight', useKelvin: true }
           }
-        }
-      };
-      const device = { customData: { deviceType: 'SpecialColorLight' } };
-      expect(Command.convertParamsToValue(params, item, device)).toBe('2000');
+        )
+      ).toBe('2000');
     });
   });
 

@@ -350,41 +350,6 @@ describe('OpenHAB', () => {
       });
     });
 
-    // there is currently no case
-    xtest('handleQuery notSupported', async () => {
-      getItemMock.mockReturnValue(
-        Promise.resolve({
-          name: 'TestItem',
-          type: 'Group',
-          state: 'NULL',
-          metadata: {
-            ga: {
-              value: 'Thermostat',
-              config: {
-                modes: 'on=1,off=2'
-              }
-            }
-          },
-          members: [
-            {
-              state: '3',
-              metadata: { ga: { value: 'thermostatMode' } }
-            }
-          ]
-        })
-      );
-      const result = await openHAB.handleQuery([{ id: 'TestItem' }]);
-      expect(getItemMock).toHaveBeenCalledTimes(1);
-      expect(result).toStrictEqual({
-        devices: {
-          TestItem: {
-            errorCode: 'notSupported',
-            status: 'ERROR'
-          }
-        }
-      });
-    });
-
     test('handleQuery Switch', async () => {
       getItemMock.mockReturnValue(
         Promise.resolve({
@@ -671,6 +636,156 @@ describe('OpenHAB', () => {
           }
         ]
       });
+    });
+  });
+
+  describe('onStateReport', () => {
+    const openHAB = new OpenHAB();
+    const handleStateReportMock = jest.spyOn(openHAB, 'handleStateReport');
+
+    beforeEach(() => {
+      handleStateReportMock.mockClear();
+    });
+
+    test('onStateReport success', async () => {
+      handleStateReportMock.mockResolvedValue({ statusText: 'OK' });
+      const jsonMock = jest.fn((d) => JSON.stringify(d));
+      const req = { headers: { 'x-openhab-user': 'tester@test.com' }, body: 'TestItem' };
+      const res = { json: jsonMock };
+      await openHAB.onStateReport(req, res, {});
+      expect(handleStateReportMock).toHaveBeenCalledWith('TestItem', 'tester@test.com', {});
+      expect(jsonMock).toHaveBeenCalledWith('OK');
+    });
+
+    test('onStateReport failed', async () => {
+      handleStateReportMock.mockRejectedValue({ statusCode: 404 });
+      const jsonMock = jest.fn((d) => JSON.stringify(d));
+      const req = { headers: { 'x-openhab-user': 'tester@test.com' }, body: 'TestItem' };
+      const res = { json: jsonMock };
+      await openHAB.onStateReport(req, res, {});
+      expect(handleStateReportMock).toHaveBeenCalledWith('TestItem', 'tester@test.com', {});
+      expect(jsonMock).toHaveBeenCalledWith({
+        errorCode: 'deviceNotFound',
+        status: 'ERROR'
+      });
+    });
+  });
+
+  describe('handleStateReport', () => {
+    const uuidMock = jest.spyOn(OpenHAB, 'uuid');
+    uuidMock.mockReturnValue('1234');
+    const nowMock = jest.spyOn(Date, 'now');
+    nowMock.mockReturnValue(1234);
+    const openHAB = new OpenHAB();
+    const reportStateAndNotificationMock = jest.fn();
+    reportStateAndNotificationMock.mockResolvedValue({ statusText: 'OK' });
+    const homegraphClientMock = {
+      devices: {
+        reportStateAndNotification: reportStateAndNotificationMock
+      }
+    };
+
+    beforeEach(() => {
+      reportStateAndNotificationMock.mockClear();
+    });
+
+    afterAll(() => {
+      uuidMock.mockRestore();
+      nowMock.mockRestore();
+    });
+
+    test('handleStateReport no valid item', async () => {
+      expect.assertions(2);
+      return openHAB
+        .handleStateReport({ name: 'TestItem', type: 'Switch', state: 'NULL' }, 'tester@test.com', homegraphClientMock)
+        .catch((error) => {
+          expect(reportStateAndNotificationMock).toHaveBeenCalledTimes(0);
+          expect(error).toEqual({ statusCode: 404 });
+        });
+    });
+
+    test('handleStateReport no valid state', async () => {
+      expect.assertions(2);
+      return openHAB
+        .handleStateReport(
+          { name: 'TestItem', type: 'Switch', state: 'NULL', metadata: { ga: { value: 'Switch' } } },
+          'tester@test.com',
+          homegraphClientMock
+        )
+        .catch((error) => {
+          expect(reportStateAndNotificationMock).toHaveBeenCalledTimes(0);
+          expect(error).toEqual({ statusCode: 406 });
+        });
+    });
+
+    test('handleStateReport states', async () => {
+      const result = await openHAB.handleStateReport(
+        { name: 'TestItem', type: 'Switch', state: 'ON', metadata: { ga: { value: 'Switch' } } },
+        'tester@test.com',
+        homegraphClientMock
+      );
+      expect(reportStateAndNotificationMock).toHaveBeenCalledTimes(1);
+      expect(reportStateAndNotificationMock).toHaveBeenCalledWith({
+        requestBody: {
+          agentUserId: 'tester@test.com',
+          eventId: '1234',
+          payload: {
+            devices: {
+              notifications: {},
+              states: {
+                TestItem: {
+                  on: true
+                }
+              }
+            }
+          },
+          requestId: '1234'
+        }
+      });
+      expect(result).toStrictEqual({ statusText: 'OK' });
+    });
+
+    test('handleStateReport notifications', async () => {
+      const result = await openHAB.handleStateReport(
+        { name: 'TestItem', type: 'Switch', state: 'ON', metadata: { ga: { value: 'Doorbell' } } },
+        'tester@test.com',
+        homegraphClientMock
+      );
+      expect(reportStateAndNotificationMock).toHaveBeenCalledTimes(1);
+      expect(reportStateAndNotificationMock).toHaveBeenCalledWith({
+        requestBody: {
+          agentUserId: 'tester@test.com',
+          eventId: '1234',
+          payload: {
+            devices: {
+              notifications: {
+                TestItem: {
+                  ObjectDetection: {
+                    detectionTimestamp: 1234,
+                    objects: {
+                      unclassified: 1
+                    },
+                    priority: 0
+                  }
+                }
+              },
+              states: {}
+            }
+          },
+          requestId: '1234'
+        }
+      });
+      expect(result).toStrictEqual({ statusText: 'OK' });
+    });
+
+    test('handleStateReport do nothing', async () => {
+      const result = await openHAB.handleStateReport(
+        { name: 'TestItem', type: 'Switch', state: 'OFF', metadata: { ga: { value: 'Doorbell' } } },
+        'tester@test.com',
+        homegraphClientMock
+      );
+      expect(reportStateAndNotificationMock).toHaveBeenCalledTimes(0);
+      expect(result).toStrictEqual({ statusText: 'OK' });
     });
   });
 });

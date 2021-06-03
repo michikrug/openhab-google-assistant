@@ -15,6 +15,7 @@ describe('DynamicModesDevice Device', () => {
       {
         name: 'CurrentMode',
         state: 'mode_value',
+        type: 'String',
         metadata: {
           ga: {
             value: 'modesCurrentMode'
@@ -24,6 +25,7 @@ describe('DynamicModesDevice Device', () => {
       {
         name: 'Settings',
         state: 'setting1=mode_value:alternate_mode_value,setting2=mode_value2',
+        type: 'String',
         metadata: {
           ga: {
             value: 'modesSettings'

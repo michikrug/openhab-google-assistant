@@ -197,7 +197,7 @@ Dimmer { ga="Speaker" [ volumeDefaultPercentage="50", levelStepSize="10", volume
 |---|---|
 | **Device Type** | [TV](https://developers.google.com/assistant/smarthome/guides/tv) |
 | **Supported Traits** | [OnOff](https://developers.google.com/assistant/smarthome/traits/onoff), [Volume](https://developers.google.com/assistant/smarthome/traits/volume), [TransportControl](https://developers.google.com/assistant/smarthome/traits/transportcontrol), [InputSelector](https://developers.google.com/assistant/smarthome/traits/inputselector), [AppSelector](https://developers.google.com/assistant/smarthome/traits/appselector), [Channel](https://developers.google.com/assistant/smarthome/traits/channel) (depending on used members) |
-| **Supported Items** | Group as `TV` with the following optional members: Switch as `tvPower`, Switch as `tvMute`, Dimmer as `tvVolume`, String as `tvChannel`, String as `tvInput`, String as `tvApplication`, Player as `tvTransport` |
+| **Supported Items** | Group as `TV` with the following optional members: Switch as `tvPower`, Switch as `tvMute`, Dimmer or Number as `tvVolume`, String or Number as `tvChannel`, String or Number as `tvInput`, String or Number as `tvApplication`, Player as `tvTransport` |
 | **Configuration** | (optional) `volumeDefaultPercentage="20"`<br>(optional) `levelStepSize="5"`<br>(optional) `volumeMaxLevel="100"`<br>(optional) `transportControlSupportedCommands="NEXT,PREVIOUS,PAUSE,RESUME"`<br>(optional) `availableChannels="channelNumber=channelId=channelName:channelSynonym:...,..."`<br>(optional) `availableInputs="inputKey=inputName:inputSynonym:...,..."`<br>(optional) `availableApplications="applicationKey=applicationName:applicationSynonym:...,..."`<br>(optional) `lang="en"` |
 
 ```shell
@@ -281,7 +281,7 @@ Number { ga="TemperatureSensor" [ useFahrenheit=true ] }
 |---|---|
 | **Device Type** | [Thermostat](https://developers.google.com/assistant/smarthome/guides/thermostat) |
 | **Supported Traits** | [TemperatureSetting](https://developers.google.com/assistant/smarthome/traits/temperaturesetting) |
-| **Supported Items** | Group as `Thermostat` with the following optional members: Number as `thermostatTemperatureAmbient`, Number as `thermostatTemperatureSetpoint`, Number as `thermostatTemperatureSetpointLow`, Number as `thermostatTemperatureSetpointHigh`, Number as `thermostatHumidityAmbient`, String or Number as `thermostatMode` |
+| **Supported Items** | Group as `Thermostat` with the following optional members: Number as `thermostatTemperatureAmbient`, Number as `thermostatTemperatureSetpoint`, Number as `thermostatTemperatureSetpointLow`, Number as `thermostatTemperatureSetpointHigh`, Number as `thermostatHumidityAmbient`, String or Number or Switch as `thermostatMode` |
 | **Configuration** | (optional) `useFahrenheit=true/false`<br>(optional) `thermostatTemperatureRange="10,30"`<br>(optional) `modes="off=OFF:WINDOW_OPEN,heat=COMFORT:BOOST,eco=ECO,on=ON,auto"` |
 
 Thermostat requires a group of items to be properly configured to be used with Google Assistant. The default temperature unit is Celsius.

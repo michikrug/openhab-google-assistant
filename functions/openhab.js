@@ -181,7 +181,7 @@ class OpenHAB {
           if (!DeviceType) {
             throw { statusCode: 404 };
           }
-          if (item.state === 'NULL' && !('getMembers' in DeviceType)) {
+          if (item.state === 'NULL' && !DeviceType.supportedMembers.length) {
             throw { statusCode: 406 };
           }
           payload.devices[device.id] = Object.assign({ status: 'SUCCESS', online: true }, DeviceType.getState(item));
@@ -274,7 +274,7 @@ class OpenHAB {
     if (!DeviceType) {
       throw { statusCode: 404 };
     }
-    if (item.state === 'NULL' && !('getMembers' in DeviceType)) {
+    if (item.state === 'NULL' && !DeviceType.supportedMembers.length) {
       throw { statusCode: 406 };
     }
     const payload = { devices: { states: {}, notifications: {} } };

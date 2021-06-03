@@ -13,6 +13,7 @@ describe('SpecialColorLight Device', () => {
       },
       members: [
         {
+          type: 'Number',
           metadata: {
             ga: {
               value: 'lightBrightness'
@@ -20,6 +21,7 @@ describe('SpecialColorLight Device', () => {
           }
         },
         {
+          type: 'Number',
           metadata: {
             ga: {
               value: 'lightColorTemperature'
@@ -36,6 +38,7 @@ describe('SpecialColorLight Device', () => {
       },
       members: [
         {
+          type: 'Number',
           metadata: {
             ga: {
               value: 'lightBrightness'
@@ -43,6 +46,7 @@ describe('SpecialColorLight Device', () => {
           }
         },
         {
+          type: 'Number',
           metadata: {
             ga: {
               value: 'lightColorTemperature'
@@ -62,6 +66,7 @@ describe('SpecialColorLight Device', () => {
       },
       members: [
         {
+          type: 'Number',
           metadata: {
             ga: {
               value: 'lightBrightness'
@@ -69,6 +74,7 @@ describe('SpecialColorLight Device', () => {
           }
         },
         {
+          type: 'Number',
           metadata: {
             ga: {
               value: 'lightColorTemperature'
@@ -162,6 +168,7 @@ describe('SpecialColorLight Device', () => {
         members: [
           {
             state: '50',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'lightBrightness'
@@ -170,6 +177,7 @@ describe('SpecialColorLight Device', () => {
           },
           {
             state: '20',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'lightColorTemperature'
@@ -201,6 +209,7 @@ describe('SpecialColorLight Device', () => {
         members: [
           {
             state: '0',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'lightBrightness'
@@ -209,6 +218,7 @@ describe('SpecialColorLight Device', () => {
           },
           {
             state: '20',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'lightColorTemperature'
@@ -241,6 +251,7 @@ describe('SpecialColorLight Device', () => {
         members: [
           {
             state: '50',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'lightBrightness'
@@ -249,6 +260,7 @@ describe('SpecialColorLight Device', () => {
           },
           {
             state: '2000',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'lightColorTemperature'
@@ -280,6 +292,7 @@ describe('SpecialColorLight Device', () => {
         members: [
           {
             state: 'OFF',
+            type: 'Switch',
             metadata: {
               ga: {
                 value: 'lightPower'
@@ -288,6 +301,7 @@ describe('SpecialColorLight Device', () => {
           },
           {
             state: '50',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'lightBrightness'
@@ -296,6 +310,7 @@ describe('SpecialColorLight Device', () => {
           },
           {
             state: '20',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'lightColorTemperature'

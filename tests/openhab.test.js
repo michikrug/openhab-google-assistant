@@ -577,6 +577,7 @@ describe('OpenHAB', () => {
             {
               name: 'High',
               state: '25',
+              type: 'Number',
               metadata: {
                 ga: {
                   value: 'thermostatTemperatureSetpointHigh'
@@ -586,6 +587,7 @@ describe('OpenHAB', () => {
             {
               name: 'Low',
               state: '5',
+              type: 'Number',
               metadata: {
                 ga: {
                   value: 'thermostatTemperatureSetpointLow'

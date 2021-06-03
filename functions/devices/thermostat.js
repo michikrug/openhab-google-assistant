@@ -60,27 +60,15 @@ class Thermostat extends DefaultDevice {
     return state;
   }
 
-  static getMembers(item) {
-    const supportedMembers = [
-      'thermostatMode',
-      'thermostatTemperatureSetpoint',
-      'thermostatTemperatureSetpointHigh',
-      'thermostatTemperatureSetpointLow',
-      'thermostatTemperatureAmbient',
-      'thermostatHumidityAmbient'
+  static get supportedMembers() {
+    return [
+      { name: 'thermostatMode', types: ['Number', 'String', 'Switch'] },
+      { name: 'thermostatTemperatureSetpoint', types: ['Number'] },
+      { name: 'thermostatTemperatureSetpointHigh', types: ['Number'] },
+      { name: 'thermostatTemperatureSetpointLow', types: ['Number'] },
+      { name: 'thermostatTemperatureAmbient', types: ['Number'] },
+      { name: 'thermostatHumidityAmbient', types: ['Number'] }
     ];
-    const members = Object();
-    if (item.members && item.members.length) {
-      item.members.forEach((member) => {
-        if (member.metadata && member.metadata.ga) {
-          const memberType = supportedMembers.find((m) => member.metadata.ga.value.toLowerCase() === m.toLowerCase());
-          if (memberType) {
-            members[memberType] = { name: member.name, state: member.state };
-          }
-        }
-      });
-    }
-    return members;
   }
 
   static useFahrenheit(item) {

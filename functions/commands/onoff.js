@@ -14,7 +14,7 @@ class OnOff extends DefaultCommand {
     if (deviceType.startsWith('DynamicModes')) {
       throw { statusCode: 400 };
     }
-    const members = (device.customData && device.customData.members) || {};
+    const members = this.getMembers(device);
     if (deviceType === 'SpecialColorLight') {
       if ('lightPower' in members) {
         return members.lightPower;
@@ -41,7 +41,7 @@ class OnOff extends DefaultCommand {
 
   static convertParamsToValue(params, _, device) {
     let on = params.on;
-    if (this.isInverted(device) === true) {
+    if (this.isInverted(device)) {
       on = !on;
     }
     return on ? 'ON' : 'OFF';

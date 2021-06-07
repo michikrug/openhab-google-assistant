@@ -13,6 +13,7 @@ describe('SpecialColorLight Device', () => {
       },
       members: [
         {
+          type: 'Number',
           metadata: {
             ga: {
               value: 'lightBrightness'
@@ -20,6 +21,7 @@ describe('SpecialColorLight Device', () => {
           }
         },
         {
+          type: 'Number',
           metadata: {
             ga: {
               value: 'lightColorTemperature'
@@ -36,6 +38,7 @@ describe('SpecialColorLight Device', () => {
       },
       members: [
         {
+          type: 'Number',
           metadata: {
             ga: {
               value: 'lightBrightness'
@@ -43,6 +46,7 @@ describe('SpecialColorLight Device', () => {
           }
         },
         {
+          type: 'Number',
           metadata: {
             ga: {
               value: 'lightColorTemperature'
@@ -62,6 +66,7 @@ describe('SpecialColorLight Device', () => {
       },
       members: [
         {
+          type: 'Number',
           metadata: {
             ga: {
               value: 'lightBrightness'
@@ -69,6 +74,7 @@ describe('SpecialColorLight Device', () => {
           }
         },
         {
+          type: 'Number',
           metadata: {
             ga: {
               value: 'lightColorTemperature'
@@ -162,6 +168,7 @@ describe('SpecialColorLight Device', () => {
         members: [
           {
             state: '50',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'lightBrightness'
@@ -170,6 +177,7 @@ describe('SpecialColorLight Device', () => {
           },
           {
             state: '20',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'lightColorTemperature'
@@ -186,6 +194,48 @@ describe('SpecialColorLight Device', () => {
         }
       });
     });
+
+    test('getState zero brightness', () => {
+      const item = {
+        type: 'Group',
+        metadata: {
+          ga: {
+            value: 'LIGHT',
+            config: {
+              colorTemperatureRange: '1000,4000'
+            }
+          }
+        },
+        members: [
+          {
+            state: '0',
+            type: 'Number',
+            metadata: {
+              ga: {
+                value: 'lightBrightness'
+              }
+            }
+          },
+          {
+            state: '20',
+            type: 'Number',
+            metadata: {
+              ga: {
+                value: 'lightColorTemperature'
+              }
+            }
+          }
+        ]
+      };
+      expect(Device.getState(item)).toStrictEqual({
+        on: false,
+        brightness: 0,
+        color: {
+          temperatureK: 3400
+        }
+      });
+    });
+
     test('getState use kelvin', () => {
       const item = {
         type: 'Group',
@@ -201,6 +251,7 @@ describe('SpecialColorLight Device', () => {
         members: [
           {
             state: '50',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'lightBrightness'
@@ -209,6 +260,7 @@ describe('SpecialColorLight Device', () => {
           },
           {
             state: '2000',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'lightColorTemperature'
@@ -222,6 +274,56 @@ describe('SpecialColorLight Device', () => {
         brightness: 50,
         color: {
           temperatureK: 2000
+        }
+      });
+    });
+
+    test('getState lightPower', () => {
+      const item = {
+        type: 'Group',
+        metadata: {
+          ga: {
+            value: 'LIGHT',
+            config: {
+              colorTemperatureRange: '1000,4000'
+            }
+          }
+        },
+        members: [
+          {
+            state: 'OFF',
+            type: 'Switch',
+            metadata: {
+              ga: {
+                value: 'lightPower'
+              }
+            }
+          },
+          {
+            state: '50',
+            type: 'Number',
+            metadata: {
+              ga: {
+                value: 'lightBrightness'
+              }
+            }
+          },
+          {
+            state: '20',
+            type: 'Number',
+            metadata: {
+              ga: {
+                value: 'lightColorTemperature'
+              }
+            }
+          }
+        ]
+      };
+      expect(Device.getState(item)).toStrictEqual({
+        on: false,
+        brightness: 50,
+        color: {
+          temperatureK: 3400
         }
       });
     });

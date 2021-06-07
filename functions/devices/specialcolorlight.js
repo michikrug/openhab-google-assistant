@@ -48,9 +48,14 @@ class SpecialColorLight extends DefaultDevice {
     const members = this.getMembers(item);
     for (const member in members) {
       switch (member) {
+        case 'lightPower':
+          state.on = members[member].state === 'ON';
+          break;
         case 'lightBrightness':
           state.brightness = Number(members[member].state) || 0;
-          state.on = state.brightness > 0;
+          if (!('lightPower' in members)) {
+            state.on = state.brightness > 0;
+          }
           break;
         case 'lightColorTemperature':
           try {
@@ -69,20 +74,12 @@ class SpecialColorLight extends DefaultDevice {
     return state;
   }
 
-  static getMembers(item) {
-    const supportedMembers = ['lightBrightness', 'lightColorTemperature'];
-    const members = Object();
-    if (item.members && item.members.length) {
-      item.members.forEach((member) => {
-        if (member.metadata && member.metadata.ga) {
-          const memberType = supportedMembers.find((m) => member.metadata.ga.value.toLowerCase() === m.toLowerCase());
-          if (memberType) {
-            members[memberType] = { name: member.name, state: member.state };
-          }
-        }
-      });
-    }
-    return members;
+  static get supportedMembers() {
+    return [
+      { name: 'lightPower', types: ['Switch'] },
+      { name: 'lightBrightness', types: ['Dimmer', 'Number'] },
+      { name: 'lightColorTemperature', types: ['Dimmer', 'Number'] }
+    ];
   }
 
   static useKelvin(item) {

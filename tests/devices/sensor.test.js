@@ -70,15 +70,17 @@ describe('Sensor Device', () => {
         }
       };
       expect(Device.getAttributes(item)).toStrictEqual({
-        sensorStatesSupported: {
-          descriptiveCapabilities: {
-            availableStates: ['good', 'moderate', 'poor']
-          },
-          name: 'Sensor',
-          numericCapabilities: {
-            rawValueUnit: 'AQI'
+        sensorStatesSupported: [
+          {
+            descriptiveCapabilities: {
+              availableStates: ['good', 'moderate', 'poor']
+            },
+            name: 'Sensor',
+            numericCapabilities: {
+              rawValueUnit: 'AQI'
+            }
           }
-        }
+        ]
       });
     });
   });
@@ -98,11 +100,13 @@ describe('Sensor Device', () => {
         state: '10'
       };
       expect(Device.getState(item)).toStrictEqual({
-        currentSensorStateData: {
-          currentSensorState: 'good',
-          name: 'Sensor',
-          rawValue: 10
-        }
+        currentSensorStateData: [
+          {
+            currentSensorState: 'good',
+            name: 'Sensor',
+            rawValue: 10
+          }
+        ]
       });
     });
 
@@ -120,11 +124,13 @@ describe('Sensor Device', () => {
         state: '20'
       };
       expect(Device.getState(item)).toStrictEqual({
-        currentSensorStateData: {
-          currentSensorState: '',
-          name: 'Sensor',
-          rawValue: 20
-        }
+        currentSensorStateData: [
+          {
+            currentSensorState: '',
+            name: 'Sensor',
+            rawValue: 20
+          }
+        ]
       });
     });
   });

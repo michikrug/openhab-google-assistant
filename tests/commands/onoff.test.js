@@ -26,6 +26,16 @@ describe('OnOff Command', () => {
         }
       };
       expect(Command.getItemName(device)).toBe('BrightnessItem');
+      const device_power = {
+        id: 'Item',
+        customData: {
+          deviceType: 'SpecialColorLight',
+          members: {
+            lightPower: 'PowerItem'
+          }
+        }
+      };
+      expect(Command.getItemName(device_power)).toBe('PowerItem');
     });
 
     test('getItemName TV', () => {

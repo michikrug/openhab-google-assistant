@@ -44,6 +44,7 @@ describe('volumeRelative Command', () => {
         members: [
           {
             state: '20',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'tvVolume'

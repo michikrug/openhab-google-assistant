@@ -97,7 +97,7 @@ class DefaultDevice {
     if (typeof config.pinNeeded === 'string' || typeof config.tfaPin === 'string') {
       metadata.customData.pinNeeded = config.pinNeeded || config.tfaPin;
     }
-    if (typeof this.getMembers === 'function') {
+    if (this.supportedMembers.length) {
       const members = this.getMembers(item);
       metadata.customData.members = {};
       for (const member in members) {
@@ -112,6 +112,29 @@ class DefaultDevice {
    */
   static getState(item) {
     return {};
+  }
+
+  static get supportedMembers() {
+    return [];
+  }
+
+  static getMembers(item) {
+    const supportedMembers = this.supportedMembers;
+    const members = Object();
+    if (item.members && item.members.length) {
+      item.members.forEach((member) => {
+        if (member.metadata && member.metadata.ga) {
+          const memberType = supportedMembers.find((m) => {
+            const memberType = (member.groupType || member.type || '').split(':')[0];
+            return m.types.includes(memberType) && member.metadata.ga.value.toLowerCase() === m.name.toLowerCase();
+          });
+          if (memberType) {
+            members[memberType.name] = { name: member.name, state: member.state };
+          }
+        }
+      });
+    }
+    return members;
   }
 }
 

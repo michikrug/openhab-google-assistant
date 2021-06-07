@@ -20,6 +20,7 @@ describe('Thermostat Device', () => {
         },
         members: [
           {
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'thermostatTemperatureAmbient'
@@ -140,6 +141,7 @@ describe('Thermostat Device', () => {
         },
         members: [
           {
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'thermostatTemperatureAmbient'
@@ -164,6 +166,7 @@ describe('Thermostat Device', () => {
           {
             name: 'Mode',
             state: 'on',
+            type: 'String',
             metadata: {
               ga: {
                 value: 'thermostatMode'
@@ -173,6 +176,7 @@ describe('Thermostat Device', () => {
           {
             name: 'Setpoint',
             state: '20',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'thermostatTemperatureSetpoint'
@@ -182,6 +186,7 @@ describe('Thermostat Device', () => {
           {
             name: 'High',
             state: '25',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'thermostatTemperatureSetpointHigh'
@@ -191,6 +196,7 @@ describe('Thermostat Device', () => {
           {
             name: 'Low',
             state: '5',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'thermostatTemperatureSetpointLow'
@@ -200,6 +206,7 @@ describe('Thermostat Device', () => {
           {
             name: 'Temperature',
             state: '20',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'thermostatTemperatureAmbient'
@@ -209,6 +216,7 @@ describe('Thermostat Device', () => {
           {
             name: 'Humidity',
             state: '50',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'thermostatHumidityAmbient'
@@ -311,6 +319,7 @@ describe('Thermostat Device', () => {
           {
             name: 'Mode',
             state: 'on',
+            type: 'String',
             metadata: {
               ga: {
                 value: 'thermostatMode'
@@ -320,6 +329,7 @@ describe('Thermostat Device', () => {
           {
             name: 'Setpoint',
             state: '20',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'thermostatTemperatureSetpoint'
@@ -329,6 +339,7 @@ describe('Thermostat Device', () => {
           {
             name: 'High',
             state: '25',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'thermostatTemperatureSetpointHigh'
@@ -338,6 +349,7 @@ describe('Thermostat Device', () => {
           {
             name: 'Low',
             state: '5',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'thermostatTemperatureSetpointLow'
@@ -347,6 +359,7 @@ describe('Thermostat Device', () => {
           {
             name: 'Temperature',
             state: '20',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'thermostatTemperatureAmbient'
@@ -356,6 +369,7 @@ describe('Thermostat Device', () => {
           {
             name: 'Humidity',
             state: '50',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'thermostatHumidityAmbient'
@@ -387,6 +401,7 @@ describe('Thermostat Device', () => {
           {
             name: 'Temperature',
             state: '20',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'thermostatTemperatureAmbient'

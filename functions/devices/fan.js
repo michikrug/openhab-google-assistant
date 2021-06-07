@@ -165,28 +165,14 @@ class Fan extends DefaultDevice {
     }
   }
 
-  static getMembers(item) {
-    const supportedMembers = [
+  static get supportedMembers() {
+    return [
       { name: 'fanPower', types: ['Switch'] },
       { name: 'fanSpeed', types: ['Dimmer', 'Number'] },
       { name: 'fanMode', types: ['Number', 'String'] },
       { name: 'fanFilterLifeTime', types: ['Number'] },
       { name: 'fanPM25', types: ['Number'] }
     ];
-    const members = Object();
-    if (item.members && item.members.length) {
-      item.members.forEach((member) => {
-        if (member.metadata && member.metadata.ga) {
-          const memberType = supportedMembers.find(
-            (m) => m.types.includes(member.type) && member.metadata.ga.value.toLowerCase() === m.name.toLowerCase()
-          );
-          if (memberType) {
-            members[memberType.name] = { name: member.name, state: member.state };
-          }
-        }
-      });
-    }
-    return members;
   }
 
   static translateFilterLifeTime(state) {

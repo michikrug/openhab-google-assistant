@@ -157,7 +157,6 @@ describe('TV Device', () => {
           ga: {
             config: {
               volumeDefaultPercentage: '20',
-              volumeMaxLevel: '80',
               levelStepSize: '10'
             }
           }
@@ -176,7 +175,7 @@ describe('TV Device', () => {
         levelStepSize: 10,
         volumeCanMuteAndUnmute: false,
         volumeDefaultPercentage: 20,
-        volumeMaxLevel: 80
+        volumeMaxLevel: 100
       });
     });
 

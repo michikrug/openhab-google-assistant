@@ -38,7 +38,7 @@
 module.exports = {
   //userpass: process.env.OH_USERPASS || 'user@foo.com:Password1',
   host: process.env.OH_HOST || '<YOUR-CLOUD-HOST>',
-  port: process.env.OH_PORT || 443,
+  port: parseInt(process.env.OH_PORT) || 443,
   path: process.env.OH_PATH || '/YOUR/REST/ENDPOINT',
   jwt: process.env.OH_JWT || '<PATH-TO-YOUR-JWT-FILE>'
 };

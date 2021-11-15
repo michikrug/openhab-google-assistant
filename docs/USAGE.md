@@ -72,14 +72,15 @@ Color  { ga="Light" [ colorTemperatureRange="2000,9000" ] }
 |---|---|
 | **Device Type** | [Light](https://developers.google.com/assistant/smarthome/guides/light) |
 | **Supported Traits** | [OnOff](https://developers.google.com/assistant/smarthome/traits/onoff), [ColorSetting](https://developers.google.com/assistant/smarthome/traits/colorsetting), [Brightness](https://developers.google.com/assistant/smarthome/traits/brightness) |
-| **Supported Items** | Group as `light` with the following members: Number or Dimmer as `lightBrightness`, Number or Dimmer as `lightColorTemperature`, (optional) Switch as `lightPower` |
-| **Configuration** | (optional) `useKelvin=true/false`<br>(optional) `colorTemperatureRange="minK,maxK"`<br>_Hint: if you do not set `useKelvin=true` then `colorTemperatureRange` is required_ |
+| **Supported Items** | Group as `light` with the following members: (optional) Number or Dimmer as `lightBrightness`, (optional) Number or Dimmer as `lightColorTemperature`, (optional) Color as `lightColor`, (optional) Switch as `lightPower` |
+| **Configuration** | (optional) `useKelvin=true/false`<br>(optional) `colorTemperatureRange="minK,maxK"`<br>_Hint: if you want to use `lightColorTemperature` you either need to set `useKelvin=true` or `colorTemperatureRange`_ |
 
 ```shell
 Group  lightGroup { ga="Light" [ useKelvin=true, colorTemperatureRange="2000,9000" ] }
-Switch powerItem      (lightGroup) { ga="lightPower" }
-Dimmer brightnessItem (lightGroup) { ga="lightBrightness" }
-Number colorItem      (lightGroup) { ga="lightColorTemperature" }
+Switch powerItem            (lightGroup) { ga="lightPower" }
+Dimmer brightnessItem       (lightGroup) { ga="lightBrightness" }
+Color  colorItem            (lightGroup) { ga="lightColor" }
+Number colorTemperatureItem (lightGroup) { ga="lightColorTemperature" }
 ```
 
 #### `Scene`
@@ -243,8 +244,8 @@ Dimmer { ga="AirPurifier" [ speeds="0=off,50=mid,100=high" ] }
 | **Supported Items** | Contact (no device control), Switch (no open percentage), Rollershutter |
 | **Configuration** | (optional) `inverted=true/false` |
 
-Blinds and simiar devices should always use the `Rollershutter` item type for proper functionallity.
-Since Google and openHAB use the oposite percentage value for "opened" and "closed", the action will tranlate this automatically.
+Blinds and similar devices should always use the `Rollershutter` item type for proper functionality.
+Since Google and openHAB use the opposite percentage value for "opened" and "closed", the action will translate this automatically.
 If the values are still inverted in your case, you can state the `inverted=true` option for all `Rollershutter` items.
 
 Since Google only tells the open percentage (and not the verb "close" or "down"), it can not be differentiated between saying "set blind to 100%" or "open blind".
@@ -324,7 +325,7 @@ For now only exact matches of the numeric value will report the descriptive stat
 Number { ga="Sensor" [ sensorName="AirQuality", valueUnit="AQI", states="good=10,moderate=50,poor=90" ] }
 ```
 
-### Addtional Information
+### Additional Information
 
 Item labels are not mandatory in openHAB, but for the Google Assistant Action they are absolutely necessary!
 
@@ -363,7 +364,7 @@ NOTE: metadata is not available via paperUI in openHAB v2. Either you create you
 
 #### Two-Factor-Authentication
 
-For some actions, Google recommends to use TFA (Two-Factor-Authentication) to prevent accidential or unauthorized triggers of sensitive actions. See [Two-factor authentication &nbsp;|&nbsp; Actions on Google Smart Home](https://developers.google.com/assistant/smarthome/develop/two-factor-authentication).
+For some actions, Google recommends to use TFA (Two-Factor-Authentication) to prevent accidental or unauthorized triggers of sensitive actions. See [Two-factor authentication &nbsp;|&nbsp; Actions on Google Smart Home](https://developers.google.com/assistant/smarthome/develop/two-factor-authentication).
 
 The openHAB Google Assistant integration supports both _ackNeeded_ and _pinNeeded_. You can use both types on all devices types and traits.
 

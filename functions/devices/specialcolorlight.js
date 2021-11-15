@@ -14,15 +14,22 @@ class SpecialColorLight extends DefaultDevice {
   }
 
   static matchesDeviceType(item) {
+    const members = this.getMembers(item);
     return !!(
       super.matchesDeviceType(item) &&
-      Object.keys(this.getMembers(item)).length === 2 &&
-      (this.useKelvin(item) || !!this.getAttributes(item).colorTemperatureRange)
+      Object.keys(members).length > 1 &&
+      (!('lightColorTemperature' in members) ||
+        this.useKelvin(item) ||
+        !!this.getAttributes(item).colorTemperatureRange)
     );
   }
 
   static getAttributes(item) {
     const attributes = {};
+    const members = this.getMembers(item);
+    if ('lightColor' in members) {
+      attributes.colorModel = 'hsv';
+    }
     const config = this.getConfig(item);
     if ('colorTemperatureRange' in config) {
       const [min, max] = config.colorTemperatureRange.split(',').map((s) => Number(s.trim()));
@@ -57,14 +64,39 @@ class SpecialColorLight extends DefaultDevice {
             state.on = state.brightness > 0;
           }
           break;
-        case 'lightColorTemperature':
+        case 'lightColor':
           try {
-            const { temperatureMinK, temperatureMaxK } = this.getAttributes(item).colorTemperatureRange;
-            state.color = {};
-            state.color.temperatureK = this.useKelvin(item)
-              ? Number(members[member].state)
-              : temperatureMinK +
-                (((temperatureMaxK - temperatureMinK) / 100) * (100 - Number(members[member].state)) || 0);
+            const [hue, sat, val] = members[member].state.split(',').map((s) => Number(s.trim()));
+            if (val > 0) {
+              state.color = {
+                spectrumHSV: {
+                  hue: hue,
+                  saturation: sat / 100,
+                  value: val / 100
+                }
+              };
+            }
+          } catch (error) {
+            //
+          }
+          break;
+        case 'lightColorTemperature':
+          if (state.color) {
+            break;
+          }
+          try {
+            if (this.useKelvin(item)) {
+              state.color = {
+                temperatureK: Number(members[member].state)
+              };
+            } else {
+              const { temperatureMinK, temperatureMaxK } = this.getAttributes(item).colorTemperatureRange;
+              state.color = {
+                temperatureK:
+                  temperatureMinK +
+                  (((temperatureMaxK - temperatureMinK) / 100) * (100 - Number(members[member].state)) || 0)
+              };
+            }
           } catch (error) {
             //
           }
@@ -77,6 +109,7 @@ class SpecialColorLight extends DefaultDevice {
   static get supportedMembers() {
     return [
       { name: 'lightPower', types: ['Switch'] },
+      { name: 'lightColor', types: ['Color'] },
       { name: 'lightBrightness', types: ['Dimmer', 'Number'] },
       { name: 'lightColorTemperature', types: ['Dimmer', 'Number'] }
     ];

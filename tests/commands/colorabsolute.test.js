@@ -13,8 +13,32 @@ describe('ColorAbsolute Command', () => {
     expect(Command.validateParams(params)).toBe(true);
   });
 
+  test('getItemName', () => {
+    expect(Command.getItemName({ id: 'Item' })).toBe('Item');
+    expect(Command.getItemName({ id: 'Item' }, {})).toBe('Item');
+    expect(Command.getItemName({ id: 'Item' }, { customData: {} })).toBe('Item');
+    expect(Command.getItemName({ id: 'Item' }, { customData: { deviceType: 'ColorLight' } })).toBe('Item');
+    expect(() => {
+      Command.getItemName({ id: 'Item', customData: { deviceType: 'SpecialColorLight' } });
+    }).toThrow();
+    expect(
+      Command.getItemName({
+        id: 'Item',
+        customData: {
+          deviceType: 'SpecialColorLight',
+          members: {
+            lightColor: 'ColorItem'
+          }
+        }
+      })
+    ).toBe('ColorItem');
+  });
+
   test('convertParamsToValue', () => {
     expect(Command.convertParamsToValue(params, {}, { customData: { deviceType: 'ColorLight' } })).toBe('10,20,30');
+    expect(Command.convertParamsToValue(params, {}, { customData: { deviceType: 'SpecialColorLight' } })).toBe(
+      '10,20,30'
+    );
     expect(() => Command.convertParamsToValue(params, {}, { customData: { deviceType: 'Light' } })).toThrow();
   });
 

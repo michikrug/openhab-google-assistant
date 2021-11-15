@@ -14,8 +14,19 @@ class ColorAbsolute extends DefaultCommand {
     );
   }
 
+  static getItemName(device) {
+    if (this.getDeviceType(device) === 'SpecialColorLight') {
+      const members = this.getMembers(device);
+      if ('lightColor' in members) {
+        return members.lightColor;
+      }
+      throw { statusCode: 400 };
+    }
+    return device.id;
+  }
+
   static convertParamsToValue(params, _, device) {
-    if (this.getDeviceType(device) !== 'ColorLight') {
+    if (this.getDeviceType(device) !== 'ColorLight' && this.getDeviceType(device) !== 'SpecialColorLight') {
       throw { statusCode: 400 };
     }
     const hsv = params.color.spectrumHSV;

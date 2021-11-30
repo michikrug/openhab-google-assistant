@@ -10,7 +10,36 @@ on:
     types: [ published ]
 
 jobs:
+  markdown-checks:
+    if: github.event_name == 'pull_request'
+    name: Markdown Checks
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Lint Markdown files
+      uses: nosborn/github-action-markdown-cli@v2
+      with:
+        files: .
+
+    - name: Check spelling
+      uses: reviewdog/action-misspell@v1
+      with:
+        github_token: ${{ secrets.github_token }}
+        locale: 'US'
+        fail_on_error: true
+        filter_mode: 'nofilter'
+        exclude: '*.json'
+
+    - name: Check style and grammar
+      uses: reviewdog/action-languagetool@v1
+      with:
+        github_token: ${{ secrets.github_token }}
+
   unit-testing:
+    if: github.event_name != 'release'
     name: Unit Testing
     runs-on: ubuntu-latest
 
@@ -18,10 +47,10 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Use Node.js 12.x
-      uses: actions/setup-node@v2.4.0
+    - name: Use Node.js 14.x
+      uses: actions/setup-node@v2.4.1
       with:
-        node-version: 12.x
+        node-version: 14.x
         cache: 'npm'
 
     - name: Install dependencies
@@ -40,6 +69,7 @@ jobs:
         path: coverage/
 
   code-analysis:
+    if: github.event_name != 'release'
     name: Code Analysis
     runs-on: ubuntu-latest
 
@@ -65,10 +95,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Use Node.js 12.x
-        uses: actions/setup-node@v2.4.0
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v2.4.1
         with:
-          node-version: 12.x
+          node-version: 14.x
           cache: 'npm'
           cache-dependency-path: 'functions/package-lock.json'
 
@@ -76,13 +106,19 @@ jobs:
         working-directory: ./functions
         run: npm ci
 
-      - name: Deploy to Google Cloud Functions
-        uses: google-github-actions/deploy-cloud-functions@main
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v0.4.0
         with:
-          credentials: ${{ secrets.GCP_SA_KEY }}
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Deploy to Google Cloud Functions
+        uses: google-github-actions/deploy-cloud-functions@v0.6.0
+        with:
           name: ${{ github.event_name == 'release' && 'openhabGoogleAssistant_prod' || 'openhabGoogleAssistant_test' }}
-          runtime: nodejs12
+          runtime: nodejs14
           source_dir: ./functions
           entry_point: openhabGoogleAssistant
           region: europe-west3
+          timeout: 180
+          credentials: ${{ secrets.GCP_SA_KEY }}
           env_vars: OH_HOST=myopenhab.org,OH_PORT=443,OH_PATH=/rest/items/

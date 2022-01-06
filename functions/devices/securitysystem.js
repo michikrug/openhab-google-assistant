@@ -24,8 +24,12 @@ class SecuritySystem extends DefaultDevice {
     return memberArmLevel;
   }
 
-  static matchesItemType(item) {
-    return item.type === 'Group' && Object.keys(this.getMembers(item)).length > 0;
+  static get requiredItemTypes() {
+    return ['Group'];
+  }
+
+  static matchesDeviceType(item) {
+    return super.matchesDeviceType(item) && Object.keys(this.getMembers(item)).length > 0;
   }
 
   static getAttributes(item) {

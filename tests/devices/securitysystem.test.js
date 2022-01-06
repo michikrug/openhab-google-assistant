@@ -11,6 +11,26 @@ describe('SecuritySystem Device', () => {
           }
         }
       })
+    ).toBe(false);
+    expect(
+      Device.matchesDeviceType({
+        type: 'Group',
+        members: [
+          {
+            type: 'Switch',
+            metadata: {
+              ga: {
+                value: SecuritySystem.armedMemberName
+              }
+            }
+          }
+        ],
+        metadata: {
+          ga: {
+            value: 'SECURITYSYSTEM'
+          }
+        }
+      })
     ).toBe(true);
   });
 

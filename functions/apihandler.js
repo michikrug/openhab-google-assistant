@@ -112,26 +112,30 @@ class ApiHandler {
       const protocol = options.port === 443 ? https : http;
       const req = protocol.request(options, (response) => {
         if (200 !== response.statusCode) {
-          console.error(
-            'openhabGoogleAssistant - getItem - failed for path: ' + options.path + ' code: ' + response.statusCode
-          );
-          reject({ statusCode: response.statusCode, message: 'getItem failed' });
+          reject({ statusCode: response.statusCode, message: 'getItem - failed for path: ' + options.path });
           return;
         }
 
         response.setEncoding('utf8');
-        let body = '';
+        let data = '';
 
-        this._openhabUser = response.headers['x-openhab-user'];
+        this._openhabUser = String(response.headers['x-openhab-user']);
 
-        response.on('data', (data) => {
-          body += data.toString('utf-8');
+        response.on('data', (chunk) => {
+          data += chunk;
         });
 
         response.on('end', () => {
-          const data = JSON.parse(body);
-          this.updateCache(data);
-          resolve(data);
+          try {
+            const items = JSON.parse(data);
+            this.updateCache(items);
+            resolve(items);
+          } catch (e) {
+            reject({
+              statusCode: 415,
+              message: 'getItem - JSON parse failed for path: ' + options.path + ' - ' + e.toString()
+            });
+          }
         });
       });
       req.on('error', reject);
@@ -154,10 +158,7 @@ class ApiHandler {
       const protocol = options.port === 443 ? https : http;
       const req = protocol.request(options, (response) => {
         if (![200, 201].includes(response.statusCode)) {
-          console.error(
-            'openhabGoogleAssistant - sendCommand - failed for path: ' + options.path + ' code: ' + response.statusCode
-          );
-          reject({ statusCode: response.statusCode, message: 'sendCommand failed' });
+          reject({ statusCode: response.statusCode, message: 'sendCommand - failed for path: ' + options.path });
           return;
         }
         delete this._cache[itemName];

@@ -101,6 +101,24 @@ describe('ApiHandler', () => {
       expect(result).toStrictEqual({ name: 'TestItem' });
       expect(scope.isDone()).toBe(true);
     });
+
+    test('getItem failed bad JSON', async () => {
+      const scope = nock('https://example.org').get('/items/TestItem?metadata=ga,synonyms').reply(200, 'INVALID');
+      let error = {};
+      try {
+        apiHandler._cache = {};
+        await apiHandler.getItem('TestItem');
+      } catch (e) {
+        error = e;
+      }
+      expect(error).toStrictEqual({
+        message:
+          // eslint-disable-next-line max-len
+          'getItem - JSON parse failed for path: /items/TestItem?metadata=ga,synonyms - SyntaxError: Unexpected token I in JSON at position 0',
+        statusCode: 415
+      });
+      expect(scope.isDone()).toBe(true);
+    });
   });
 
   describe('getItems', () => {
@@ -128,7 +146,9 @@ describe('ApiHandler', () => {
         error = e;
       }
       expect(error).toStrictEqual({
-        message: 'getItem failed',
+        message:
+          // eslint-disable-next-line max-len
+          'getItem - failed for path: /items/?metadata=ga,synonyms&fields=groupNames,groupType,name,label,metadata,type,state',
         statusCode: 400
       });
       expect(scope.isDone()).toBe(true);
@@ -153,12 +173,12 @@ describe('ApiHandler', () => {
       const scope = nock('https://example.org').post('/items/TestItem').reply(400, {});
       let error = {};
       try {
-        await apiHandler.sendCommand('TestItem', 'OFF');
+        await apiHandler.sendCommand('TestItem', 'OFF', 'TestItem');
       } catch (e) {
         error = e;
       }
       expect(error).toStrictEqual({
-        message: 'sendCommand failed',
+        message: 'sendCommand - failed for path: /items/TestItem',
         statusCode: 400
       });
       expect(scope.isDone()).toBe(true);

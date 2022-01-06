@@ -97,6 +97,12 @@ class DefaultDevice {
     }
     if (typeof config.pinNeeded === 'string' || typeof config.tfaPin === 'string') {
       metadata.customData.pinNeeded = config.pinNeeded || config.tfaPin;
+      if (config.pinOnDisarmOnly === true) {
+        metadata.customData.pinOnDisarmOnly = true;
+      }
+    }
+    if (config.waitForStateChange) {
+      metadata.customData.waitForStateChange = parseInt(config.waitForStateChange);
     }
     if (this.supportedMembers.length) {
       const members = this.getMembers(item);
@@ -128,7 +134,7 @@ class DefaultDevice {
 
   static getMembers(item) {
     const supportedMembers = this.supportedMembers;
-    const members = Object();
+    const members = {};
     if (item.members && item.members.length) {
       item.members.forEach((member) => {
         if (member.metadata && member.metadata.ga) {

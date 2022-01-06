@@ -1,6 +1,9 @@
 const Command = require('../../functions/commands/default.js');
 
 class TestCommand1 extends Command {
+  static get type() {
+    return 'action.devices.commands.OnOff';
+  }
   static convertParamsToValue() {
     return 'TEST';
   }
@@ -10,26 +13,38 @@ class TestCommand1 extends Command {
 }
 
 class TestCommand2 extends TestCommand1 {
-  static get type() {
-    return 'action.devices.commands.OnOff';
-  }
   static requiresItem() {
     return true;
   }
 }
 
-class TestCommand3 extends Command {
+class TestCommand3 extends TestCommand1 {
   static convertParamsToValue() {
     return;
   }
-  static getResponseStates(params) {
-    return params;
+}
+
+class TestCommand4 extends TestCommand1 {
+  static convertParamsToValue() {
+    throw { statusCode: 400 };
   }
 }
 
-class TestCommand4 extends Command {
-  static convertParamsToValue() {
-    throw { statusCode: 400 };
+class TestCommand5 extends TestCommand1 {
+  static get requiresUpdateValidation() {
+    return true;
+  }
+  static bypassPin() {
+    return true;
+  }
+}
+
+class TestCommand6 extends TestCommand1 {
+  static get requiresUpdateValidation() {
+    return true;
+  }
+  static validateUpdate() {
+    return { someError: true };
   }
 }
 
@@ -86,6 +101,8 @@ describe('Default Command', () => {
         type: 'pinNeeded'
       }
     });
+    // bypasspin
+    expect(TestCommand5.handleAuthPin({ id: 'Item', customData: { pinNeeded: '1234' } }, undefined)).toBeUndefined();
   });
 
   test('handleAuthAck', () => {
@@ -120,8 +137,6 @@ describe('Default Command', () => {
   describe('execute', () => {
     const getItemMock = jest.fn();
     const sendCommandMock = jest.fn();
-    sendCommandMock.mockResolvedValue();
-    getItemMock.mockResolvedValue({ name: 'TestItem' });
 
     const apiHandler = {
       getItem: getItemMock,
@@ -140,6 +155,8 @@ describe('Default Command', () => {
     beforeEach(() => {
       getItemMock.mockClear();
       sendCommandMock.mockClear();
+      sendCommandMock.mockReturnValue(Promise.resolve());
+      getItemMock.mockReturnValue(Promise.resolve({ name: 'TestItem' }));
     });
 
     test('execute without responseStates', async () => {
@@ -218,7 +235,7 @@ describe('Default Command', () => {
     test('execute with ackNeeded', async () => {
       const devices = [{ id: 'Item1', customData: { ackNeeded: true } }];
       const result = await TestCommand1.execute(apiHandler, devices, { on: true });
-      expect(getItemMock).toHaveBeenCalledTimes(0);
+      expect(getItemMock).toHaveBeenCalledTimes(1);
       expect(sendCommandMock).toHaveBeenCalledTimes(0);
       expect(result).toStrictEqual([
         {
@@ -257,23 +274,19 @@ describe('Default Command', () => {
       ]);
     });
 
-    test('execute with ackNeeded, state and missing ack', async () => {
+    test('execute with ackNeeded and ack', async () => {
       const devices = [{ id: 'Item1', customData: { ackNeeded: true } }];
-      const result = await TestCommand2.execute(apiHandler, devices, { on: true }, { pin: '1234' });
-      expect(getItemMock).toHaveBeenCalledTimes(1);
+      const result = await TestCommand3.execute(apiHandler, devices, { on: true }, { ack: true });
+      expect(getItemMock).toHaveBeenCalledTimes(0);
       expect(sendCommandMock).toHaveBeenCalledTimes(0);
       expect(result).toStrictEqual([
         {
           ids: ['Item1'],
-          challengeNeeded: {
-            type: 'ackNeeded'
-          },
-          errorCode: 'challengeNeeded',
           states: {
             on: true,
             online: true
           },
-          status: 'ERROR'
+          status: 'SUCCESS'
         }
       ]);
     });
@@ -343,6 +356,57 @@ describe('Default Command', () => {
           status: 'ERROR'
         }
       ]);
+    });
+
+    test('execute with updateValidation', async () => {
+      getItemMock.mockReturnValue(
+        Promise.resolve({ name: 'TestItem', type: 'Switch', state: 'ON', metadata: { ga: { value: 'Switch' } } })
+      );
+      const devices = [{ id: 'Item1' }];
+      const result = await TestCommand5.execute(apiHandler, devices, { on: true });
+      expect(getItemMock).toHaveBeenCalledTimes(2);
+      expect(sendCommandMock).toHaveBeenCalledTimes(1);
+      expect(result).toStrictEqual([successResponse]);
+    });
+
+    test('execute with updateValidation and device not found', async () => {
+      const devices = [{ id: 'Item1' }];
+      const result = await TestCommand5.execute(apiHandler, devices, { on: true });
+      expect(getItemMock).toHaveBeenCalledTimes(2);
+      expect(sendCommandMock).toHaveBeenCalledTimes(1);
+      expect(result).toStrictEqual([
+        {
+          errorCode: 'deviceNotFound',
+          ids: ['Item1'],
+          status: 'ERROR'
+        }
+      ]);
+    });
+
+    test('execute with failed updateValidation', async () => {
+      getItemMock.mockReturnValue(
+        Promise.resolve({ name: 'TestItem', type: 'Switch', state: 'ON', metadata: { ga: { value: 'Switch' } } })
+      );
+      const devices = [{ id: 'Item1' }];
+      const result = await TestCommand6.execute(apiHandler, devices, { on: true });
+      expect(getItemMock).toHaveBeenCalledTimes(2);
+      expect(sendCommandMock).toHaveBeenCalledTimes(1);
+      expect(result).toStrictEqual([{ someError: true }]);
+    });
+
+    test('execute with updateValidation and wait time', async () => {
+      const timeoutSpy = jest.spyOn(global, 'setTimeout');
+      timeoutSpy.mockImplementation((fn) => fn());
+      getItemMock.mockReturnValue(
+        Promise.resolve({ name: 'TestItem', type: 'Switch', state: 'ON', metadata: { ga: { value: 'Switch' } } })
+      );
+      const devices = [{ id: 'Item1', customData: { waitForStateChange: 5 } }];
+      const result = await TestCommand5.execute(apiHandler, devices, { on: true });
+      expect(getItemMock).toHaveBeenCalledTimes(2);
+      expect(sendCommandMock).toHaveBeenCalledTimes(1);
+      expect(setTimeout).toHaveBeenCalledTimes(1);
+      expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 5000);
+      expect(result).toStrictEqual([successResponse]);
     });
   });
 });

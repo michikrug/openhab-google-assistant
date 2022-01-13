@@ -1,13 +1,13 @@
 const DefaultDevice = require('./default.js');
 
 class TV extends DefaultDevice {
-  static get type() {
+  get type() {
     return 'action.devices.types.TV';
   }
 
-  static getTraits(item) {
+  get traits() {
     const traits = [];
-    const members = this.getMembers(item);
+    const members = this.members;
     if ('tvPower' in members) traits.push('action.devices.traits.OnOff');
     if ('tvMute' in members || 'tvVolume' in members) traits.push('action.devices.traits.Volume');
     if ('tvChannel' in members) traits.push('action.devices.traits.Channel');
@@ -17,17 +17,29 @@ class TV extends DefaultDevice {
     return traits;
   }
 
-  static get requiredItemTypes() {
+  get requiredItemTypes() {
     return ['Group'];
   }
 
-  static matchesDeviceType(item) {
-    return super.matchesDeviceType(item) && Object.keys(this.getMembers(item)).length > 0;
+  get supportedMembers() {
+    return [
+      { name: 'tvApplication', types: ['Number', 'String'] },
+      { name: 'tvChannel', types: ['Number', 'String'] },
+      { name: 'tvVolume', types: ['Number', 'Dimmer'] },
+      { name: 'tvInput', types: ['Number', 'String'] },
+      { name: 'tvTransport', types: ['Player'] },
+      { name: 'tvPower', types: ['Switch'] },
+      { name: 'tvMute', types: ['Switch'] }
+    ];
   }
 
-  static getAttributes(item) {
-    const config = this.getConfig(item);
-    const members = this.getMembers(item);
+  get validDeviceType() {
+    return super.validDeviceType && Object.keys(this.members).length > 0;
+  }
+
+  get attributes() {
+    const config = this.config;
+    const members = this.members;
     const attributes = {
       volumeCanMuteAndUnmute: 'tvMute' in members
     };
@@ -96,9 +108,9 @@ class TV extends DefaultDevice {
     return attributes;
   }
 
-  static getState(item) {
+  get state() {
     const state = {};
-    const members = this.getMembers(item);
+    const members = this.members;
     for (const member in members) {
       switch (member) {
         case 'tvPower':
@@ -116,7 +128,7 @@ class TV extends DefaultDevice {
         case 'tvChannel':
           state.channelNumber = members[member].state;
           try {
-            state.channelName = this.getChannelMap(item)[members[member].state][0];
+            state.channelName = this.channelMap[members[member].state][0];
           } catch (error) {
             //
           }
@@ -128,23 +140,10 @@ class TV extends DefaultDevice {
     return state;
   }
 
-  static get supportedMembers() {
-    return [
-      { name: 'tvApplication', types: ['Number', 'String'] },
-      { name: 'tvChannel', types: ['Number', 'String'] },
-      { name: 'tvVolume', types: ['Number', 'Dimmer'] },
-      { name: 'tvInput', types: ['Number', 'String'] },
-      { name: 'tvTransport', types: ['Player'] },
-      { name: 'tvPower', types: ['Switch'] },
-      { name: 'tvMute', types: ['Switch'] }
-    ];
-  }
-
-  static getChannelMap(item) {
-    const config = this.getConfig(item);
+  get channelMap() {
     const channelMap = {};
-    if ('availableChannels' in config) {
-      config.availableChannels.split(',').forEach((channel) => {
+    if ('availableChannels' in this.config) {
+      this.config.availableChannels.split(',').forEach((channel) => {
         const [number, key, names] = channel.split('=');
         channelMap[number] = [...names.split(':'), key];
       });
@@ -152,11 +151,10 @@ class TV extends DefaultDevice {
     return channelMap;
   }
 
-  static getApplicationMap(item) {
-    const config = this.getConfig(item);
+  get applicationMap() {
     const applicationMap = {};
-    if ('availableApplications' in config) {
-      config.availableApplications.split(',').forEach((application) => {
+    if ('availableApplications' in this.config) {
+      this.config.availableApplications.split(',').forEach((application) => {
         const [key, synonyms] = application.split('=');
         applicationMap[key] = [...synonyms.split(':'), key];
       });

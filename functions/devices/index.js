@@ -3,10 +3,7 @@ const glob = require('glob');
 const Devices = [];
 
 glob.sync('./!(index).js', { cwd: __dirname }).forEach((file) => {
-  const device = require(file);
-  if (device.type) {
-    Devices.push(device);
-  }
+  Devices.push(require(file));
 });
 
 module.exports = {
@@ -14,10 +11,14 @@ module.exports = {
    * @param {object} item
    */
   getDeviceForItem: (item) => {
-    return (
-      item.metadata &&
-      item.metadata.ga &&
-      Devices.find((device) => device.matchesItemType(item) && device.matchesDeviceType(item))
-    );
+    if (!item.metadata || !item.metadata.ga) {
+      return;
+    }
+    for (const device of Devices) {
+      const d = new device(item);
+      if (d.validItemType && d.validDeviceType) {
+        return d;
+      }
+    }
   }
 };

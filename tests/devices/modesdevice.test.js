@@ -1,14 +1,14 @@
 const Device = require('../../functions/devices/modesdevice.js');
 
 describe('ModesDevice Device', () => {
-  test('matchesItemType', () => {
-    expect(Device.matchesItemType({ type: 'Group' })).toBe(false);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'Number' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'String' })).toBe(true);
+  test('validItemType', () => {
+    expect(new Device({ type: 'Group' }).validItemType).toBe(false);
+    expect(new Device({ type: 'Group', groupType: 'Number' }).validItemType).toBe(true);
+    expect(new Device({ type: 'String' }).validItemType).toBe(true);
   });
 
-  describe('getAttributes', () => {
-    test('getAttributes no config', () => {
+  describe('get attributes', () => {
+    test('get attributes no config', () => {
       const item = {
         metadata: {
           ga: {
@@ -16,10 +16,10 @@ describe('ModesDevice Device', () => {
           }
         }
       };
-      expect(Device.getAttributes(item)).toStrictEqual({});
+      expect(new Device(item).attributes).toStrictEqual({});
     });
 
-    test('getAttributes mode', () => {
+    test('get attributes mode', () => {
       const item = {
         metadata: {
           ga: {
@@ -31,7 +31,7 @@ describe('ModesDevice Device', () => {
           }
         }
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         availableModes: [
           {
             name: 'mode_name',
@@ -68,10 +68,10 @@ describe('ModesDevice Device', () => {
     });
   });
 
-  test('getState', () => {
-    expect(Device.getState({ state: 'mode_value' })).toStrictEqual({});
+  test('get state', () => {
+    expect(new Device({ state: 'mode_value' }).state).toStrictEqual({});
     expect(
-      Device.getState({
+      new Device({
         state: 'mode_value',
         metadata: {
           ga: {
@@ -81,7 +81,7 @@ describe('ModesDevice Device', () => {
             }
           }
         }
-      })
+      }).state
     ).toStrictEqual({
       currentModeSettings: {
         mode_name: 'mode_value'

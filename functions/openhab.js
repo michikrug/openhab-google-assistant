@@ -120,13 +120,13 @@ class OpenHAB {
       items = items.filter((item) => item.metadata && item.metadata.ga);
       items.forEach((item) => {
         item.members = items.filter((member) => member.groupNames && member.groupNames.includes(item.name));
-        const DeviceType = getDeviceForItem(item);
-        if (DeviceType) {
+        const device = getDeviceForItem(item);
+        if (device) {
           console.log(
             `openhabGoogleAssistant - handleSync - SYNC is adding: ${item.type}:${item.name}` +
-              ` with type: ${DeviceType.type}`
+              ` with type: ${device.type}`
           );
-          discoveredDevicesList.push(DeviceType.getMetadata(item));
+          discoveredDevicesList.push(device.metadata);
         }
       });
       return { devices: discoveredDevicesList };
@@ -138,22 +138,22 @@ class OpenHAB {
    */
   handleQuery(devices) {
     const payload = { devices: {} };
-    const promises = devices.map((device) =>
+    const promises = devices.map((queryDevice) =>
       this._apiHandler
-        .getItem(device.id)
+        .getItem(queryDevice.id)
         .then((item) => {
-          const DeviceType = getDeviceForItem(item);
-          if (!DeviceType) {
+          const device = getDeviceForItem(item);
+          if (!device) {
             throw { statusCode: 404, message: `Device type not found for item: ${item.type} ${item.name}` };
           }
-          if (item.state === 'NULL' && !DeviceType.supportedMembers.length) {
+          if (item.state === 'NULL' && !device.supportedMembers.length) {
             throw { statusCode: 406, message: `Item state is NULL: ${item.type} ${item.name}` };
           }
-          payload.devices[device.id] = Object.assign({ status: 'SUCCESS', online: true }, DeviceType.getState(item));
+          payload.devices[queryDevice.id] = Object.assign({ status: 'SUCCESS', online: true }, device.state);
         })
         .catch((error) => {
           console.error(`openhabGoogleAssistant - handleQuery - getItem: ERROR ${JSON.stringify(error)}`);
-          payload.devices[device.id] = {
+          payload.devices[queryDevice.id] = {
             status: 'ERROR',
             errorCode:
               error.statusCode == 404 ? 'deviceNotFound' : error.statusCode == 406 ? 'deviceNotReady' : 'deviceOffline'
@@ -228,16 +228,16 @@ class OpenHAB {
    * @param {object} item
    */
   async handleStateReport(item, userId, homegraphClient) {
-    const DeviceType = getDeviceForItem(item);
-    if (!DeviceType) {
+    const device = getDeviceForItem(item);
+    if (!device) {
       throw { statusCode: 404 };
     }
-    if (item.state === 'NULL' && !DeviceType.supportedMembers.length) {
+    if (item.state === 'NULL' && !device.supportedMembers.length) {
       throw { statusCode: 406 };
     }
     const payload = { devices: { states: {}, notifications: {} } };
-    const state = DeviceType.getState(item);
-    const notification = DeviceType.getNotification(item);
+    const state = device.state;
+    const notification = device.getNotification();
     if (!Object.keys(state).length && !Object.keys(notification).length) {
       return { statusText: 'OK' };
     }

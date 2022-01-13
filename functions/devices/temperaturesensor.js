@@ -2,32 +2,32 @@ const DefaultDevice = require('./default.js');
 const convertToCelsius = require('../utilities.js').convertToCelsius;
 
 class TemperatureSensor extends DefaultDevice {
-  static get type() {
+  get type() {
     return 'action.devices.types.SENSOR';
   }
 
-  static getTraits() {
+  get traits() {
     return ['action.devices.traits.TemperatureControl'];
   }
 
-  static getAttributes(item) {
-    return {
-      queryOnlyTemperatureControl: true,
-      temperatureUnitForUX: this.getConfig(item).useFahrenheit === true ? 'F' : 'C'
-    };
-  }
-
-  static get requiredItemTypes() {
+  get requiredItemTypes() {
     return ['Number'];
   }
 
-  static matchesDeviceType(item) {
-    return item.metadata && item.metadata.ga && item.metadata.ga.value.toLowerCase() == 'temperaturesensor';
+  get attributes() {
+    return {
+      queryOnlyTemperatureControl: true,
+      temperatureUnitForUX: this.config.useFahrenheit === true ? 'F' : 'C'
+    };
   }
 
-  static getState(item) {
-    let state = Number(parseFloat(item.state).toFixed(1));
-    if (this.getConfig(item).useFahrenheit === true) {
+  get validDeviceType() {
+    return this.deviceType.toLowerCase() == 'temperaturesensor';
+  }
+
+  get state() {
+    let state = Number(parseFloat(this.item.state).toFixed(1));
+    if (this.config.useFahrenheit === true) {
       state = convertToCelsius(state);
     }
     return {

@@ -1,33 +1,33 @@
 const Device = require('../../functions/devices/scene.js');
 
 describe('Scene Device', () => {
-  test('matchesDeviceType', () => {
+  test('validDeviceType', () => {
     expect(
-      Device.matchesDeviceType({
+      new Device({
         metadata: {
           ga: {
             value: 'SCENE'
           }
         }
-      })
+      }).validDeviceType
     ).toBe(true);
   });
 
-  test('matchesItemType', () => {
-    expect(Device.matchesItemType({ type: 'Switch' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'String' })).toBe(false);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'Switch' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'String' })).toBe(false);
+  test('validItemType', () => {
+    expect(new Device({ type: 'Switch' }).validItemType).toBe(true);
+    expect(new Device({ type: 'String' }).validItemType).toBe(false);
+    expect(new Device({ type: 'Group', groupType: 'Switch' }).validItemType).toBe(true);
+    expect(new Device({ type: 'Group', groupType: 'String' }).validItemType).toBe(false);
   });
 
-  describe('getAttributes', () => {
-    test('getAttributes no config', () => {
-      expect(Device.getAttributes()).toStrictEqual({
+  describe('get attributes', () => {
+    test('get attributes no config', () => {
+      expect(new Device().attributes).toStrictEqual({
         sceneReversible: true
       });
     });
 
-    test('getAttributes with sceneReversible = true', () => {
+    test('get attributes with sceneReversible = true', () => {
       const item = {
         metadata: {
           ga: {
@@ -37,12 +37,12 @@ describe('Scene Device', () => {
           }
         }
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         sceneReversible: true
       });
     });
 
-    test('getAttributes with sceneReversible = false', () => {
+    test('get attributes with sceneReversible = false', () => {
       const item = {
         metadata: {
           ga: {
@@ -52,13 +52,13 @@ describe('Scene Device', () => {
           }
         }
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         sceneReversible: false
       });
     });
   });
 
-  test('getState', () => {
-    expect(Device.getState({})).toStrictEqual({});
+  test('get state', () => {
+    expect(new Device({}).state).toStrictEqual({});
   });
 });

@@ -24,14 +24,14 @@ class ThermostatTemperatureSetpointLow extends DefaultCommand {
 
   static convertParamsToValue(params, item) {
     let value = params.thermostatTemperatureSetpointLow;
-    if (Thermostat.useFahrenheit(item)) {
+    if (new Thermostat(item).useFahrenheit) {
       value = convertToFahrenheit(value);
     }
     return value.toString();
   }
 
   static getResponseStates(params, item) {
-    const states = Thermostat.getState(item);
+    const states = new Thermostat(item).state;
     states.thermostatTemperatureSetpointLow = params.thermostatTemperatureSetpointLow;
     return states;
   }

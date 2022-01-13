@@ -23,11 +23,11 @@ class ThermostatSetMode extends DefaultCommand {
   }
 
   static convertParamsToValue(params, item) {
-    return Thermostat.translateModeToOpenhab(item, params.thermostatMode);
+    return new Thermostat(item).translateModeToOpenhab(params.thermostatMode);
   }
 
   static getResponseStates(params, item) {
-    const states = Thermostat.getState(item);
+    const states = new Thermostat(item).state;
     states.thermostatMode = params.thermostatMode;
     return states;
   }

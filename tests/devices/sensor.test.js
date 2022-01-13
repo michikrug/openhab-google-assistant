@@ -1,18 +1,18 @@
 const Device = require('../../functions/devices/sensor.js');
 
 describe('Sensor Device', () => {
-  test('matchesDeviceType', () => {
+  test('validDeviceType', () => {
     expect(
-      Device.matchesDeviceType({
+      new Device({
         metadata: {
           ga: {
             value: 'SENSOR'
           }
         }
-      })
+      }).validDeviceType
     ).toBe(false);
     expect(
-      Device.matchesDeviceType({
+      new Device({
         metadata: {
           ga: {
             value: 'SENSOR',
@@ -22,10 +22,10 @@ describe('Sensor Device', () => {
             }
           }
         }
-      })
+      }).validDeviceType
     ).toBe(true);
     expect(
-      Device.matchesDeviceType({
+      new Device({
         metadata: {
           ga: {
             value: 'SENSOR',
@@ -35,18 +35,18 @@ describe('Sensor Device', () => {
             }
           }
         }
-      })
+      }).validDeviceType
     ).toBe(true);
   });
 
-  test('matchesItemType', () => {
-    expect(Device.matchesItemType({ type: 'Group' })).toBe(false);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'String' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'Number' })).toBe(true);
+  test('validItemType', () => {
+    expect(new Device({ type: 'Group' }).validItemType).toBe(false);
+    expect(new Device({ type: 'Group', groupType: 'String' }).validItemType).toBe(true);
+    expect(new Device({ type: 'Number' }).validItemType).toBe(true);
   });
 
-  describe('getAttributes', () => {
-    test('getAttributes no config', () => {
+  describe('get attributes', () => {
+    test('get attributes no config', () => {
       const item = {
         metadata: {
           ga: {
@@ -54,10 +54,10 @@ describe('Sensor Device', () => {
           }
         }
       };
-      expect(Device.getAttributes(item)).toStrictEqual({});
+      expect(new Device(item).attributes).toStrictEqual({});
     });
 
-    test('getAttributes states', () => {
+    test('get attributes states', () => {
       const item = {
         metadata: {
           ga: {
@@ -69,7 +69,7 @@ describe('Sensor Device', () => {
           }
         }
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         sensorStatesSupported: [
           {
             descriptiveCapabilities: {
@@ -85,8 +85,8 @@ describe('Sensor Device', () => {
     });
   });
 
-  describe('getState', () => {
-    test('getState', () => {
+  describe('get state', () => {
+    test('get state', () => {
       const item = {
         metadata: {
           ga: {
@@ -99,7 +99,7 @@ describe('Sensor Device', () => {
         },
         state: '10'
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         currentSensorStateData: [
           {
             currentSensorState: 'good',
@@ -123,7 +123,7 @@ describe('Sensor Device', () => {
         },
         state: '20'
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         currentSensorStateData: [
           {
             currentSensorState: '',
@@ -148,7 +148,7 @@ describe('Sensor Device', () => {
       },
       state: '10'
     };
-    expect(Device.getNotification(item)).toStrictEqual({
+    expect(new Device(item).getNotification()).toStrictEqual({
       SensorState: {
         name: 'Sensor',
         currentSensorState: 'good',

@@ -65,7 +65,7 @@ class ArmDisarm extends DefaultCommand {
     let currentLevel;
 
     if (this.getDeviceType(device) === 'SecuritySystem') {
-      const members = SecuritySystem.getMembers(item);
+      const members = new SecuritySystem(item).members;
       isCurrentlyArmed =
         (SecuritySystem.armedMemberName in members && members[SecuritySystem.armedMemberName].state) ===
         (this.isInverted(device) ? 'OFF' : 'ON');
@@ -95,7 +95,8 @@ class ArmDisarm extends DefaultCommand {
 
   static validateUpdate(params, item, device) {
     if (this.getDeviceType(device) === 'SecuritySystem') {
-      const members = SecuritySystem.getMembers(item);
+      const securitySystem = new SecuritySystem(item);
+      const members = securitySystem.members;
       const isCurrentlyArmed =
         members[SecuritySystem.armedMemberName].state === (this.isInverted(device) ? 'OFF' : 'ON');
       const currentLevel =
@@ -106,12 +107,12 @@ class ArmDisarm extends DefaultCommand {
         if (!params.arm) {
           throw { errorCode: 'disarmFailure' };
         } else {
-          const report = SecuritySystem.getStatusReport(item, members);
+          const report = securitySystem.getStatusReport();
           if (report.length) {
             return {
               ids: [device.id],
               status: 'EXCEPTIONS',
-              states: Object.assign({ online: true, currentStatusReport: report }, SecuritySystem.getState(item))
+              states: Object.assign({ online: true, currentStatusReport: report }, securitySystem.state)
             };
           }
           throw { errorCode: 'armFailure' };

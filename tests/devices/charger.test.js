@@ -1,19 +1,19 @@
 const Device = require('../../functions/devices/charger.js');
 
 describe('Charger Device', () => {
-  test('matchesDeviceType', () => {
+  test('validDeviceType', () => {
     expect(
-      Device.matchesDeviceType({
+       new Device({
         type: 'Group',
         metadata: {
           ga: {
             value: 'Charger'
           }
         }
-      })
+      }).validDeviceType
     ).toBe(false);
     expect(
-      Device.matchesDeviceType({
+       new Device({
         type: 'Group',
         metadata: {
           ga: {
@@ -30,17 +30,17 @@ describe('Charger Device', () => {
             }
           }
         ]
-      })
+      }).validDeviceType
     ).toBe(true);
   });
 
-  test('matchesItemType', () => {
-    expect(Device.matchesItemType({ type: 'Group' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'Switch' })).toBe(false);
+  test('validItemType', () => {
+    expect(new Device({ type: 'Group' }).validItemType).toBe(true);
+    expect(new Device({ type: 'Switch' }).validItemType).toBe(false);
   });
 
-  describe('getAttributes', () => {
-    test('getAttributes no config', () => {
+  describe('get attributes', () => {
+    test('get attributes no config', () => {
       const item = {
         metadata: {
           ga: {
@@ -58,13 +58,13 @@ describe('Charger Device', () => {
           }
         ]
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         isRechargeable: false,
         queryOnlyEnergyStorage: true
       });
     });
 
-    test('getAttributes with charging', () => {
+    test('get attributes with charging', () => {
       const item = {
         metadata: {
           ga: {
@@ -82,13 +82,13 @@ describe('Charger Device', () => {
           }
         ]
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         isRechargeable: false,
         queryOnlyEnergyStorage: false
       });
     });
 
-    test('getAttributes with charging', () => {
+    test('get attributes with charging', () => {
       const item = {
         metadata: {
           ga: {
@@ -108,16 +108,16 @@ describe('Charger Device', () => {
           }
         ]
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         isRechargeable: true,
         queryOnlyEnergyStorage: false
       });
     });
   });
 
-  test('getMembers', () => {
-    expect(Device.getMembers({ members: [{}] })).toStrictEqual({});
-    expect(Device.getMembers({ members: [{ metadata: { ga: { value: 'invalid' } } }] })).toStrictEqual({});
+  test('get members', () => {
+    expect(new Device({ members: [{}] }).members).toStrictEqual({});
+    expect(new Device({ members: [{ metadata: { ga: { value: 'invalid' } } }] }).members).toStrictEqual({});
     const item = {
       members: [
         {
@@ -152,7 +152,7 @@ describe('Charger Device', () => {
         }
       ]
     };
-    expect(Device.getMembers(item)).toStrictEqual({
+    expect(new Device(item).members).toStrictEqual({
       chargerCharging: {
         name: 'Charging',
         state: 'ON'
@@ -168,8 +168,8 @@ describe('Charger Device', () => {
     });
   });
 
-  describe('getState', () => {
-    test('getState default unit', () => {
+  describe('get state', () => {
+    test('get state default unit', () => {
       const item = {
         type: 'Group',
         metadata: {
@@ -211,7 +211,7 @@ describe('Charger Device', () => {
           }
         ]
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         capacityRemaining: [
           {
             rawValue: 60,
@@ -229,7 +229,7 @@ describe('Charger Device', () => {
       });
 
       item.members[1].state = '10';
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         capacityRemaining: [
           {
             rawValue: 10,
@@ -247,7 +247,7 @@ describe('Charger Device', () => {
       });
 
       item.members[1].state = '22';
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         capacityRemaining: [
           {
             rawValue: 22,
@@ -265,7 +265,7 @@ describe('Charger Device', () => {
       });
 
       item.members[1].state = '80';
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         capacityRemaining: [
           {
             rawValue: 80,
@@ -283,7 +283,7 @@ describe('Charger Device', () => {
       });
 
       item.members[1].state = '100';
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         capacityRemaining: [
           {
             rawValue: 100,
@@ -355,7 +355,7 @@ describe('Charger Device', () => {
           }
         ]
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         capacityRemaining: [
           {
             rawValue: 4000,

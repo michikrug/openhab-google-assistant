@@ -1,7 +1,7 @@
 const Switch = require('./switch.js');
 
 class Outlet extends Switch {
-  static get type() {
+  get type() {
     return 'action.devices.types.OUTLET';
   }
 }

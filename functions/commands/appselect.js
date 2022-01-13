@@ -26,7 +26,7 @@ class AppSelect extends DefaultCommand {
   }
 
   static convertParamsToValue(params, item) {
-    const applicationMap = TV.getApplicationMap(item);
+    const applicationMap = new TV(item).applicationMap;
     if (params.newApplication && params.newApplication in applicationMap) {
       return params.newApplication;
     }

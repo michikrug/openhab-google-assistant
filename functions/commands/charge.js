@@ -27,7 +27,7 @@ class Charge extends DefaultCommand {
   }
 
   static getResponseStates(params, item) {
-    const states = Charger.getState(item);
+    const states = new Charger(item).state;
     states.isCharging = params.charge;
     return states;
   }

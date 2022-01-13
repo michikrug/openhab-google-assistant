@@ -1,27 +1,27 @@
 const Device = require('../../functions/devices/camera.js');
 
 describe('Camera Device', () => {
-  test('matchesDeviceType', () => {
+  test('validDeviceType', () => {
     expect(
-      Device.matchesDeviceType({
+       new Device({
         metadata: {
           ga: {
             value: 'CAMERA'
           }
         }
-      })
+      }).validDeviceType
     ).toBe(true);
   });
 
-  test('matchesItemType', () => {
-    expect(Device.matchesItemType({ type: 'String' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'Number' })).toBe(false);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'String' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'Number' })).toBe(false);
+  test('validItemType', () => {
+    expect(new Device({ type: 'String' }).validItemType).toBe(true);
+    expect(new Device({ type: 'Number' }).validItemType).toBe(false);
+    expect(new Device({ type: 'Group', groupType: 'String' }).validItemType).toBe(true);
+    expect(new Device({ type: 'Group', groupType: 'Number' }).validItemType).toBe(false);
   });
 
-  describe('getAttributes', () => {
-    test('getAttributes no config', () => {
+  describe('get attributes', () => {
+    test('get attributes no config', () => {
       const item = {
         metadata: {
           ga: {
@@ -29,14 +29,14 @@ describe('Camera Device', () => {
           }
         }
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         cameraStreamSupportedProtocols: ['hls', 'dash', 'smooth_stream', 'progressive_mp4'],
         cameraStreamNeedAuthToken: false,
         cameraStreamNeedDrmEncryption: false
       });
     });
 
-    test('getAttributes protocols, token', () => {
+    test('get attributes protocols, token', () => {
       const item = {
         metadata: {
           ga: {
@@ -47,7 +47,7 @@ describe('Camera Device', () => {
           }
         }
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         cameraStreamSupportedProtocols: ['hls', 'test'],
         cameraStreamNeedAuthToken: true,
         cameraStreamNeedDrmEncryption: false
@@ -55,7 +55,7 @@ describe('Camera Device', () => {
     });
   });
 
-  test('getState', () => {
-    expect(Device.getState({})).toStrictEqual({});
+  test('get state', () => {
+    expect(new Device({}).state).toStrictEqual({});
   });
 });

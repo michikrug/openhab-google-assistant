@@ -2,74 +2,65 @@
 const packageVersion = require('../package.json').version;
 
 class DefaultDevice {
-  static get type() {
+  constructor(item) {
+    this._item = item;
+    this._metadata = (item && item.metadata && item.metadata.ga) || {};
+  }
+
+  get item() {
+    return this._item;
+  }
+
+  get config() {
+    return this._metadata.config || {};
+  }
+
+  get itemType() {
+    return (this.item.groupType || this.item.type || '').split(':')[0];
+  }
+
+  get deviceType() {
+    return this._metadata.value || '';
+  }
+
+  get validItemType() {
+    return !!(!this.requiredItemTypes.length || this.requiredItemTypes.includes(this.itemType));
+  }
+
+  get type() {
     return '';
   }
 
-  /**
-   * @param {object} item
-   */
-  static getTraits(item) {
+  get traits() {
     return [];
   }
 
-  static get requiredItemTypes() {
+  get requiredItemTypes() {
     return [];
   }
 
-  /**
-   * @param {object} item
-   */
-  static matchesDeviceType(item) {
-    return !!(
-      item.metadata &&
-      item.metadata.ga &&
-      this.type.toLowerCase() === `action.devices.types.${item.metadata.ga.value}`.toLowerCase()
-    );
+  get validDeviceType() {
+    return !!(this.type.toLowerCase() === `action.devices.types.${this.deviceType}`.toLowerCase());
   }
 
-  /**
-   * @param {object} item
-   */
-  static matchesItemType(item) {
-    return !!(
-      !this.requiredItemTypes.length ||
-      this.requiredItemTypes.includes((item.groupType || item.type || '').split(':')[0])
-    );
-  }
-
-  /**
-   * @param {object} item
-   */
-  static getAttributes(item) {
+  get attributes() {
     return {};
   }
 
-  /**
-   * @param {object} item
-   */
-  static getConfig(item) {
-    return (item && item.metadata && item.metadata.ga && item.metadata.ga.config) || {};
-  }
-
-  /**
-   * @param {object} item
-   */
-  static getMetadata(item) {
-    const config = this.getConfig(item);
-    const itemType = item.groupType || item.type;
-    const deviceName = config.name || item.label || item.name;
+  get metadata() {
+    const config = this.config;
+    const deviceName = config.name || this.item.label || this.item.name;
     const metadata = {
-      id: item.name,
+      id: this.item.name,
       type: this.type,
-      traits: this.getTraits(item),
+      traits: this.traits,
       name: {
         name: deviceName,
         defaultNames: [deviceName],
         nicknames: [
           deviceName,
-          ...(item.metadata && item.metadata.synonyms
-            ? item.metadata.synonyms.value.split(',').map((s) => s.trim())
+          ...(this.item.metadata && this.item.metadata.synonyms
+            ? this.item.metadata.synonyms.value.split(',').map((s) => s.trim())
             : [])
         ]
       },
@@ -79,14 +70,14 @@ class DefaultDevice {
       structureHint: config.structureHint,
       deviceInfo: {
         manufacturer: 'openHAB',
-        model: `${itemType}:${item.name}`,
+        model: `${this.itemType}:${this.item.name}`,
         hwVersion: '3.0.0',
         swVersion: packageVersion
       },
-      attributes: this.getAttributes(item),
+      attributes: this.attributes,
       customData: {
-        deviceType: this.name,
-        itemType: itemType
+        deviceType: this.constructor.name,
+        itemType: this.itemType
       }
     };
     if (config.inverted === true) {
@@ -105,7 +96,7 @@ class DefaultDevice {
       metadata.customData.waitForStateChange = parseInt(config.waitForStateChange);
     }
     if (this.supportedMembers.length) {
-      const members = this.getMembers(item);
+      const members = this.members;
       metadata.customData.members = {};
       for (const member in members) {
         metadata.customData.members[member] = members[member].name;
@@ -114,29 +105,24 @@ class DefaultDevice {
     return metadata;
   }
 
-  /**
-   * @param {object} item
-   */
-  static getState(item) {
+  get state() {
     return {};
   }
 
-  /**
-   * @param {object} item
-   */
-  static getNotification(item) {
+  getNotification() {
     return {};
   }
 
-  static get supportedMembers() {
+  get supportedMembers() {
     return [];
   }
 
-  static getMembers(item) {
+  get members() {
+    if (this._members && Object.keys(this._members).length > 0) return this._members;
     const supportedMembers = this.supportedMembers;
     const members = {};
-    if (item.members && item.members.length) {
-      item.members.forEach((member) => {
+    if (this.item.members && this.item.members.length && supportedMembers.length) {
+      this.item.members.forEach((member) => {
         if (member.metadata && member.metadata.ga) {
           const memberType = supportedMembers.find((m) => {
             const memberType = (member.groupType || member.type || '').split(':')[0];
@@ -148,6 +134,7 @@ class DefaultDevice {
         }
       });
     }
+    this._members = members;
     return members;
   }
 }

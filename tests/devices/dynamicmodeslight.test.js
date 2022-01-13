@@ -36,9 +36,9 @@ describe('DynamicModesLight Device', () => {
     ]
   };
 
-  test('matchesDeviceType', () => {
-    expect(Device.matchesDeviceType(item)).toBe(true);
-    expect(Device.matchesDeviceType({ metadata: { ga: { value: 'test' } } })).toBe(false);
-    expect(Device.matchesDeviceType({ metadata: { ga: { value: 'light' } } })).toBe(false);
+  test('validDeviceType', () => {
+    expect(new Device(item).validDeviceType).toBe(true);
+    expect(new Device({ metadata: { ga: { value: 'test' } } }).validDeviceType).toBe(false);
+    expect(new Device({ metadata: { ga: { value: 'light' } } }).validDeviceType).toBe(false);
   });
 });

@@ -1,18 +1,18 @@
 const Device = require('../../functions/devices/tv.js');
 
 describe('TV Device', () => {
-  test('matchesDeviceType', () => {
+  test('validDeviceType', () => {
     expect(
-      Device.matchesDeviceType({
+       new Device({
         metadata: {
           ga: {
             value: 'TV'
           }
         }
-      })
+      }).validDeviceType
     ).toBe(false);
     expect(
-      Device.matchesDeviceType({
+       new Device({
         metadata: {
           ga: {
             value: 'TV'
@@ -28,17 +28,17 @@ describe('TV Device', () => {
             }
           }
         ]
-      })
+      }).validDeviceType
     ).toBe(true);
   });
 
-  test('matchesItemType', () => {
-    expect(Device.matchesItemType({ type: 'Switch' })).toBe(false);
-    expect(Device.matchesItemType({ type: 'Group' })).toBe(true);
+  test('validItemType', () => {
+    expect(new Device({ type: 'Switch' }).validItemType).toBe(false);
+    expect(new Device({ type: 'Group' }).validItemType).toBe(true);
   });
 
-  describe('getTraits', () => {
-    test('getTraits only power', () => {
+  describe('get traits', () => {
+    test('get traits only power', () => {
       const item = {
         members: [
           {
@@ -52,10 +52,10 @@ describe('TV Device', () => {
           }
         ]
       };
-      expect(Device.getTraits(item)).toStrictEqual(['action.devices.traits.OnOff']);
+      expect(new Device(item).traits).toStrictEqual(['action.devices.traits.OnOff']);
     });
 
-    test('getTraits all members', () => {
+    test('get traits all members', () => {
       const item = {
         members: [
           {
@@ -123,7 +123,7 @@ describe('TV Device', () => {
           }
         ]
       };
-      expect(Device.getTraits(item)).toStrictEqual([
+      expect(new Device(item).traits).toStrictEqual([
         'action.devices.traits.OnOff',
         'action.devices.traits.Volume',
         'action.devices.traits.Channel',
@@ -134,8 +134,8 @@ describe('TV Device', () => {
     });
   });
 
-  describe('getAttributes', () => {
-    test('getAttributes no config', () => {
+  describe('get attributes', () => {
+    test('get attributes no config', () => {
       const item = {
         metadata: {
           ga: {
@@ -161,14 +161,14 @@ describe('TV Device', () => {
           }
         ]
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         transportControlSupportedCommands: ['NEXT', 'PREVIOUS', 'PAUSE', 'RESUME'],
         volumeCanMuteAndUnmute: false,
         volumeMaxLevel: 100
       });
     });
 
-    test('getAttributes volume', () => {
+    test('get attributes volume', () => {
       const item = {
         metadata: {
           ga: {
@@ -190,7 +190,7 @@ describe('TV Device', () => {
           }
         ]
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         levelStepSize: 10,
         volumeCanMuteAndUnmute: false,
         volumeDefaultPercentage: 20,
@@ -198,7 +198,7 @@ describe('TV Device', () => {
       });
     });
 
-    test('getAttributes transport, mute', () => {
+    test('get attributes transport, mute', () => {
       const item = {
         metadata: {
           ga: {
@@ -226,13 +226,13 @@ describe('TV Device', () => {
           }
         ]
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         transportControlSupportedCommands: ['PAUSE', 'RESUME'],
         volumeCanMuteAndUnmute: true
       });
     });
 
-    test('getAttributes inputs', () => {
+    test('get attributes inputs', () => {
       const item = {
         metadata: {
           ga: {
@@ -252,7 +252,7 @@ describe('TV Device', () => {
           }
         ]
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         availableInputs: [
           {
             key: 'input1',
@@ -278,7 +278,7 @@ describe('TV Device', () => {
       });
     });
 
-    test('getAttributes channels', () => {
+    test('get attributes channels', () => {
       const item = {
         metadata: {
           ga: {
@@ -298,7 +298,7 @@ describe('TV Device', () => {
           }
         ]
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         availableChannels: [
           {
             key: 'channel1',
@@ -316,7 +316,7 @@ describe('TV Device', () => {
     });
   });
 
-  test('getAttributes applications', () => {
+  test('get attributes applications', () => {
     const item = {
       metadata: {
         ga: {
@@ -336,7 +336,7 @@ describe('TV Device', () => {
         }
       ]
     };
-    expect(Device.getAttributes(item)).toStrictEqual({
+    expect(new Device(item).attributes).toStrictEqual({
       availableApplications: [
         {
           key: 'youtube',
@@ -361,9 +361,9 @@ describe('TV Device', () => {
     });
   });
 
-  test('getMembers', () => {
-    expect(Device.getMembers({ members: [{}] })).toStrictEqual({});
-    expect(Device.getMembers({ members: [{ metadata: { ga: { value: 'invalid' } } }] })).toStrictEqual({});
+  test('get members', () => {
+    expect(new Device({ members: [{}] }).members).toStrictEqual({});
+    expect(new Device({ members: [{ metadata: { ga: { value: 'invalid' } } }] }).members).toStrictEqual({});
     const item = {
       members: [
         {
@@ -438,7 +438,7 @@ describe('TV Device', () => {
         }
       ]
     };
-    expect(Device.getMembers(item)).toStrictEqual({
+    expect(new Device(item).members).toStrictEqual({
       tvChannel: {
         name: 'Channel',
         state: '1'
@@ -470,7 +470,7 @@ describe('TV Device', () => {
     });
   });
 
-  test('getChannelMap', () => {
+  test('get channelMap', () => {
     const item = {
       metadata: {
         ga: {
@@ -480,13 +480,13 @@ describe('TV Device', () => {
         }
       }
     };
-    expect(Device.getChannelMap(item)).toStrictEqual({
+    expect(new Device(item).channelMap).toStrictEqual({
       10: ['Channel 2', 'Kanal 2', 'channel2'],
       20: ['Channel 1', 'Kanal 1', 'channel1']
     });
   });
 
-  test('getApplicationMap', () => {
+  test('get applicationMap', () => {
     const item = {
       metadata: {
         ga: {
@@ -496,14 +496,14 @@ describe('TV Device', () => {
         }
       }
     };
-    expect(Device.getApplicationMap(item)).toStrictEqual({
+    expect(new Device(item).applicationMap).toStrictEqual({
       youtube: ['YouTube', 'Tube', 'youtube'],
       netflix: ['Net Flix', 'Flix', 'netflix']
     });
   });
 
-  describe('getState', () => {
-    test('getState', () => {
+  describe('get state', () => {
+    test('get state', () => {
       const item = {
         type: 'Group',
         metadata: {
@@ -583,7 +583,7 @@ describe('TV Device', () => {
           }
         ]
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         channelName: 'ARD',
         channelNumber: '1',
         currentInput: 'input1',
@@ -609,7 +609,7 @@ describe('TV Device', () => {
           }
         ]
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         channelNumber: '1'
       });
     });
@@ -643,7 +643,7 @@ describe('TV Device', () => {
           }
         ]
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         currentVolume: 50,
         on: true
       });

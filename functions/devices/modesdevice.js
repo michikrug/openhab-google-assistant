@@ -1,16 +1,20 @@
 const DefaultDevice = require('./default.js');
 
 class ModesDevice extends DefaultDevice {
-  static getTraits() {
+  get traits() {
     return ['action.devices.traits.Modes'];
   }
 
-  static matchesDeviceType(item) {
-    return super.matchesDeviceType(item) && !!this.getAttributes(item).availableModes;
+  get requiredItemTypes() {
+    return ['Color', 'Dimmer', 'Number', 'Player', 'Rollershutter', 'String', 'Switch'];
   }
 
-  static getAttributes(item) {
-    const config = this.getConfig(item);
+  get validDeviceType() {
+    return super.validDeviceType && !!this.attributes.availableModes;
+  }
+
+  get attributes() {
+    const config = this.config;
     if (!config.mode || !config.settings) {
       return {};
     }
@@ -50,17 +54,13 @@ class ModesDevice extends DefaultDevice {
     return attributes;
   }
 
-  static get requiredItemTypes() {
-    return ['Color', 'Dimmer', 'Number', 'Player', 'Rollershutter', 'String', 'Switch'];
-  }
-
-  static getState(item) {
-    const config = this.getConfig(item);
+  get state() {
+    const config = this.config;
     const state = {};
     if (config.mode && config.settings) {
       const modeNames = config.mode.split(',').map((s) => s.trim());
       state.currentModeSettings = {
-        [modeNames[0]]: item.state
+        [modeNames[0]]: this.item.state
       };
     }
     return state;

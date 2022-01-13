@@ -27,7 +27,7 @@ class SelectChannel extends DefaultCommand {
   }
 
   static convertParamsToValue(params, item) {
-    const channelMap = TV.getChannelMap(item);
+    const channelMap = new TV(item).channelMap;
     if (params.channelNumber && params.channelNumber in channelMap) {
       return params.channelNumber;
     }

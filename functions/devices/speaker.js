@@ -1,16 +1,20 @@
 const DefaultDevice = require('./default.js');
 
 class Speaker extends DefaultDevice {
-  static get type() {
+  get type() {
     return 'action.devices.types.SPEAKER';
   }
 
-  static getTraits() {
+  get traits() {
     return ['action.devices.traits.Volume'];
   }
 
-  static getAttributes(item) {
-    const config = this.getConfig(item);
+  get requiredItemTypes() {
+    return ['Dimmer'];
+  }
+
+  get attributes() {
+    const config = this.config;
     const attributes = {
       volumeMaxLevel: 100,
       volumeCanMuteAndUnmute: false
@@ -27,13 +31,10 @@ class Speaker extends DefaultDevice {
     return attributes;
   }
 
-  static get requiredItemTypes() {
-    return ['Dimmer'];
-  }
 
-  static getState(item) {
+  get state() {
     return {
-      currentVolume: Number(item.state) || 0
+      currentVolume: Number(this.item.state) || 0
     };
   }
 }

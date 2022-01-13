@@ -1,29 +1,29 @@
 const Device = require('../../functions/devices/fan.js');
 
 describe('Fan Device', () => {
-  test('matchesDeviceType', () => {
+  test('validDeviceType', () => {
     expect(
-      Device.matchesDeviceType({
+      new Device({
         type: 'Dimmer',
         metadata: {
           ga: {
             value: 'FAN'
           }
         }
-      })
+      }).validDeviceType
     ).toBe(true);
     expect(
-      Device.matchesDeviceType({
+      new Device({
         type: 'Group',
         metadata: {
           ga: {
             value: 'FAN'
           }
         }
-      })
+      }).validDeviceType
     ).toBe(false);
     expect(
-      Device.matchesDeviceType({
+      new Device({
         type: 'Group',
         metadata: {
           ga: {
@@ -41,34 +41,34 @@ describe('Fan Device', () => {
             }
           }
         ]
-      })
+      }).validDeviceType
     ).toBe(true);
   });
 
-  test('matchesItemType', () => {
-    expect(Device.matchesItemType({ type: 'Dimmer' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'String' })).toBe(false);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'Dimmer' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'String' })).toBe(false);
+  test('validItemType', () => {
+    expect(new Device({ type: 'Dimmer' }).validItemType).toBe(true);
+    expect(new Device({ type: 'String' }).validItemType).toBe(false);
+    expect(new Device({ type: 'Group', groupType: 'Dimmer' }).validItemType).toBe(true);
+    expect(new Device({ type: 'Group', groupType: 'String' }).validItemType).toBe(false);
   });
 
-  describe('getTraits', () => {
-    test('getTraits Dimmer', () => {
+  describe('get traits', () => {
+    test('get traits Dimmer', () => {
       const item = {
         type: 'Dimmer'
       };
-      expect(Device.getTraits(item)).toStrictEqual(['action.devices.traits.OnOff', 'action.devices.traits.FanSpeed']);
+      expect(new Device(item).traits).toStrictEqual(['action.devices.traits.OnOff', 'action.devices.traits.FanSpeed']);
     });
 
-    test('getTraits Group Dimmer', () => {
+    test('get traits Group Dimmer', () => {
       const item = {
         type: 'Group',
         groupType: 'Dimmer'
       };
-      expect(Device.getTraits(item)).toStrictEqual(['action.devices.traits.OnOff', 'action.devices.traits.FanSpeed']);
+      expect(new Device(item).traits).toStrictEqual(['action.devices.traits.OnOff', 'action.devices.traits.FanSpeed']);
     });
 
-    test('getTraits only fanPower', () => {
+    test('get traits only fanPower', () => {
       const item = {
         type: 'Group',
         members: [
@@ -83,10 +83,10 @@ describe('Fan Device', () => {
           }
         ]
       };
-      expect(Device.getTraits(item)).toStrictEqual(['action.devices.traits.OnOff']);
+      expect(new Device(item).traits).toStrictEqual(['action.devices.traits.OnOff']);
     });
 
-    test('getTraits all members', () => {
+    test('get traits all members', () => {
       const item = {
         members: [
           {
@@ -127,7 +127,7 @@ describe('Fan Device', () => {
           }
         ]
       };
-      expect(Device.getTraits(item)).toStrictEqual([
+      expect(new Device(item).traits).toStrictEqual([
         'action.devices.traits.OnOff',
         'action.devices.traits.FanSpeed',
         'action.devices.traits.Modes',
@@ -136,8 +136,8 @@ describe('Fan Device', () => {
     });
   });
 
-  describe('getAttributes', () => {
-    test('getAttributes no config', () => {
+  describe('get attributes', () => {
+    test('get attributes no config', () => {
       const item = {
         metadata: {
           ga: {
@@ -145,10 +145,10 @@ describe('Fan Device', () => {
           }
         }
       };
-      expect(Device.getAttributes(item)).toStrictEqual({ supportsFanSpeedPercent: true });
+      expect(new Device(item).attributes).toStrictEqual({ supportsFanSpeedPercent: true });
     });
 
-    test('getAttributes fanSpeeds', () => {
+    test('get attributes fanSpeeds', () => {
       const item = {
         metadata: {
           ga: {
@@ -160,7 +160,7 @@ describe('Fan Device', () => {
           }
         }
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         availableFanSpeeds: {
           speeds: [
             {
@@ -197,7 +197,7 @@ describe('Fan Device', () => {
       });
     });
 
-    test('getAttributes fanMode', () => {
+    test('get attributes fanMode', () => {
       const item = {
         metadata: {
           ga: {
@@ -219,7 +219,7 @@ describe('Fan Device', () => {
           }
         ]
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         supportsFanSpeedPercent: true,
         availableModes: [
           {
@@ -265,7 +265,7 @@ describe('Fan Device', () => {
       });
     });
 
-    test('getAttributes fanFilterLifeTime', () => {
+    test('get attributes fanFilterLifeTime', () => {
       const item = {
         members: [
           {
@@ -279,7 +279,7 @@ describe('Fan Device', () => {
           }
         ]
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         supportsFanSpeedPercent: true,
         sensorStatesSupported: [
           {
@@ -295,7 +295,7 @@ describe('Fan Device', () => {
       });
     });
 
-    test('getAttributes fanPM25', () => {
+    test('get attributes fanPM25', () => {
       const item = {
         members: [
           {
@@ -309,7 +309,7 @@ describe('Fan Device', () => {
           }
         ]
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         supportsFanSpeedPercent: true,
         sensorStatesSupported: [
           {
@@ -323,9 +323,9 @@ describe('Fan Device', () => {
     });
   });
 
-  describe('getState', () => {
+  describe('get state', () => {
     test('getState Dimmer', () => {
-      expect(Device.getState({ type: 'Dimmer', state: '50' })).toStrictEqual({
+      expect(new Device({ type: 'Dimmer', state: '50' }).state).toStrictEqual({
         currentFanSpeedSetting: '50',
         on: true
       });
@@ -352,7 +352,7 @@ describe('Fan Device', () => {
           }
         ]
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         on: true
       });
     });
@@ -378,7 +378,7 @@ describe('Fan Device', () => {
           }
         ]
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         currentFanSpeedSetting: '50',
         on: true
       });
@@ -409,7 +409,7 @@ describe('Fan Device', () => {
           }
         ]
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         currentModeSettings: {
           OperationMode: '2'
         }
@@ -437,7 +437,7 @@ describe('Fan Device', () => {
           }
         ]
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         currentSensorStateData: [
           {
             name: 'FilterLifeTime',
@@ -469,7 +469,7 @@ describe('Fan Device', () => {
           }
         ]
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         currentSensorStateData: [
           {
             name: 'PM2.5',
@@ -505,7 +505,7 @@ describe('Fan Device', () => {
           }
         ]
       };
-      expect(Device.getNotification(item)).toStrictEqual({
+      expect(new Device(item).getNotification()).toStrictEqual({
         SensorState: {
           name: 'FilterLifeTime',
           currentSensorState: 'good',
@@ -538,7 +538,7 @@ describe('Fan Device', () => {
           }
         ]
       };
-      expect(Device.getNotification(item)).toStrictEqual({
+      expect(new Device(item).getNotification()).toStrictEqual({
         SensorState: {
           name: 'PM2.5',
           currentSensorState: 30,

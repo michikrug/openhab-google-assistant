@@ -27,14 +27,14 @@ class ThermostatTemperatureSetpointHigh extends DefaultCommand {
 
   static convertParamsToValue(params, item) {
     let value = params.thermostatTemperatureSetpointHigh;
-    if (Thermostat.useFahrenheit(item)) {
+    if (new Thermostat(item).useFahrenheit) {
       value = convertToFahrenheit(value);
     }
     return value.toString();
   }
 
   static getResponseStates(params, item) {
-    const states = Thermostat.getState(item);
+    const states = new Thermostat(item).state;
     states.thermostatTemperatureSetpointHigh = params.thermostatTemperatureSetpointHigh;
     return states;
   }

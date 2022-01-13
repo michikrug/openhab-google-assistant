@@ -28,7 +28,7 @@ class VolumeRelative extends DefaultCommand {
   static convertParamsToValue(params, item, device) {
     let state = item.state;
     if (this.getDeviceType(device) === 'TV') {
-      const members = TV.getMembers(item);
+      const members = new TV(item).members;
       if ('tvVolume' in members) {
         state = members.tvVolume.state;
       } else {

@@ -1,7 +1,7 @@
 const DynamicModesDevice = require('./dynamicmodesdevice.js');
 
 class DynamicModesLight extends DynamicModesDevice {
-  static get type() {
+  get type() {
     return 'action.devices.types.LIGHT';
   }
 }

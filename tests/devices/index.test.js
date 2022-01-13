@@ -4,6 +4,6 @@ describe('Devices Index', () => {
   test('getDeviceForItem', () => {
     const device = getDeviceForItem({ type: 'Switch', metadata: { ga: { value: 'Switch' } } });
     expect(device).not.toBeUndefined();
-    expect(device.name).toBe('Switch');
+    expect(device.constructor.name).toBe('Switch');
   });
 });

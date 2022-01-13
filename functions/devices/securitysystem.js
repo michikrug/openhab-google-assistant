@@ -8,11 +8,11 @@ const memberErrorCode = 'securitySystemTroubleCode';
 const zoneStateActive = ['ON', 'OPEN'];
 
 class SecuritySystem extends DefaultDevice {
-  static get type() {
+  get type() {
     return 'action.devices.types.SECURITYSYSTEM';
   }
 
-  static getTraits() {
+  get traits() {
     return ['action.devices.traits.ArmDisarm', 'action.devices.traits.StatusReport'];
   }
 
@@ -24,16 +24,26 @@ class SecuritySystem extends DefaultDevice {
     return memberArmLevel;
   }
 
-  static get requiredItemTypes() {
+  get requiredItemTypes() {
     return ['Group'];
   }
 
-  static matchesDeviceType(item) {
-    return super.matchesDeviceType(item) && Object.keys(this.getMembers(item)).length > 0;
+  get supportedMembers() {
+    return [
+      { name: memberArmed, types: ['Switch'] },
+      { name: memberArmLevel, types: ['String'] },
+      { name: memberZone, types: ['Contact'] },
+      { name: memberTrouble, types: ['Switch'] },
+      { name: memberErrorCode, types: ['String'] }
+    ];
   }
 
-  static getAttributes(item) {
-    const config = this.getConfig(item);
+  get validDeviceType() {
+    return super.validDeviceType && Object.keys(this.members).length > 0;
+  }
+
+  get attributes() {
+    const config = this.config;
     if ('armLevels' in config) {
       const attributes = {
         availableArmLevels: {
@@ -60,28 +70,22 @@ class SecuritySystem extends DefaultDevice {
     return {};
   }
 
-  static get supportedMembers() {
-    return [
-      { name: memberArmed, types: ['Switch'] },
-      { name: memberArmLevel, types: ['String'] },
-      { name: memberZone, types: ['Contact'] },
-      { name: memberTrouble, types: ['Switch'] },
-      { name: memberErrorCode, types: ['String'] }
-    ];
-  }
-
-  static getMembers(item) {
+  get members() {
     const supportedMembers = this.supportedMembers;
     const members = {};
-    if (item.members && item.members.length) {
-      item.members.forEach((member) => {
+    if (this.item.members && this.item.members.length) {
+      this.item.members.forEach((member) => {
         if (member.metadata && member.metadata.ga) {
           const memberType = supportedMembers.find((m) => {
             const memberType = (member.groupType || member.type || '').split(':')[0];
             return m.types.includes(memberType) && member.metadata.ga.value.toLowerCase() === m.name.toLowerCase();
           });
           if (memberType) {
-            const memberDetails = { name: member.name, state: member.state, config: this.getConfig(member) };
+            const memberDetails = {
+              name: member.name,
+              state: member.state,
+              config: (member && member.metadata && member.metadata.ga && member.metadata.ga.config) || {}
+            };
             if (memberType.name === memberZone) {
               members.zones = members.zones || [];
               members.zones.push(memberDetails);
@@ -95,42 +99,42 @@ class SecuritySystem extends DefaultDevice {
     return members;
   }
 
-  static getState(item) {
+  get state() {
     const state = {
       isArmed: false
     };
 
-    const members = this.getMembers(item);
+    const members = this.members;
     if (memberArmed in members) {
       state.isArmed = members[memberArmed].state === 'ON';
       if (state.isArmed && memberArmLevel in members) {
         state.currentArmLevel = members[memberArmLevel].state;
       }
-      state.currentStatusReport = this.getStatusReport(item, members);
+      state.currentStatusReport = this.getStatusReport();
     }
 
-    if (this.getConfig(item).inverted === true) {
+    if (this.config.inverted === true) {
       state.isArmed = !state.isArmed;
     }
 
     return state;
   }
 
-  static getStatusReport(item, members) {
+  getStatusReport() {
     const report = [];
-    const isTrouble = memberTrouble in members && members[memberTrouble].state === 'ON';
+    const isTrouble = memberTrouble in this.members && this.members[memberTrouble].state === 'ON';
 
     if (isTrouble) {
       report.push({
         blocking: false,
-        deviceTarget: item.name,
+        deviceTarget: this.item.name,
         priority: 0,
-        statusCode: (memberErrorCode in members && members[memberErrorCode].state) || 'noIssuesReported'
+        statusCode: (memberErrorCode in this.members && this.members[memberErrorCode].state) || 'noIssuesReported'
       });
     }
 
-    if (members.zones) {
-      for (const zone of members.zones) {
+    if (this.members.zones) {
+      for (const zone of this.members.zones) {
         if (zoneStateActive.includes(zone.state)) {
           let statusCode = 'notSupported';
           switch (zone.config.zoneType) {

@@ -1,27 +1,27 @@
 const Device = require('../../functions/devices/speaker.js');
 
 describe('Speaker Device', () => {
-  test('matchesDeviceType', () => {
+  test('validDeviceType', () => {
     expect(
-      Device.matchesDeviceType({
+      new Device({
         metadata: {
           ga: {
             value: 'SPEAKER'
           }
         }
-      })
+      }).validDeviceType
     ).toBe(true);
   });
 
-  test('matchesItemType', () => {
-    expect(Device.matchesItemType({ type: 'Dimmer' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'Number' })).toBe(false);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'Dimmer' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'Number' })).toBe(false);
+  test('validItemType', () => {
+    expect(new Device({ type: 'Dimmer' }).validItemType).toBe(true);
+    expect(new Device({ type: 'Number' }).validItemType).toBe(false);
+    expect(new Device({ type: 'Group', groupType: 'Dimmer' }).validItemType).toBe(true);
+    expect(new Device({ type: 'Group', groupType: 'Number' }).validItemType).toBe(false);
   });
 
-  describe('getAttributes', () => {
-    test('getAttributes no config', () => {
+  describe('get attributes', () => {
+    test('get attributes no config', () => {
       const item = {
         metadata: {
           ga: {
@@ -29,13 +29,13 @@ describe('Speaker Device', () => {
           }
         }
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         volumeCanMuteAndUnmute: false,
         volumeMaxLevel: 100
       });
     });
 
-    test('getAttributes volumeDefaultPercentage, volumeMaxLevel, levelStepSize', () => {
+    test('get attributes volumeDefaultPercentage, volumeMaxLevel, levelStepSize', () => {
       const item = {
         metadata: {
           ga: {
@@ -47,7 +47,7 @@ describe('Speaker Device', () => {
           }
         }
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         volumeCanMuteAndUnmute: false,
         volumeMaxLevel: 90,
         volumeDefaultPercentage: 20,
@@ -56,11 +56,11 @@ describe('Speaker Device', () => {
     });
   });
 
-  test('getState', () => {
-    expect(Device.getState({ state: '10' })).toStrictEqual({
+  test('get state', () => {
+    expect(new Device({ state: '10' }).state).toStrictEqual({
       currentVolume: 10
     });
-    expect(Device.getState({ state: '90' })).toStrictEqual({
+    expect(new Device({ state: '90' }).state).toStrictEqual({
       currentVolume: 90
     });
   });

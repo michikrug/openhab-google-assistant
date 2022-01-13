@@ -1,21 +1,21 @@
 const DefaultDevice = require('./default.js');
 
 class Doorbell extends DefaultDevice {
-  static get type() {
+  get type() {
     return 'action.devices.types.DOORBELL';
   }
 
-  static getTraits() {
+  get traits() {
     return ['action.devices.traits.ObjectDetection'];
   }
 
-  static get requiredItemTypes() {
+  get requiredItemTypes() {
     return ['Switch'];
   }
 
-  static getNotification(item) {
-    let state = item.state === 'ON';
-    if (this.getConfig(item).inverted === true) {
+  getNotification() {
+    let state = this.item.state === 'ON';
+    if (this.config.inverted === true) {
       state = !state;
     }
     return state

@@ -1,7 +1,7 @@
 const ModesDevice = require('./modesdevice.js');
 
 class ModesLight extends ModesDevice {
-  static get type() {
+  get type() {
     return 'action.devices.types.LIGHT';
   }
 }

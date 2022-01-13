@@ -1,7 +1,7 @@
 const OpenCloseDevice = require('./openclosedevice.js');
 
 class Blinds extends OpenCloseDevice {
-  static get type() {
+  get type() {
     return 'action.devices.types.BLINDS';
   }
 }

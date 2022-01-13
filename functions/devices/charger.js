@@ -1,25 +1,25 @@
 const DefaultDevice = require('./default.js');
 
 class Charger extends DefaultDevice {
-  static get type() {
+  get type() {
     return 'action.devices.types.CHARGER';
   }
 
-  static getTraits() {
+  get traits() {
     return ['action.devices.traits.EnergyStorage'];
   }
 
-  static get requiredItemTypes() {
+  get requiredItemTypes() {
     return ['Group'];
   }
 
-  static matchesDeviceType(item) {
-    return super.matchesDeviceType(item) && Object.keys(this.getMembers(item)).length > 0;
+  get validDeviceType() {
+    return super.validDeviceType && Object.keys(this.members).length > 0;
   }
 
-  static getAttributes(item) {
-    const config = this.getConfig(item);
-    const members = this.getMembers(item);
+  get attributes() {
+    const config = this.config;
+    const members = this.members;
     const attributes = {
       isRechargeable: config.isRechargeable || false,
       queryOnlyEnergyStorage: !('chargerCharging' in members)
@@ -27,10 +27,10 @@ class Charger extends DefaultDevice {
     return attributes;
   }
 
-  static getState(item) {
+  get state() {
     const state = {};
-    const config = this.getConfig(item);
-    const members = this.getMembers(item);
+    const config = this.config;
+    const members = this.members;
     for (const member in members) {
       switch (member) {
         case 'chargerCharging':
@@ -78,7 +78,7 @@ class Charger extends DefaultDevice {
     return state;
   }
 
-  static get supportedMembers() {
+  get supportedMembers() {
     return [
       { name: 'chargerCharging', types: ['Switch'] },
       { name: 'chargerPluggedIn', types: ['Switch'] },

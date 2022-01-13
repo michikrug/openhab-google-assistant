@@ -1,24 +1,24 @@
 const DefaultDevice = require('./default.js');
 
 class Sensor extends DefaultDevice {
-  static get type() {
+  get type() {
     return 'action.devices.types.SENSOR';
   }
 
-  static getTraits() {
+  get traits() {
     return ['action.devices.traits.SensorState'];
   }
 
-  static get requiredItemTypes() {
+  get requiredItemTypes() {
     return ['Number', 'String', 'Dimmer', 'Switch', 'Rollershutter', 'Contact'];
   }
 
-  static matchesDeviceType(item) {
-    return super.matchesDeviceType(item) && !!this.getAttributes(item).sensorStatesSupported;
+  get validDeviceType() {
+    return super.validDeviceType && !!this.attributes.sensorStatesSupported;
   }
 
-  static getAttributes(item) {
-    const config = this.getConfig(item);
+  get attributes() {
+    const config = this.config;
     if (!('sensorName' in config) || (!('valueUnit' in config) && !('states' in config))) return {};
     const attributes = { sensorStatesSupported: [{ name: config.sensorName }] };
     if ('valueUnit' in config) {
@@ -34,37 +34,34 @@ class Sensor extends DefaultDevice {
     return attributes;
   }
 
-  static getState(item) {
-    const config = this.getConfig(item);
+  get state() {
     return {
       currentSensorStateData: [
         {
-          name: config.sensorName,
-          currentSensorState: this.translateStateToGoogle(item),
-          rawValue: Number(item.state) || 0
+          name: this.config.sensorName,
+          currentSensorState: this.translateStateToGoogle(),
+          rawValue: Number(this.item.state) || 0
         }
       ]
     };
   }
 
-  static getNotification(item) {
-    const config = this.getConfig(item);
+  getNotification() {
     return {
       SensorState: {
         priority: 0,
-        name: config.sensorName,
-        currentSensorState: this.translateStateToGoogle(item)
+        name: this.config.sensorName,
+        currentSensorState: this.translateStateToGoogle()
       }
     };
   }
 
-  static translateStateToGoogle(item) {
-    const config = this.getConfig(item);
-    if ('states' in config) {
-      const states = config.states.split(',').map((s) => s.trim());
+  translateStateToGoogle() {
+    if ('states' in this.config) {
+      const states = this.config.states.split(',').map((s) => s.trim());
       for (const state of states) {
         const [key, value] = state.split('=').map((s) => s.trim());
-        if (value == item.state) {
+        if (value == this.item.state) {
           return key;
         }
       }

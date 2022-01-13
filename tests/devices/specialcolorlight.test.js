@@ -1,7 +1,7 @@
 const Device = require('../../functions/devices/specialcolorlight.js');
 
 describe('SpecialColorLight Device', () => {
-  test('matchesDeviceType', () => {
+  test('validDeviceType', () => {
     const item1 = {
       metadata: {
         ga: {
@@ -158,23 +158,23 @@ describe('SpecialColorLight Device', () => {
         }
       ]
     };
-    expect(Device.matchesDeviceType(item1)).toBe(true);
-    expect(Device.matchesDeviceType(item2)).toBe(false);
-    expect(Device.matchesDeviceType(item3)).toBe(true);
-    expect(Device.matchesDeviceType(item4)).toBe(true);
-    expect(Device.matchesDeviceType(item5)).toBe(true);
-    expect(Device.matchesDeviceType(item6)).toBe(false);
+    expect(new Device(item1).validDeviceType).toBe(true);
+    expect(new Device(item2).validDeviceType).toBe(false);
+    expect(new Device(item3).validDeviceType).toBe(true);
+    expect(new Device(item4).validDeviceType).toBe(true);
+    expect(new Device(item5).validDeviceType).toBe(true);
+    expect(new Device(item6).validDeviceType).toBe(false);
   });
 
-  test('matchesItemType', () => {
-    expect(Device.matchesItemType({ type: 'Group' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'Color' })).toBe(false);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'Color' })).toBe(false);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'Dimmer' })).toBe(false);
+  test('validItemType', () => {
+    expect(new Device({ type: 'Group' }).validItemType).toBe(true);
+    expect(new Device({ type: 'Color' }).validItemType).toBe(false);
+    expect(new Device({ type: 'Group', groupType: 'Color' }).validItemType).toBe(false);
+    expect(new Device({ type: 'Group', groupType: 'Dimmer' }).validItemType).toBe(false);
   });
 
-  describe('getAttributes', () => {
-    test('getAttributes colorTemperatureRange', () => {
+  describe('get attributes', () => {
+    test('get attributes colorTemperatureRange', () => {
       const item = {
         metadata: {
           ga: {
@@ -184,7 +184,7 @@ describe('SpecialColorLight Device', () => {
           }
         }
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         colorTemperatureRange: {
           temperatureMinK: 1000,
           temperatureMaxK: 2000
@@ -192,7 +192,7 @@ describe('SpecialColorLight Device', () => {
       });
     });
 
-    test('getAttributes invalid colorTemperatureRange', () => {
+    test('get attributes invalid colorTemperatureRange', () => {
       const item1 = {
         metadata: {
           ga: {
@@ -202,10 +202,10 @@ describe('SpecialColorLight Device', () => {
           }
         }
       };
-      expect(Device.getAttributes(item1)).toStrictEqual({});
+      expect(new Device(item1).attributes).toStrictEqual({});
     });
 
-    test('getAttributes color', () => {
+    test('get attributes color', () => {
       const item = {
         metadata: {
           ga: {
@@ -225,7 +225,7 @@ describe('SpecialColorLight Device', () => {
           }
         ]
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         colorModel: 'hsv',
         colorTemperatureRange: {
           temperatureMinK: 1000,
@@ -235,7 +235,7 @@ describe('SpecialColorLight Device', () => {
     });
   });
 
-  test('getMetadata', () => {
+  test('get metadata', () => {
     const item = {
       name: 'LightItem',
       type: 'Group',
@@ -248,7 +248,7 @@ describe('SpecialColorLight Device', () => {
         }
       }
     };
-    expect(Device.getMetadata(item).customData).toStrictEqual({
+    expect(new Device(item).metadata.customData).toStrictEqual({
       colorTemperatureRange: {
         temperatureMaxK: 2000,
         temperatureMinK: 1000
@@ -260,8 +260,8 @@ describe('SpecialColorLight Device', () => {
     });
   });
 
-  describe('getState', () => {
-    test('getState', () => {
+  describe('get state', () => {
+    test('get state', () => {
       const item = {
         type: 'Group',
         metadata: {
@@ -293,7 +293,7 @@ describe('SpecialColorLight Device', () => {
           }
         ]
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         on: true,
         brightness: 50,
         color: {
@@ -334,7 +334,7 @@ describe('SpecialColorLight Device', () => {
           }
         ]
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         on: true,
         brightness: 50,
         color: {
@@ -375,7 +375,7 @@ describe('SpecialColorLight Device', () => {
           }
         ]
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         on: false,
         brightness: 0,
         color: {
@@ -417,7 +417,7 @@ describe('SpecialColorLight Device', () => {
           }
         ]
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         on: true,
         brightness: 50,
         color: {
@@ -467,7 +467,7 @@ describe('SpecialColorLight Device', () => {
           }
         ]
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         on: false,
         brightness: 50,
         color: {
@@ -517,7 +517,7 @@ describe('SpecialColorLight Device', () => {
           }
         ]
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         on: true,
         brightness: 50,
         color: {
@@ -571,7 +571,7 @@ describe('SpecialColorLight Device', () => {
           }
         ]
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         on: true,
         brightness: 50,
         color: {

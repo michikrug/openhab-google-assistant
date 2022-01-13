@@ -194,7 +194,7 @@ class DefaultCommand {
           return {
             ids: [device.id],
             status: 'SUCCESS',
-            states: Object.assign({ online: true }, deviceType.getState(item))
+            states: Object.assign({ online: true }, deviceType.state)
           };
         }
       });

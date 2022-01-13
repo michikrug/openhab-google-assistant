@@ -1,14 +1,14 @@
 const Device = require('../../functions/devices/openclosedevice.js');
 
 describe('OpenCloseDevice Device', () => {
-  test('getAttributes', () => {
-    expect(Device.getAttributes({ type: 'Rollershutter' })).toStrictEqual({
+  test('get attributes', () => {
+    expect(new Device({ type: 'Rollershutter' }).attributes).toStrictEqual({
       pausable: false,
       discreteOnlyOpenClose: false,
       queryOnlyOpenClose: false
     });
     expect(
-      Device.getAttributes({
+      new Device({
         type: 'Rollershutter',
         metadata: {
           ga: {
@@ -18,91 +18,91 @@ describe('OpenCloseDevice Device', () => {
             }
           }
         }
-      })
+      }).attributes
     ).toStrictEqual({
       pausable: false,
       discreteOnlyOpenClose: true,
       queryOnlyOpenClose: true
     });
-    expect(Device.getAttributes({ type: 'Switch' })).toStrictEqual({
+    expect(new Device({ type: 'Switch' }).attributes).toStrictEqual({
       pausable: false,
       discreteOnlyOpenClose: true,
       queryOnlyOpenClose: false
     });
-    expect(Device.getAttributes({ type: 'Contact' })).toStrictEqual({
+    expect(new Device({ type: 'Contact' }).attributes).toStrictEqual({
       pausable: false,
       discreteOnlyOpenClose: true,
       queryOnlyOpenClose: true
     });
 
-    expect(Device.getAttributes({ type: 'Group' })).toStrictEqual({
+    expect(new Device({ type: 'Group' }).attributes).toStrictEqual({
       pausable: false,
       discreteOnlyOpenClose: false,
       queryOnlyOpenClose: false
     });
-    expect(Device.getAttributes({ type: 'Group', groupType: 'Switch' })).toStrictEqual({
+    expect(new Device({ type: 'Group', groupType: 'Switch' }).attributes).toStrictEqual({
       pausable: false,
       discreteOnlyOpenClose: true,
       queryOnlyOpenClose: false
     });
-    expect(Device.getAttributes({ type: 'Group', groupType: 'Contact' })).toStrictEqual({
+    expect(new Device({ type: 'Group', groupType: 'Contact' }).attributes).toStrictEqual({
       pausable: false,
       discreteOnlyOpenClose: true,
       queryOnlyOpenClose: true
     });
   });
 
-  describe('getState', () => {
-    test('getState Contact', () => {
+  describe('get state', () => {
+    test('get state Contact', () => {
       const item = {
         type: 'Contact',
         state: 'OPEN'
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         openPercent: 100
       });
       item.state = 'CLOSED';
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         openPercent: 0
       });
     });
 
-    test('getState Switch', () => {
+    test('get state Switch', () => {
       const item = {
         type: 'Switch',
         state: 'ON'
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         openPercent: 100
       });
       item.state = 'OFF';
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         openPercent: 0
       });
     });
 
-    test('getState Rollershutter', () => {
+    test('get state Rollershutter', () => {
       const item = {
         type: 'Rollershutter',
         state: '25'
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         openPercent: 75
       });
     });
 
-    test('getState Group Rollershutter', () => {
+    test('get state Group Rollershutter', () => {
       const item = {
         type: 'Group',
         groupType: 'Rollershutter',
         state: '25'
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         openPercent: 75
       });
     });
 
-    test('getState inverted Contact', () => {
+    test('get state inverted Contact', () => {
       const item = {
         type: 'Contact',
         state: 'CLOSED',
@@ -114,12 +114,12 @@ describe('OpenCloseDevice Device', () => {
           }
         }
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         openPercent: 100
       });
     });
 
-    test('getState inverted Switch', () => {
+    test('get state inverted Switch', () => {
       const item = {
         type: 'Switch',
         state: 'ON',
@@ -131,12 +131,12 @@ describe('OpenCloseDevice Device', () => {
           }
         }
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         openPercent: 0
       });
     });
 
-    test('getState inverted Rollershutter', () => {
+    test('get state inverted Rollershutter', () => {
       const item = {
         type: 'Rollershutter',
         state: '25',
@@ -148,7 +148,7 @@ describe('OpenCloseDevice Device', () => {
           }
         }
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         openPercent: 25
       });
     });

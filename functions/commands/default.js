@@ -99,6 +99,13 @@ class DefaultCommand {
   /**
    * @param {object} device
    */
+  static hasMembers(device) {
+    return Object.keys(this.getMembers(device)).length > 0;
+  }
+
+  /**
+   * @param {object} device
+   */
   static isInverted(device) {
     return !!(device.customData && device.customData.inverted === true);
   }
@@ -208,7 +215,6 @@ class DefaultCommand {
    * @param {object} challenge
    */
   static execute(apiHandler, devices, params, challenge) {
-    // console.log(`openhabGoogleAssistant - ${this.type}: ${JSON.stringify({ devices: devices, params: params })}`);
     const commandsResponse = [];
     const promises = devices.map((device) => {
       const authPinResponse = this.handleAuthPin(device, challenge, params);

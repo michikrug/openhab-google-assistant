@@ -9,6 +9,16 @@ class OnOff extends DefaultCommand {
     return 'on' in params && typeof params.on === 'boolean';
   }
 
+  static requiresItem(device) {
+    const deviceType = this.getDeviceType(device);
+    return (
+      (deviceType === 'SpecialColorLight' ||
+        deviceType === 'TV' ||
+        (['AirPurifier', 'Fan', 'Hood'].includes(deviceType) && this.getItemType(device) !== 'Dimmer')) &&
+      !this.hasMembers(device)
+    );
+  }
+
   static getItemName(device) {
     const deviceType = this.getDeviceType(device);
     if (deviceType.startsWith('DynamicModes')) {

@@ -9,6 +9,10 @@ class SetVolume extends DefaultCommand {
     return 'volumeLevel' in params && typeof params.volumeLevel === 'number';
   }
 
+  static requiresItem(device) {
+    return this.getDeviceType(device) === 'TV' && !this.hasMembers(device);
+  }
+
   static getItemName(device) {
     if (this.getDeviceType(device) === 'TV') {
       const members = this.getMembers(device);

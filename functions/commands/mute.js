@@ -9,6 +9,10 @@ class Mute extends DefaultCommand {
     return 'mute' in params && typeof params.mute === 'boolean';
   }
 
+  static requiresItem(device) {
+    return this.getDeviceType(device) === 'TV' && !this.hasMembers(device);
+  }
+
   static getItemName(device) {
     if (this.getDeviceType(device) === 'TV') {
       const members = this.getMembers(device);

@@ -9,6 +9,10 @@ class BrightnessAbsolute extends DefaultCommand {
     return 'brightness' in params && typeof params.brightness === 'number';
   }
 
+  static requiresItem(device) {
+    return this.getDeviceType(device) === 'SpecialColorLight' && !this.hasMembers(device);
+  }
+
   static getItemName(device) {
     if (this.getDeviceType(device) === 'SpecialColorLight') {
       const members = this.getMembers(device);

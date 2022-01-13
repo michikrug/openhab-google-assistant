@@ -9,6 +9,10 @@ class SetInput extends DefaultCommand {
     return 'newInput' in params && typeof params.newInput === 'string';
   }
 
+  static requiresItem(device) {
+    return !this.hasMembers(device);
+  }
+
   static getItemName(device) {
     const members = this.getMembers(device);
     if ('tvInput' in members) {

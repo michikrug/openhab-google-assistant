@@ -9,6 +9,14 @@ class SetModes extends DefaultCommand {
     return 'updateModeSettings' in params && typeof params.updateModeSettings === 'object';
   }
 
+  static requiresItem(device) {
+    const deviceType = this.getDeviceType(device);
+    return (
+      (deviceType.startsWith('DynamicModes') || ['AirPurifier', 'Fan', 'Hood'].includes(deviceType)) &&
+      !this.hasMembers(device)
+    );
+  }
+
   static getItemName(device) {
     const deviceType = this.getDeviceType(device);
     const members = this.getMembers(device);

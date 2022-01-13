@@ -5,6 +5,10 @@ class MediaPrevious extends DefaultCommand {
     return 'action.devices.commands.mediaPrevious';
   }
 
+  static requiresItem(device) {
+    return !this.hasMembers(device);
+  }
+
   static getItemName(device) {
     const members = this.getMembers(device);
     if ('tvTransport' in members) {

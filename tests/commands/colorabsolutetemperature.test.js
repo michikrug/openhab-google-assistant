@@ -15,7 +15,8 @@ describe('ColorAbsoluteTemperature Command', () => {
 
   test('requiresItem', () => {
     expect(Command.requiresItem({})).toBe(true);
-    expect(Command.requiresItem({ customData: { deviceType: 'SpecialColorLight' } })).toBe(false);
+    expect(Command.requiresItem({ customData: { deviceType: 'SpecialColorLight' } })).toBe(true);
+    expect(Command.requiresItem({ customData: { deviceType: 'SpecialColorLight', members: { test: 1 } } })).toBe(false);
   });
 
   test('getItemName', () => {

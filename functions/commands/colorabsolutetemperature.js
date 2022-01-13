@@ -17,7 +17,7 @@ class ColorAbsoluteTemperature extends DefaultCommand {
   }
 
   static requiresItem(device) {
-    return this.getDeviceType(device) !== 'SpecialColorLight';
+    return this.getDeviceType(device) !== 'SpecialColorLight' || !this.hasMembers(device);
   }
 
   static getItemName(device) {

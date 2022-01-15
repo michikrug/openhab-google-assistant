@@ -11,7 +11,7 @@ class Charge extends DefaultCommand {
   }
 
   static requiresItem(device) {
-    return !this.hasMembers(device);
+    return true;
   }
 
   static getItemName(device) {

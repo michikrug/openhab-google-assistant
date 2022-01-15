@@ -3,7 +3,7 @@ const Device = require('../../functions/devices/tv.js');
 describe('TV Device', () => {
   test('validDeviceType', () => {
     expect(
-       new Device({
+      new Device({
         metadata: {
           ga: {
             value: 'TV'
@@ -12,7 +12,7 @@ describe('TV Device', () => {
       }).validDeviceType
     ).toBe(false);
     expect(
-       new Device({
+      new Device({
         metadata: {
           ga: {
             value: 'TV'

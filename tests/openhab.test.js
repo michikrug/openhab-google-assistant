@@ -115,7 +115,7 @@ describe('OpenHAB', () => {
       });
     });
 
-    test('handleSync switch and light group', async () => {
+    test('handleSync switch and tv group', async () => {
       getItemsMock.mockReturnValue(
         Promise.resolve([
           {
@@ -352,6 +352,48 @@ describe('OpenHAB', () => {
           TestItem: {
             status: 'SUCCESS',
             on: true,
+            online: true
+          }
+        }
+      });
+    });
+
+    test('handleQuery Charger', async () => {
+      getItemMock.mockReturnValue(
+        Promise.resolve({
+          name: 'TestItem',
+          type: 'Group',
+          metadata: { ga: { value: 'Charger' } },
+          members: [
+            {
+              name: 'ChargingItem',
+              type: 'Switch',
+              state: 'ON',
+              metadata: { ga: { value: 'chargerCharging' } }
+            },
+            {
+              name: 'CapacityItem',
+              type: 'Number',
+              state: 30,
+              metadata: { ga: { value: 'chargerCapacityRemaining' } }
+            }
+          ]
+        })
+      );
+      const result = await openHAB.handleQuery([{ id: 'TestItem' }]);
+      expect(getItemMock).toHaveBeenCalledTimes(1);
+      expect(result).toStrictEqual({
+        devices: {
+          TestItem: {
+            status: 'SUCCESS',
+            capacityRemaining: [
+              {
+                rawValue: 30,
+                unit: 'PERCENTAGE'
+              }
+            ],
+            descriptiveCapacityRemaining: 'LOW',
+            isCharging: true,
             online: true
           }
         }

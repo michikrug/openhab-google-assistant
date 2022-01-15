@@ -164,7 +164,7 @@ describe('ApiHandler', () => {
       const scope = nock('https://example.org')
         .post('/items/TestItem')
         .reply(200, [{ name: 'TestItem' }]);
-      const result = await apiHandler.sendCommand('TestItem', 'OFF');
+      const result = await apiHandler.sendCommand('TestItem', 'OFF', 'TestItem');
       expect(result).toBeUndefined();
       expect(scope.isDone()).toBe(true);
     });

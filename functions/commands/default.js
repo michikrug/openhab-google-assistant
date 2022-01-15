@@ -12,6 +12,8 @@ const ackSupported = [
   'action.devices.commands.TemperatureRelative'
 ];
 
+const getDevice = require('../devices').getDevice;
+
 class DefaultCommand {
   static get type() {
     return '';
@@ -193,15 +195,14 @@ class DefaultCommand {
         if (validateUpdateResponse) {
           return validateUpdateResponse;
         } else {
-          const getDeviceForItem = require('../devices').getDeviceForItem;
-          const deviceType = getDeviceForItem(item);
+          const deviceType = getDevice(device.customData.deviceType);
           if (!deviceType) {
             throw { statusCode: 404 };
           }
           return {
             ids: [device.id],
             status: 'SUCCESS',
-            states: Object.assign({ online: true }, deviceType.state)
+            states: Object.assign({ online: true }, new deviceType(item).state)
           };
         }
       });

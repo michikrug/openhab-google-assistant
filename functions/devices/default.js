@@ -118,7 +118,7 @@ class DefaultDevice {
   }
 
   get members() {
-    if (this._members && Object.keys(this._members).length > 0) return this._members;
+    if (this._members && Object.keys(this._members).length) return this._members;
     const supportedMembers = this.supportedMembers;
     const members = {};
     if (this.item.members && this.item.members.length && supportedMembers.length) {

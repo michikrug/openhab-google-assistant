@@ -199,10 +199,14 @@ class DefaultCommand {
           if (!deviceType) {
             throw { statusCode: 404 };
           }
+          const deviceInstance = new deviceType(item);
+          if (!deviceInstance.validItemType || !deviceInstance.validDeviceType) {
+            throw { statusCode: 404 };
+          }
           return {
             ids: [device.id],
             status: 'SUCCESS',
-            states: Object.assign({ online: true }, new deviceType(item).state)
+            states: Object.assign({ online: true }, deviceInstance.state)
           };
         }
       });

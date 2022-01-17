@@ -15,155 +15,140 @@ const ackSupported = [
 const getDevice = require('../devices').getDevice;
 
 class DefaultCommand {
-  static get type() {
+  /**
+   * @param {object} params
+   * @param {object} device
+   */
+  constructor(params = {}, device = {}, challenge = {}) {
+    this._params = params;
+    this._device = device;
+    this._challenge = challenge;
+    this._customData = device.customData || {};
+  }
+
+  get type() {
     return '';
   }
 
-  /**
-   * @param {object} params
-   */
-  static validateParams(params) {
+  get params() {
+    return this._params;
+  }
+
+  get device() {
+    return this._device;
+  }
+
+  get challenge() {
+    return this._challenge;
+  }
+
+  get customData() {
+    return this._customData;
+  }
+
+  get itemName() {
+    return this.device.id;
+  }
+
+  get deviceType() {
+    return this.customData.deviceType || '';
+  }
+
+  get itemType() {
+    return this.customData.itemType || '';
+  }
+
+  get members() {
+    return this.customData.members || {};
+  }
+
+  get hasMembers() {
+    return Object.keys(this.members).length > 0;
+  }
+
+  get isInverted() {
+    return !!(this.customData.inverted === true);
+  }
+
+  get requiresItem() {
+    return false;
+  }
+
+  validateParams() {
     return true;
   }
 
   /**
    * Is the requested new state valid
-   * @param {object} params Requested change params
    * @param {object} item Current state of item
    * @returns {boolean} true if state change is valid otherwise throws error
    */
-  static validateStateChange(params, item, device) {
+  validateStateChange(item) {
     return true;
   }
 
-  static get requiresUpdateValidation() {
+  get requiresUpdateValidation() {
     return false;
   }
 
   /**
-   * Check if new state is as expected.
-   * @param {object} params
+   * Check if new state is as expected
    * @param {object} item
-   * @param {object} device
    * @return {object} Error message if state update failed. Null if all ok.
    */
-  static validateUpdate(params, item, device) {
+  validateUpdate(item) {
     return;
   }
 
   /**
-   * @param {object} params
    * @param {object} item
-   * @param {object} device
    */
-  static convertParamsToValue(params, item, device) {
+  convertParamsToValue(item) {
     return null;
   }
 
   /**
-   * @param {object} params
    * @param {object} item
-   * @param {object} device
    */
-  static getResponseStates(params, item, device) {
+  getResponseStates(item) {
     return {};
-  }
-
-  /**
-   * @param {object} device
-   * @param {object} params
-   */
-  static getItemName(device, params) {
-    return device.id;
-  }
-
-  /**
-   * @param {object} device
-   */
-  static getDeviceType(device) {
-    return (device.customData && device.customData.deviceType) || '';
-  }
-
-  /**
-   * @param {object} device
-   */
-  static getItemType(device) {
-    return (device.customData && device.customData.itemType) || '';
-  }
-
-  /**
-   * @param {object} device
-   */
-  static getMembers(device) {
-    return (device.customData && device.customData.members) || {};
-  }
-
-  /**
-   * @param {object} device
-   */
-  static hasMembers(device) {
-    return Object.keys(this.getMembers(device)).length > 0;
-  }
-
-  /**
-   * @param {object} device
-   */
-  static isInverted(device) {
-    return !!(device.customData && device.customData.inverted === true);
-  }
-
-  /**
-   * @param {object} device
-   */
-  static requiresItem(device) {
-    return false;
   }
 
   /*
    * Allow individual commands to choose when to enforce the pin
    * e.g. Security System only enforcing for disarming but not arming
    */
-  static bypassPin(device, params) {
+  get bypassPin() {
     return false;
   }
 
-  /**
-   * @param {object} device
-   * @param {object} challenge
-   */
-  static handleAuthPin(device, challenge, params) {
-    const pinRequired = device.customData && (device.customData.pinNeeded || device.customData.tfaPin);
-    const pinReceived = challenge && challenge.pin;
+  handleAuthPin() {
+    const pinRequired = this.customData.pinNeeded || this.customData.tfaPin;
+    const pinReceived = this.challenge && this.challenge.pin;
 
-    if (this.bypassPin(device, params) || !pinRequired || pinRequired === pinReceived) {
+    if (this.bypassPin || !pinRequired || pinRequired === pinReceived) {
       return;
     }
 
     return {
-      ids: [device.id],
+      ids: [this.device.id],
       status: 'ERROR',
       errorCode: 'challengeNeeded',
       challengeNeeded: {
-        type: !challenge || !challenge.pin ? 'pinNeeded' : 'challengeFailedPinNeeded'
+        type: !this.challenge || !this.challenge.pin ? 'pinNeeded' : 'challengeFailedPinNeeded'
       }
     };
   }
 
   /**
-   * @param {object} device
-   * @param {object} challenge
    * @param {object} responseStates
    */
-  static handleAuthAck(device, challenge, responseStates) {
-    if (
-      !device.customData ||
-      !(device.customData.ackNeeded || device.customData.tfaAck) ||
-      (challenge && challenge.ack === true)
-    ) {
+  handleAuthAck(responseStates) {
+    if (!(this.customData.ackNeeded || this.customData.tfaAck) || (this.challenge && this.challenge.ack === true)) {
       return;
     }
     return {
-      ids: [device.id],
+      ids: [this.device.id],
       status: 'ERROR',
       states: responseStates,
       errorCode: 'challengeNeeded',
@@ -173,139 +158,121 @@ class DefaultCommand {
     };
   }
 
-  static getDelayPromise(device) {
-    const secondsToWait = (device.customData && device.customData.waitForStateChange) || 0;
+  async waitForStateChange() {
+    const secondsToWait = this.customData.waitForStateChange || 0;
     if (secondsToWait === 0) {
-      return Promise.resolve();
+      return;
     }
 
-    return new Promise((resolve) => {
-      console.log(`openhabGoogleAssistant - ${this.type}: Waiting ${secondsToWait} second(s) for state to update`);
-      setTimeout(() => {
-        console.log(`openhabGoogleAssistant - ${this.type}: Finished Waiting`);
-        resolve();
-      }, secondsToWait * 1000);
-    });
+    console.log(`openhabGoogleAssistant - ${this.type}: Waiting ${secondsToWait} second(s) for state to update`);
+    await new Promise((resolve) => setTimeout(resolve, secondsToWait * 1000));
+    console.log(`openhabGoogleAssistant - ${this.type}: Finished Waiting`);
   }
 
-  static handleUpdateValidation(apiHandler, device, params) {
-    return this.getDelayPromise(device).then(() => {
-      return apiHandler.getItem(device.id).then((item) => {
-        const validateUpdateResponse = this.validateUpdate(params, item, device);
-        if (validateUpdateResponse) {
-          return validateUpdateResponse;
-        } else {
-          const deviceType = getDevice(device.customData.deviceType);
-          if (!deviceType) {
-            throw { statusCode: 404 };
-          }
-          const deviceInstance = new deviceType(item);
-          if (!deviceInstance.validItemType || !deviceInstance.validDeviceType) {
-            throw { statusCode: 404 };
-          }
-          return {
-            ids: [device.id],
-            status: 'SUCCESS',
-            states: Object.assign({ online: true }, deviceInstance.state)
-          };
+  async handleUpdateValidation(apiHandler) {
+    await this.waitForStateChange();
+    const item = await apiHandler.getItem(this.device.id);
+    const validateUpdateResponse = this.validateUpdate(this.params);
+    if (validateUpdateResponse) {
+      return validateUpdateResponse;
+    } else {
+      const deviceType = getDevice(this.device.customData.deviceType);
+      if (!deviceType) {
+        throw { statusCode: 404 };
+      }
+      const deviceInstance = new deviceType(item);
+      if (!deviceInstance.validItemType || !deviceInstance.validDeviceType) {
+        throw { statusCode: 404 };
+      }
+      return {
+        ids: [this.device.id],
+        status: 'SUCCESS',
+        states: Object.assign({ online: true }, deviceInstance.state)
+      };
+    }
+  }
+
+  get willGetItem() {
+    const ackWithState =
+      ackSupported.includes(this.type) &&
+      (this.customData.ackNeeded || this.customData.tfaAck) &&
+      !(this.challenge && this.challenge.ack);
+    return this.requiresItem || ackWithState || this.requiresUpdateValidation;
+  }
+
+  getMembersAsFallback(item) {
+    if (this.requiresItem && !this.device.customData.members) {
+      const deviceType = getDevice(this.device.customData.deviceType);
+      if (!deviceType) {
+        throw { statusCode: 400 };
+      }
+      const deviceInstance = new deviceType(item);
+      if (deviceInstance.supportedMembers.length) {
+        const members = deviceInstance.members;
+        this._customData.members = {};
+        for (const member in members) {
+          this._customData.members[member] = members[member].name;
         }
-      });
-    });
+      }
+    }
   }
 
-  /**
-   * @param {object} apiHandler
-   * @param {array} devices
-   * @param {object} params
-   * @param {object} challenge
-   */
-  static execute(apiHandler, devices, params, challenge) {
-    const commandsResponse = [];
-    const promises = devices.map((device) => {
-      const authPinResponse = this.handleAuthPin(device, challenge, params);
-      if (authPinResponse) {
-        commandsResponse.push(authPinResponse);
-        return Promise.resolve();
+  async execute(apiHandler) {
+    const authPinResponse = this.handleAuthPin();
+    if (authPinResponse) {
+      return authPinResponse;
+    }
+
+    try {
+      const item = this.willGetItem ? await apiHandler.getItem(this.device.id) : { name: this.device.id };
+
+      // fallback for commands executed on devices that did not have their members attached in customData yet
+      this.getMembersAsFallback(item);
+
+      this.validateStateChange(item);
+
+      const responseStates = this.getResponseStates(item);
+      if (Object.keys(responseStates).length) {
+        responseStates.online = true;
       }
 
-      const ackWithState =
-        ackSupported.includes(this.type) &&
-        device.customData &&
-        (device.customData.ackNeeded || device.customData.tfaAck) &&
-        !(challenge && challenge.ack);
-
-      let getItemPromise = Promise.resolve({ name: device.id });
-      if (this.requiresItem(device) || ackWithState || this.requiresUpdateValidation) {
-        getItemPromise = apiHandler.getItem(device.id);
+      const authAckResponse = this.handleAuthAck(responseStates);
+      if (authAckResponse) {
+        return authAckResponse;
       }
 
-      return getItemPromise
-        .then((item) => {
-          // fallback for commands executed on devices that did not have their members attached in customData yet
-          if (this.requiresItem(device) && !device.customData.members) {
-            const deviceType = getDevice(device.customData.deviceType);
-            if (!deviceType) {
-              throw { statusCode: 400 };
-            }
-            const deviceInstance = new deviceType(item);
-            if (deviceInstance.supportedMembers.length) {
-              const members = deviceInstance.members;
-              device.customData.members = {};
-              for (const member in members) {
-                device.customData.members[member] = members[member].name;
-              }
-            }
-          }
+      const targetItem = this.itemName;
+      const targetValue = this.convertParamsToValue(item);
+      let sendCommandPromise = Promise.resolve();
+      if (typeof targetItem === 'string' && typeof targetValue === 'string') {
+        sendCommandPromise = apiHandler.sendCommand(targetItem, targetValue, this.device.id);
+      }
 
-          this.validateStateChange(params, item, device);
-
-          const responseStates = this.getResponseStates(params, item, device);
-          if (Object.keys(responseStates).length) {
-            responseStates.online = true;
-          }
-
-          const authAckResponse = this.handleAuthAck(device, challenge, responseStates);
-          if (authAckResponse) {
-            commandsResponse.push(authAckResponse);
-            return;
-          }
-
-          const targetItem = this.getItemName(device, params);
-          const targetValue = this.convertParamsToValue(params, item, device);
-          let sendCommandPromise = Promise.resolve();
-          if (typeof targetItem === 'string' && typeof targetValue === 'string') {
-            sendCommandPromise = apiHandler.sendCommand(targetItem, targetValue, device.id);
-          }
-
-          return sendCommandPromise.then(async () => {
-            if (this.requiresUpdateValidation) {
-              commandsResponse.push(await this.handleUpdateValidation(apiHandler, device, params));
-            } else {
-              commandsResponse.push({
-                ids: [device.id],
-                status: 'SUCCESS',
-                states: responseStates
-              });
-            }
-          });
-        })
-        .catch((error) => {
-          console.error(`openhabGoogleAssistant - ${this.type}: ERROR ${JSON.stringify(error)}`);
-          commandsResponse.push({
-            ids: [device.id],
-            status: 'ERROR',
-            errorCode:
-              typeof error.errorCode === 'string'
-                ? error.errorCode
-                : error.statusCode == 404
-                ? 'deviceNotFound'
-                : error.statusCode == 400
-                ? 'notSupported'
-                : 'deviceOffline'
-          });
-        });
-    });
-    return Promise.all(promises).then(() => commandsResponse);
+      await sendCommandPromise;
+      if (this.requiresUpdateValidation) {
+        return await this.handleUpdateValidation(apiHandler);
+      } else {
+        return {
+          ids: [this.device.id],
+          status: 'SUCCESS',
+          states: responseStates
+        };
+      }
+    } catch (error) {
+      console.error(`openhabGoogleAssistant - ${this.type}: ERROR ${JSON.stringify(error)}`);
+      return {
+        ids: [this.device.id],
+        status: 'ERROR',
+        errorCode:
+          typeof error.errorCode === 'string'
+            ? error.errorCode
+            : error.statusCode == 404
+            ? 'deviceNotFound'
+            : error.statusCode == 400
+            ? 'notSupported'
+            : 'deviceOffline'
+      };
+    }
   }
 }
 

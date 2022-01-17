@@ -200,7 +200,7 @@ class OpenHAB {
           );
           return;
         }
-        promises.push(CommandType.execute(this._apiHandler, command.devices, execution.params, execution.challenge));
+        promises.push(this.execute(CommandType, command.devices, execution.params, execution.challenge));
       });
     });
 
@@ -208,6 +208,23 @@ class OpenHAB {
     let responses = [];
     responseDetails.forEach((response) => (responses = responses.concat(response)));
     return { commands: responses };
+  }
+
+  /**
+   * @param {object} commandType
+   * @param {array} devices
+   * @param {object} params
+   * @param {object} challenge
+   */
+  async execute(commandType, devices, params, challenge) {
+    const promises = devices.map((device) => {
+      const command = new commandType(device, params, challenge);
+      return command.execute(this._apiHandler);
+    });
+    const responseDetails = await Promise.all(promises);
+    let responses = [];
+    responseDetails.forEach((response) => (responses = responses.concat(response)));
+    return responses;
   }
 
   /**

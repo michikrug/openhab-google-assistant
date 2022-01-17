@@ -56,7 +56,7 @@ describe('SecuritySystem Device', () => {
   });
 
   test('get traits', () => {
-    expect(new Device().traits).toStrictEqual([
+    expect(new Device({}).traits).toStrictEqual([
       'action.devices.traits.ArmDisarm',
       'action.devices.traits.StatusReport'
     ]);

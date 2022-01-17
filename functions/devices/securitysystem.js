@@ -70,33 +70,32 @@ class SecuritySystem extends DefaultDevice {
     return {};
   }
 
-  get members() {
-    const supportedMembers = this.supportedMembers;
-    const members = {};
+  getMembers() {
+    this._members = {};
     if (this.item.members && this.item.members.length) {
       this.item.members.forEach((member) => {
         if (member.metadata && member.metadata.ga) {
-          const memberType = supportedMembers.find((m) => {
+          const supportedMember = this.supportedMembers.find((m) => {
             const memberType = (member.groupType || member.type || '').split(':')[0];
             return m.types.includes(memberType) && member.metadata.ga.value.toLowerCase() === m.name.toLowerCase();
           });
-          if (memberType) {
+          if (supportedMember) {
             const memberDetails = {
               name: member.name,
               state: member.state,
               config: (member && member.metadata && member.metadata.ga && member.metadata.ga.config) || {}
             };
-            if (memberType.name === memberZone) {
-              members.zones = members.zones || [];
-              members.zones.push(memberDetails);
+            if (supportedMember.name === memberZone) {
+              this._members.zones = this._members.zones || [];
+              this._members.zones.push(memberDetails);
             } else {
-              members[memberType.name] = memberDetails;
+              this._members[supportedMember.name] = memberDetails;
             }
           }
         }
       });
     }
-    return members;
+    return this._members;
   }
 
   get state() {

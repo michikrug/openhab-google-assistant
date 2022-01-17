@@ -241,6 +241,22 @@ class DefaultCommand {
 
       return getItemPromise
         .then((item) => {
+          // fallback for commands executed on devices that did not have their members attached in customData yet
+          if (this.requiresItem(device) && !device.customData.members) {
+            const deviceType = getDevice(device.customData.deviceType);
+            if (!deviceType) {
+              throw { statusCode: 400 };
+            }
+            const deviceInstance = new deviceType(item);
+            if (deviceInstance.supportedMembers.length) {
+              const members = deviceInstance.members;
+              device.customData.members = {};
+              for (const member in members) {
+                device.customData.members[member] = members[member].name;
+              }
+            }
+          }
+
           this.validateStateChange(params, item, device);
 
           const responseStates = this.getResponseStates(params, item, device);

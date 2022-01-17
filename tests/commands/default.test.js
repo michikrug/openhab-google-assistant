@@ -156,7 +156,9 @@ describe('Default Command', () => {
       getItemMock.mockClear();
       sendCommandMock.mockClear();
       sendCommandMock.mockReturnValue(Promise.resolve());
-      getItemMock.mockReturnValue(Promise.resolve({ name: 'TestItem' }));
+      getItemMock.mockReturnValue(
+        Promise.resolve({ name: 'TestItem', type: 'Switch', metadata: { ga: { value: 'Switch' } } })
+      );
     });
 
     test('execute without responseStates', async () => {
@@ -190,7 +192,7 @@ describe('Default Command', () => {
     });
 
     test('execute with getItem', async () => {
-      const devices = [{ id: 'Item1' }];
+      const devices = [{ id: 'Item1', customData: { deviceType: 'Switch' } }];
       const result = await TestCommand2.execute(apiHandler, devices, { on: true });
       expect(getItemMock).toHaveBeenCalledTimes(1);
       expect(sendCommandMock).toHaveBeenCalledTimes(1);
@@ -200,7 +202,10 @@ describe('Default Command', () => {
     test('execute with multiple getItem', async () => {
       const successResponse2 = Object.assign({}, successResponse);
       successResponse2.ids = ['Item2'];
-      const devices = [{ id: 'Item1' }, { id: 'Item2' }];
+      const devices = [
+        { id: 'Item1', customData: { deviceType: 'Switch' } },
+        { id: 'Item2', customData: { deviceType: 'Switch' } }
+      ];
       const result = await TestCommand2.execute(apiHandler, devices, { on: true });
       expect(getItemMock).toHaveBeenCalledTimes(2);
       expect(sendCommandMock).toHaveBeenCalledTimes(2);
@@ -254,7 +259,7 @@ describe('Default Command', () => {
     });
 
     test('execute with ackNeeded and state', async () => {
-      const devices = [{ id: 'Item1', customData: { ackNeeded: true } }];
+      const devices = [{ id: 'Item1', customData: { ackNeeded: true, deviceType: 'Switch' } }];
       const result = await TestCommand2.execute(apiHandler, devices, { on: true });
       expect(getItemMock).toHaveBeenCalledTimes(1);
       expect(sendCommandMock).toHaveBeenCalledTimes(0);
@@ -370,6 +375,7 @@ describe('Default Command', () => {
     });
 
     test('execute with updateValidation and device not found', async () => {
+      getItemMock.mockReturnValue(Promise.resolve({ name: 'TestItem', type: 'Invalid' }));
       const devices = [{ id: 'Item1', customData: { deviceType: 'Switch' } }];
       const result = await TestCommand5.execute(apiHandler, devices, { on: true });
       expect(getItemMock).toHaveBeenCalledTimes(2);

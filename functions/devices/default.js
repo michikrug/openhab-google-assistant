@@ -2,7 +2,10 @@
 const packageVersion = require('../package.json').version;
 
 class DefaultDevice {
-  constructor(item) {
+  /**
+   * @param {object} item
+   */
+  constructor(item = {}) {
     this._item = item;
     this._metadata = (item && item.metadata && item.metadata.ga) || {};
   }
@@ -11,12 +14,16 @@ class DefaultDevice {
     return this._item;
   }
 
+  get members() {
+    return this._members || this.getMembers();
+  }
+
   get config() {
     return this._metadata.config || {};
   }
 
   get itemType() {
-    return (this.item.groupType || this.item.type || '').split(':')[0];
+    return (this._item.groupType || this._item.type || '').split(':')[0];
   }
 
   get deviceType() {
@@ -25,6 +32,10 @@ class DefaultDevice {
 
   get validItemType() {
     return !!(!this.requiredItemTypes.length || this.requiredItemTypes.includes(this.itemType));
+  }
+
+  get validDeviceType() {
+    return !!(this.type.toLowerCase() === `action.devices.types.${this.deviceType}`.toLowerCase());
   }
 
   get type() {
@@ -39,11 +50,19 @@ class DefaultDevice {
     return [];
   }
 
-  get validDeviceType() {
-    return !!(this.type.toLowerCase() === `action.devices.types.${this.deviceType}`.toLowerCase());
+  get attributes() {
+    return {};
   }
 
-  get attributes() {
+  get supportedMembers() {
+    return [];
+  }
+
+  get state() {
+    return {};
+  }
+
+  getNotification() {
     return {};
   }
 
@@ -77,7 +96,8 @@ class DefaultDevice {
       attributes: this.attributes,
       customData: {
         deviceType: this.constructor.name,
-        itemType: this.itemType
+        itemType: this.itemType,
+        members: {}
       }
     };
     if (config.inverted === true) {
@@ -97,7 +117,6 @@ class DefaultDevice {
     }
     if (this.supportedMembers.length) {
       const members = this.members;
-      metadata.customData.members = {};
       for (const member in members) {
         metadata.customData.members[member] = members[member].name;
       }
@@ -105,37 +124,22 @@ class DefaultDevice {
     return metadata;
   }
 
-  get state() {
-    return {};
-  }
-
-  getNotification() {
-    return {};
-  }
-
-  get supportedMembers() {
-    return [];
-  }
-
-  get members() {
-    if (this._members && Object.keys(this._members).length) return this._members;
-    const supportedMembers = this.supportedMembers;
-    const members = {};
-    if (this.item.members && this.item.members.length && supportedMembers.length) {
+  getMembers() {
+    this._members = {};
+    if (this.supportedMembers.length && this.item.members && this.item.members.length) {
       this.item.members.forEach((member) => {
         if (member.metadata && member.metadata.ga) {
-          const memberType = supportedMembers.find((m) => {
+          const supportedMember = this.supportedMembers.find((m) => {
             const memberType = (member.groupType || member.type || '').split(':')[0];
             return m.types.includes(memberType) && member.metadata.ga.value.toLowerCase() === m.name.toLowerCase();
           });
-          if (memberType) {
-            members[memberType.name] = { name: member.name, state: member.state };
+          if (supportedMember) {
+            this._members[supportedMember.name] = { name: member.name, state: member.state };
           }
         }
       });
     }
-    this._members = members;
-    return members;
+    return this._members;
   }
 }
 

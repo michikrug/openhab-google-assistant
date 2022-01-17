@@ -44,6 +44,7 @@ describe('Default Device', () => {
       customData: {
         ackNeeded: true,
         deviceType: 'DefaultDevice',
+        members: {},
         inverted: true,
         itemType: 'Number',
         pinNeeded: '1234'

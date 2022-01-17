@@ -90,7 +90,8 @@ describe('OpenHAB', () => {
             attributes: {},
             customData: {
               deviceType: 'Switch',
-              itemType: 'Switch'
+              itemType: 'Switch',
+              members: {}
             },
             deviceInfo: {
               manufacturer: 'openHAB',
@@ -154,7 +155,8 @@ describe('OpenHAB', () => {
             attributes: {},
             customData: {
               deviceType: 'Switch',
-              itemType: 'Switch'
+              itemType: 'Switch',
+              members: {}
             },
             deviceInfo: {
               manufacturer: 'openHAB',

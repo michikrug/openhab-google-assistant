@@ -114,9 +114,9 @@ class OpenHAB {
     };
   }
 
-  handleSync() {
-    return this._apiHandler.getItems().then((items) => {
-      let discoveredDevicesList = [];
+  async handleSync() {
+    const result = await this._apiHandler.getItems().then((items) => {
+      const discoveredDevicesList = [];
       items = items.filter((item) => item.metadata && item.metadata.ga);
       items.forEach((item) => {
         item.members = items.filter((member) => member.groupNames && member.groupNames.includes(item.name));
@@ -131,12 +131,13 @@ class OpenHAB {
       });
       return { devices: discoveredDevicesList };
     });
+    return result;
   }
 
   /**
    * @param {array} devices
    */
-  handleQuery(devices) {
+  async handleQuery(devices) {
     const payload = { devices: {} };
     const promises = devices.map((queryDevice) =>
       this._apiHandler
@@ -161,13 +162,14 @@ class OpenHAB {
         })
     );
 
-    return Promise.all(promises).then(() => payload);
+    await Promise.all(promises);
+    return payload;
   }
 
   /**
    * @param {array} commands
    */
-  handleExecute(commands) {
+  async handleExecute(commands) {
     const promises = [];
     commands.forEach((command) => {
       command.execution.forEach((execution) => {
@@ -202,13 +204,17 @@ class OpenHAB {
       });
     });
 
-    return Promise.all(promises).then((responseDetails) => {
-      let responses = [];
-      responseDetails.forEach((response) => (responses = responses.concat(response)));
-      return { commands: responses };
-    });
+    const responseDetails = await Promise.all(promises);
+    let responses = [];
+    responseDetails.forEach((response) => (responses = responses.concat(response)));
+    return { commands: responses };
   }
 
+  /**
+   * @param {object} req
+   * @param {object} res
+   * @param {object} homegraphClient
+   */
   async onStateReport(req, res, homegraphClient) {
     try {
       const userId = req.headers['x-openhab-user'];
@@ -226,6 +232,8 @@ class OpenHAB {
 
   /**
    * @param {object} item
+   * @param {string} userId
+   * @param {object} homegraphClient
    */
   async handleStateReport(item, userId, homegraphClient) {
     const device = getDeviceForItem(item);

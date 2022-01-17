@@ -23,23 +23,20 @@ class SpecialColorLight extends DefaultDevice {
   }
 
   get validDeviceType() {
-    const members = this.members;
     return !!(
       super.validDeviceType &&
-      Object.keys(members).length > 1 &&
-      (!('lightColorTemperature' in members) || this.useKelvin || !!this.attributes.colorTemperatureRange)
+      Object.keys(this.members).length > 1 &&
+      (!('lightColorTemperature' in this.members) || this.useKelvin || !!this.attributes.colorTemperatureRange)
     );
   }
 
   get attributes() {
     const attributes = {};
-    const members = this.members;
-    if ('lightColor' in members) {
+    if ('lightColor' in this.members) {
       attributes.colorModel = 'hsv';
     }
-    const config = this.config;
-    if ('colorTemperatureRange' in config) {
-      const [min, max] = config.colorTemperatureRange.split(',').map((s) => Number(s.trim()));
+    if ('colorTemperatureRange' in this.config) {
+      const [min, max] = this.config.colorTemperatureRange.split(',').map((s) => Number(s.trim()));
       if (!isNaN(min) && !isNaN(max)) {
         attributes.colorTemperatureRange = {
           temperatureMinK: min,

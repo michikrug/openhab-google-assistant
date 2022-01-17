@@ -31,7 +31,6 @@ class Speaker extends DefaultDevice {
     return attributes;
   }
 
-
   get state() {
     return {
       currentVolume: Number(this.item.state) || 0

@@ -8,9 +8,8 @@ class Fan extends DefaultDevice {
   get traits() {
     const traits = [];
     const members = this.members;
-    const itemType = this.itemType;
-    if (itemType === 'Dimmer' || 'fanPower' in members) traits.push('action.devices.traits.OnOff');
-    if (itemType === 'Dimmer' || 'fanSpeed' in members) traits.push('action.devices.traits.FanSpeed');
+    if (this.itemType === 'Dimmer' || 'fanPower' in members) traits.push('action.devices.traits.OnOff');
+    if (this.itemType === 'Dimmer' || 'fanSpeed' in members) traits.push('action.devices.traits.FanSpeed');
     if ('fanMode' in members) traits.push('action.devices.traits.Modes');
     if ('fanFilterLifeTime' in members || 'fanPM25' in members) traits.push('action.devices.traits.SensorState');
     return traits;
@@ -18,6 +17,16 @@ class Fan extends DefaultDevice {
 
   get requiredItemTypes() {
     return ['Group', 'Dimmer'];
+  }
+
+  get supportedMembers() {
+    return [
+      { name: 'fanPower', types: ['Switch'] },
+      { name: 'fanSpeed', types: ['Dimmer', 'Number'] },
+      { name: 'fanMode', types: ['Number', 'String'] },
+      { name: 'fanFilterLifeTime', types: ['Number'] },
+      { name: 'fanPM25', types: ['Number'] }
+    ];
   }
 
   get validDeviceType() {
@@ -190,16 +199,12 @@ class Fan extends DefaultDevice {
     return {};
   }
 
-  get supportedMembers() {
-    return [
-      { name: 'fanPower', types: ['Switch'] },
-      { name: 'fanSpeed', types: ['Dimmer', 'Number'] },
-      { name: 'fanMode', types: ['Number', 'String'] },
-      { name: 'fanFilterLifeTime', types: ['Number'] },
-      { name: 'fanPM25', types: ['Number'] }
-    ];
-  }
-
+  /**
+   * Translate the filter life time to a descriptive state
+   * @param {number} state - The filter life time in percent
+   * @return {string} - The descriptive state
+   * @private
+   */
   translateFilterLifeTime(state) {
     const map = [
       { value: 'new', threshold: 90 },

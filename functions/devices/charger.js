@@ -13,18 +13,24 @@ class Charger extends DefaultDevice {
     return ['Group'];
   }
 
+  get supportedMembers() {
+    return [
+      { name: 'chargerCharging', types: ['Switch'] },
+      { name: 'chargerPluggedIn', types: ['Switch'] },
+      { name: 'chargerCapacityRemaining', types: ['Number', 'Dimmer'] },
+      { name: 'chargerCapacityUntilFull', types: ['Number', 'Dimmer'] }
+    ];
+  }
+
   get validDeviceType() {
     return super.validDeviceType && Object.keys(this.members).length > 0;
   }
 
   get attributes() {
-    const config = this.config;
-    const members = this.members;
-    const attributes = {
-      isRechargeable: config.isRechargeable || false,
-      queryOnlyEnergyStorage: !('chargerCharging' in members)
+    return {
+      isRechargeable: this.config.isRechargeable || false,
+      queryOnlyEnergyStorage: !('chargerCharging' in this.members)
     };
-    return attributes;
   }
 
   get state() {
@@ -76,15 +82,6 @@ class Charger extends DefaultDevice {
       }
     }
     return state;
-  }
-
-  get supportedMembers() {
-    return [
-      { name: 'chargerCharging', types: ['Switch'] },
-      { name: 'chargerPluggedIn', types: ['Switch'] },
-      { name: 'chargerCapacityRemaining', types: ['Number', 'Dimmer'] },
-      { name: 'chargerCapacityUntilFull', types: ['Number', 'Dimmer'] }
-    ];
   }
 }
 

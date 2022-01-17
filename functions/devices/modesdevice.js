@@ -55,10 +55,9 @@ class ModesDevice extends DefaultDevice {
   }
 
   get state() {
-    const config = this.config;
     const state = {};
-    if (config.mode && config.settings) {
-      const modeNames = config.mode.split(',').map((s) => s.trim());
+    if (this.config.mode && this.config.settings) {
+      const modeNames = this.config.mode.split(',').map((s) => s.trim());
       state.currentModeSettings = {
         [modeNames[0]]: this.item.state
       };

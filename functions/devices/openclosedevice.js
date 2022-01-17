@@ -5,6 +5,10 @@ class OpenCloseDevice extends DefaultDevice {
     return ['action.devices.traits.OpenClose', 'action.devices.traits.StartStop'];
   }
 
+  get requiredItemTypes() {
+    return ['Rollershutter', 'Switch', 'Contact'];
+  }
+
   get attributes() {
     const attributes = {
       pausable: false,
@@ -19,10 +23,6 @@ class OpenCloseDevice extends DefaultDevice {
       attributes.queryOnlyOpenClose = true;
     }
     return attributes;
-  }
-
-  get requiredItemTypes() {
-    return ['Rollershutter', 'Switch', 'Contact'];
   }
 
   get state() {

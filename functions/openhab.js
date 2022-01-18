@@ -204,10 +204,8 @@ class OpenHAB {
       });
     });
 
-    const responseDetails = await Promise.all(promises);
-    let responses = [];
-    responseDetails.forEach((response) => (responses = responses.concat(response)));
-    return { commands: responses };
+    const responses = await Promise.all(promises);
+    return { commands: responses.flat() };
   }
 
   /**
@@ -217,14 +215,9 @@ class OpenHAB {
    * @param {object} challenge
    */
   async execute(commandType, devices, params, challenge) {
-    const promises = devices.map((device) => {
-      const command = new commandType(params, device, challenge);
-      return command.execute(this._apiHandler);
-    });
-    const responseDetails = await Promise.all(promises);
-    let responses = [];
-    responseDetails.forEach((response) => (responses = responses.concat(response)));
-    return responses;
+    const promises = devices.map((device) => new commandType(params, device, challenge).execute(this._apiHandler));
+    const responses = await Promise.all(promises);
+    return responses.flat();
   }
 
   /**

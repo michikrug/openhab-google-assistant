@@ -1,30 +1,30 @@
 const DefaultCommand = require('./default.js');
 
 class OnOff extends DefaultCommand {
-  static get type() {
+  get type() {
     return 'action.devices.commands.OnOff';
   }
 
-  static validateParams(params) {
-    return 'on' in params && typeof params.on === 'boolean';
+  get hasValidParams() {
+    return 'on' in this.params && typeof this.params.on === 'boolean';
   }
 
-  static requiresItem(device) {
-    const deviceType = this.getDeviceType(device);
+  get requiresItem() {
+    const deviceType = this.deviceType;
     return (
       (deviceType === 'SpecialColorLight' ||
         deviceType === 'TV' ||
-        (['AirPurifier', 'Fan', 'Hood'].includes(deviceType) && this.getItemType(device) !== 'Dimmer')) &&
-      !this.hasMembers(device)
+        (['AirPurifier', 'Fan', 'Hood'].includes(deviceType) && this.itemType !== 'Dimmer')) &&
+      !this.hasMembers
     );
   }
 
-  static getItemName(device) {
-    const deviceType = this.getDeviceType(device);
+  get itemName() {
+    const deviceType = this.deviceType;
     if (deviceType.startsWith('DynamicModes')) {
       throw { statusCode: 400 };
     }
-    const members = this.getMembers(device);
+    const members = this.members;
     if (deviceType === 'SpecialColorLight') {
       if ('lightPower' in members) {
         return members.lightPower;
@@ -40,26 +40,26 @@ class OnOff extends DefaultCommand {
       }
       throw { statusCode: 400 };
     }
-    if (['AirPurifier', 'Fan', 'Hood'].includes(deviceType) && this.getItemType(device) !== 'Dimmer') {
+    if (['AirPurifier', 'Fan', 'Hood'].includes(deviceType) && this.itemType !== 'Dimmer') {
       if ('fanPower' in members) {
         return members.fanPower;
       }
       throw { statusCode: 400 };
     }
-    return device.id;
+    return this.device.id;
   }
 
-  static convertParamsToValue(params, _, device) {
-    let on = params.on;
-    if (this.isInverted(device)) {
+  convertParamsToValue() {
+    let on = this.params.on;
+    if (this.isInverted) {
       on = !on;
     }
     return on ? 'ON' : 'OFF';
   }
 
-  static getResponseStates(params) {
+  getResponseStates() {
     return {
-      on: params.on
+      on: this.params.on
     };
   }
 }

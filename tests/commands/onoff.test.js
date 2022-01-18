@@ -2,25 +2,25 @@ const Command = require('../../functions/commands/onoff.js');
 
 describe('OnOff Command', () => {
   test('validateParams', () => {
-    expect(Command.validateParams({})).toBe(false);
-    expect(Command.validateParams({ on: true })).toBe(true);
+    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command({ on: true }).hasValidParams).toBe(true);
   });
 
   describe('getItemName', () => {
     test('getItemName', () => {
-      expect(Command.getItemName({ id: 'Item' })).toBe('Item');
-      expect(Command.getItemName({ id: 'Item', customData: {} })).toBe('Item');
+      expect(new Command({}, { id: 'Item' }).itemName).toBe('Item');
+      expect(new Command({}, { id: 'Item', customData: {} }).itemName).toBe('Item');
     });
 
-    test('getItemName SpecialColorLight', () => {
+    test('getItemName DynamicModesLight', () => {
       expect(() => {
-        Command.getItemName({ id: 'Item', customData: { deviceType: 'DynamicModesLight' } });
+        new Command({}, { id: 'Item', customData: { deviceType: 'DynamicModesLight' } }).itemName;
       }).toThrow();
     });
 
     test('getItemName SpecialColorLight', () => {
       expect(() => {
-        Command.getItemName({ id: 'Item', customData: { deviceType: 'SpecialColorLight' } });
+        new Command({}, { id: 'Item', customData: { deviceType: 'SpecialColorLight' } }).itemName;
       }).toThrow();
       const device = {
         id: 'Item',
@@ -31,7 +31,7 @@ describe('OnOff Command', () => {
           }
         }
       };
-      expect(Command.getItemName(device)).toBe('BrightnessItem');
+      expect(new Command({}, device).itemName).toBe('BrightnessItem');
       const device_power = {
         id: 'Item',
         customData: {
@@ -41,12 +41,12 @@ describe('OnOff Command', () => {
           }
         }
       };
-      expect(Command.getItemName(device_power)).toBe('PowerItem');
+      expect(new Command({}, device_power).itemName).toBe('PowerItem');
     });
 
     test('getItemName TV', () => {
       expect(() => {
-        Command.getItemName({ name: 'Item', customData: { deviceType: 'TV' } });
+        new Command({}, { name: 'Item', customData: { deviceType: 'TV' } }).itemName;
       }).toThrow();
       const device = {
         id: 'Item',
@@ -57,12 +57,12 @@ describe('OnOff Command', () => {
           }
         }
       };
-      expect(Command.getItemName(device)).toBe('PowerItem');
+      expect(new Command({}, device).itemName).toBe('PowerItem');
     });
 
     test('getItemName Fan', () => {
       expect(() => {
-        Command.getItemName({ name: 'Item', customData: { deviceType: 'Fan', itemType: 'Group' } });
+        new Command({}, { name: 'Item', customData: { deviceType: 'Fan', itemType: 'Group' } }).itemName;
       }).toThrow();
       const device = {
         id: 'Item',
@@ -74,23 +74,25 @@ describe('OnOff Command', () => {
           }
         }
       };
-      expect(Command.getItemName(device)).toBe('PowerItem');
-      expect(Command.getItemName({ id: 'Item', customData: { deviceType: 'Fan', itemType: 'Dimmer' } })).toBe('Item');
+      expect(new Command({}, device).itemName).toBe('PowerItem');
+      expect(new Command({}, { id: 'Item', customData: { deviceType: 'Fan', itemType: 'Dimmer' } }).itemName).toBe(
+        'Item'
+      );
     });
   });
 
   describe('convertParamsToValue', () => {
     test('convertParamsToValue', () => {
-      expect(Command.convertParamsToValue({ on: true }, {}, {})).toBe('ON');
+      expect(new Command({ on: true }, {}).convertParamsToValue()).toBe('ON');
     });
 
     test('convertParamsToValue inverted', () => {
-      expect(Command.convertParamsToValue({ on: true }, {}, { customData: { inverted: true } })).toBe('OFF');
+      expect(new Command({ on: true }, { customData: { inverted: true } }).convertParamsToValue()).toBe('OFF');
     });
   });
 
   test('getResponseStates', () => {
-    expect(Command.getResponseStates({ on: true })).toStrictEqual({ on: true });
-    expect(Command.getResponseStates({ on: false })).toStrictEqual({ on: false });
+    expect(new Command({ on: true }).getResponseStates()).toStrictEqual({ on: true });
+    expect(new Command({ on: false }).getResponseStates()).toStrictEqual({ on: false });
   });
 });

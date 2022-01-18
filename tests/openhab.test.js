@@ -671,6 +671,24 @@ describe('OpenHAB', () => {
     });
   });
 
+  test('execute', async () => {
+    const mockCommand = jest.fn();
+    const mockCommandExecute = jest.fn();
+    mockCommandExecute.mockResolvedValueOnce({ test: 'test1' });
+    mockCommandExecute.mockResolvedValueOnce({ test: 'test2' });
+    mockCommand.mockImplementation(() => {
+      return { execute: mockCommandExecute };
+    });
+    const devices = [{ id: 'TestItem1' }, { id: 'TestItem2' }];
+    const openHAB = new OpenHAB();
+    const result = await openHAB.execute(mockCommand, devices, { on: true }, {});
+    expect(mockCommand).toHaveBeenCalledTimes(2);
+    expect(mockCommand).toHaveBeenNthCalledWith(1, { on: true }, { id: 'TestItem1' }, {});
+    expect(mockCommand).toHaveBeenNthCalledWith(2, { on: true }, { id: 'TestItem2' }, {});
+    expect(mockCommandExecute).toHaveBeenCalledTimes(2);
+    expect(result).toStrictEqual([{ test: 'test1' }, { test: 'test2' }]);
+  });
+
   describe('onStateReport', () => {
     const openHAB = new OpenHAB();
     const handleStateReportMock = jest.spyOn(openHAB, 'handleStateReport');

@@ -1,22 +1,22 @@
 const Command = require('../../functions/commands/getcamerastream.js');
 
 describe('GetCameraStream Command', () => {
-  test('validateParams', () => {
-    expect(Command.validateParams({})).toBe(false);
-    expect(Command.validateParams({ StreamToChromecast: true })).toBe(false);
-    expect(Command.validateParams({ StreamToChromecast: true, SupportedStreamProtocols: {} })).toBe(true);
+  test('hasValidParams', () => {
+    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command({ StreamToChromecast: true }).hasValidParams).toBe(false);
+    expect(new Command({ StreamToChromecast: true, SupportedStreamProtocols: {} }).hasValidParams).toBe(true);
   });
 
   test('requiresItem', () => {
-    expect(Command.requiresItem()).toBe(true);
+    expect(new Command().requiresItem).toBe(true);
   });
 
   test('convertParamsToValue', () => {
-    expect(Command.convertParamsToValue()).toBe(null);
+    expect(new Command().convertParamsToValue()).toBe(null);
   });
 
   test('getResponseStates', () => {
-    expect(Command.getResponseStates({}, { state: 'https://example.org' })).toStrictEqual({
+    expect(new Command().getResponseStates({ state: 'https://example.org' })).toStrictEqual({
       cameraStreamAccessUrl: 'https://example.org'
     });
   });

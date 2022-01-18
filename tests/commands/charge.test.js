@@ -1,14 +1,14 @@
 const Command = require('../../functions/commands/charge.js');
 
 describe('Charge Command', () => {
-  test('validateParams', () => {
-    expect(Command.validateParams({})).toBe(false);
-    expect(Command.validateParams({ charge: true })).toBe(true);
+  test('hasValidParams', () => {
+    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command({ charge: true }).hasValidParams).toBe(true);
   });
 
   test('getItemName', () => {
     expect(() => {
-      Command.getItemName({ id: 'Item' });
+      new Command({}, { id: 'Item' }).itemName;
     }).toThrow();
 
     const device = {
@@ -18,16 +18,16 @@ describe('Charge Command', () => {
         }
       }
     };
-    expect(Command.getItemName(device)).toBe('ChargingItem');
+    expect(new Command({}, device).itemName).toBe('ChargingItem');
   });
 
   describe('convertParamsToValue', () => {
     test('convertParamsToValue', () => {
-      expect(Command.convertParamsToValue({ charge: true }, {}, {})).toBe('ON');
+      expect(new Command({ charge: true }).convertParamsToValue()).toBe('ON');
     });
 
     test('convertParamsToValue inverted', () => {
-      expect(Command.convertParamsToValue({ charge: true }, {}, { customData: { inverted: true } })).toBe('OFF');
+      expect(new Command({ charge: true }, { customData: { inverted: true } }).convertParamsToValue()).toBe('OFF');
     });
   });
 
@@ -54,7 +54,7 @@ describe('Charge Command', () => {
         }
       ]
     };
-    expect(Command.getResponseStates({ charge: true }, item)).toStrictEqual({
+    expect(new Command({ charge: true }).getResponseStates(item)).toStrictEqual({
       isCharging: true,
       descriptiveCapacityRemaining: 'MEDIUM',
       capacityRemaining: [
@@ -64,7 +64,7 @@ describe('Charge Command', () => {
         }
       ]
     });
-    expect(Command.getResponseStates({ charge: false }, item)).toStrictEqual({
+    expect(new Command({ charge: false }).getResponseStates(item)).toStrictEqual({
       isCharging: false,
       descriptiveCapacityRemaining: 'MEDIUM',
       capacityRemaining: [

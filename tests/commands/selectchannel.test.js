@@ -1,20 +1,20 @@
 const Command = require('../../functions/commands/selectchannel.js');
 
 describe('selectChannel Command', () => {
-  test('validateParams', () => {
-    expect(Command.validateParams({})).toBe(false);
-    expect(Command.validateParams({ channelCode: 'channel1' })).toBe(true);
-    expect(Command.validateParams({ channelName: 'Channel 1' })).toBe(true);
-    expect(Command.validateParams({ channelNumber: '1' })).toBe(true);
+  test('hasValidParams', () => {
+    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command({ channelCode: 'channel1' }).hasValidParams).toBe(true);
+    expect(new Command({ channelName: 'Channel 1' }).hasValidParams).toBe(true);
+    expect(new Command({ channelNumber: '1' }).hasValidParams).toBe(true);
   });
 
   test('requiresItem', () => {
-    expect(Command.requiresItem()).toBe(true);
+    expect(new Command().requiresItem).toBe(true);
   });
 
   test('getItemName', () => {
     expect(() => {
-      Command.getItemName({ id: 'Item' });
+      new Command({}, { id: 'Item' }).itemName;
     }).toThrow();
     const device = {
       customData: {
@@ -23,7 +23,7 @@ describe('selectChannel Command', () => {
         }
       }
     };
-    expect(Command.getItemName(device)).toBe('ChannelItem');
+    expect(new Command({}, device).itemName).toBe('ChannelItem');
   });
 
   test('convertParamsToValue', () => {
@@ -36,14 +36,14 @@ describe('selectChannel Command', () => {
         }
       }
     };
-    expect(Command.convertParamsToValue({ channelCode: 'channel1' }, item)).toBe('1');
-    expect(Command.convertParamsToValue({ channelName: 'ARD' }, item)).toBe('1');
-    expect(Command.convertParamsToValue({ channelNumber: '1' }, item)).toBe('1');
+    expect(new Command({ channelCode: 'channel1' }).convertParamsToValue(item)).toBe('1');
+    expect(new Command({ channelName: 'ARD' }).convertParamsToValue(item)).toBe('1');
+    expect(new Command({ channelNumber: '1' }).convertParamsToValue(item)).toBe('1');
     expect(() => {
-      Command.convertParamsToValue({ channelNumber: '0' }, item);
+      new Command({ channelNumber: '0' }).convertParamsToValue(item);
     }).toThrow();
     expect(() => {
-      Command.convertParamsToValue({ channelName: 'wrong' }, item);
+      new Command({ channelName: 'wrong' }).convertParamsToValue(item);
     }).toThrow();
   });
 
@@ -57,6 +57,6 @@ describe('selectChannel Command', () => {
         }
       }
     };
-    expect(Command.getResponseStates({ channelName: 'ZDF' }, item)).toStrictEqual({ channelNumber: '2' });
+    expect(new Command({ channelName: 'ZDF' }).getResponseStates(item)).toStrictEqual({ channelNumber: '2' });
   });
 });

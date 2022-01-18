@@ -1,34 +1,34 @@
 const Command = require('../../functions/commands/startstop.js');
 
 describe('StartStop Command', () => {
-  test('validateParams', () => {
-    expect(Command.validateParams({})).toBe(false);
-    expect(Command.validateParams({ start: true })).toBe(true);
-    expect(Command.validateParams({ start: '1' })).toBe(false);
+  test('hasValidParams', () => {
+    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command({ start: true }).hasValidParams).toBe(true);
+    expect(new Command({ start: '1' }).hasValidParams).toBe(false);
   });
 
   describe('convertParamsToValue', () => {
     test('convertParamsToValue', () => {
-      expect(Command.convertParamsToValue({ start: true }, {}, {})).toBe('ON');
-      expect(Command.convertParamsToValue({ start: false }, {}, {})).toBe('OFF');
+      expect(new Command({ start: true }).convertParamsToValue()).toBe('ON');
+      expect(new Command({ start: false }).convertParamsToValue()).toBe('OFF');
     });
 
     test('convertParamsToValue Rollershutter', () => {
       const device = { customData: { itemType: 'Rollershutter' } };
-      expect(Command.convertParamsToValue({ start: true }, {}, device)).toBe('MOVE');
-      expect(Command.convertParamsToValue({ start: false }, {}, device)).toBe('STOP');
+      expect(new Command({ start: true }, device).convertParamsToValue()).toBe('MOVE');
+      expect(new Command({ start: false }, device).convertParamsToValue()).toBe('STOP');
     });
 
     test('convertParamsToValue Contact', () => {
       const device = { customData: { itemType: 'Contact' } };
       expect(() => {
-        Command.convertParamsToValue({}, {}, device);
+        new Command({}, device).convertParamsToValue();
       }).toThrow();
     });
   });
 
   test('getResponseStates', () => {
-    expect(Command.getResponseStates({ start: true })).toStrictEqual({ isRunning: true, isPaused: false });
-    expect(Command.getResponseStates({ start: false })).toStrictEqual({ isRunning: false, isPaused: true });
+    expect(new Command({ start: true }).getResponseStates()).toStrictEqual({ isRunning: true, isPaused: false });
+    expect(new Command({ start: false }).getResponseStates()).toStrictEqual({ isRunning: false, isPaused: true });
   });
 });

@@ -1,20 +1,20 @@
 const Command = require('../../functions/commands/activatescene.js');
 
 describe('ActivateScene Command', () => {
-  test('validateParams', () => {
-    expect(Command.validateParams({})).toBe(true);
-    expect(Command.validateParams({ deactivate: true })).toBe(true);
+  test('hasValidParams', () => {
+    expect(new Command({}).hasValidParams).toBe(true);
+    expect(new Command({ deactivate: true }).hasValidParams).toBe(true);
   });
 
   describe('convertParamsToValue', () => {
     test('convertParamsToValue', () => {
-      expect(Command.convertParamsToValue({ deactivate: true }, {}, {})).toBe('OFF');
-      expect(Command.convertParamsToValue({ deactivate: false }, {}, {})).toBe('ON');
+      expect(new Command({ deactivate: true }, {}).convertParamsToValue()).toBe('OFF');
+      expect(new Command({ deactivate: false }, {}).convertParamsToValue()).toBe('ON');
     });
 
     test('convertParamsToValue inverted', () => {
-      expect(Command.convertParamsToValue({ deactivate: true }, {}, { customData: { inverted: true } })).toBe('ON');
-      expect(Command.convertParamsToValue({ deactivate: false }, {}, { customData: { inverted: true } })).toBe('OFF');
+      expect(new Command({ deactivate: true }, { customData: { inverted: true } }).convertParamsToValue()).toBe('ON');
+      expect(new Command({ deactivate: false }, { customData: { inverted: true } }).convertParamsToValue()).toBe('OFF');
     });
   });
 });

@@ -7,83 +7,76 @@ describe('ColorAbsoluteTemperature Command', () => {
     }
   };
 
-  test('validateParams', () => {
-    expect(Command.validateParams({})).toBe(false);
-    expect(Command.validateParams({ color: {} })).toBe(false);
-    expect(Command.validateParams(params)).toBe(true);
+  test('hasValidParams', () => {
+    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command({ color: {} }).hasValidParams).toBe(false);
+    expect(new Command(params).hasValidParams).toBe(true);
   });
 
   test('requiresItem', () => {
-    expect(Command.requiresItem({})).toBe(true);
-    expect(Command.requiresItem({ customData: { deviceType: 'SpecialColorLight' } })).toBe(true);
-    expect(Command.requiresItem({ customData: { deviceType: 'SpecialColorLight', members: { test: 1 } } })).toBe(false);
+    expect(new Command({}, {}).requiresItem).toBe(true);
+    expect(new Command({}, { customData: { deviceType: 'SpecialColorLight' } }).requiresItem).toBe(true);
+    expect(
+      new Command({}, { customData: { deviceType: 'SpecialColorLight', members: { test: 1 } } }).requiresItem
+    ).toBe(false);
   });
 
   test('getItemName', () => {
-    expect(Command.getItemName({ id: 'Item' })).toBe('Item');
-    expect(Command.getItemName({ id: 'Item', customData: {} })).toBe('Item');
+    expect(new Command({}, { id: 'Item' }).itemName).toBe('Item');
+    expect(new Command({}, { id: 'Item', customData: {} }).itemName).toBe('Item');
     expect(() => {
-      Command.getItemName({ id: 'Item', customData: { deviceType: 'SpecialColorLight' } });
+      new Command({}, { id: 'Item', customData: { deviceType: 'SpecialColorLight' } }).itemName;
     }).toThrow();
     expect(
-      Command.getItemName({
-        id: 'Item',
-        customData: {
-          deviceType: 'SpecialColorLight',
-          members: {
-            lightColorTemperature: 'ColorItem'
+      new Command(
+        {},
+        {
+          id: 'Item',
+          customData: {
+            deviceType: 'SpecialColorLight',
+            members: {
+              lightColorTemperature: 'ColorItem'
+            }
           }
         }
-      })
+      ).itemName
     ).toBe('ColorItem');
   });
 
   describe('convertParamsToValue', () => {
     test('convertParamsToValue', () => {
-      expect(Command.convertParamsToValue(params, { state: '100,100,50' }, {})).toBe('30.62,95,50');
+      expect(new Command(params, {}).convertParamsToValue({ state: '100,100,50' })).toBe('30.62,95,50');
     });
 
     test('convertParamsToValue SpecialColorLight', () => {
       expect(
-        Command.convertParamsToValue(
-          params,
-          {},
-          {
-            customData: {
-              deviceType: 'SpecialColorLight',
-              colorTemperatureRange: { temperatureMinK: 1000, temperatureMaxK: 5000 }
-            }
+        new Command(params, {
+          customData: {
+            deviceType: 'SpecialColorLight',
+            colorTemperatureRange: { temperatureMinK: 1000, temperatureMaxK: 5000 }
           }
-        )
+        }).convertParamsToValue({})
       ).toBe('75');
       expect(
-        Command.convertParamsToValue(
-          params,
-          { state: '100,100,50' },
-          {
-            customData: {
-              deviceType: 'SpecialColorLight'
-            }
+        new Command(params, {
+          customData: {
+            deviceType: 'SpecialColorLight'
           }
-        )
+        }).convertParamsToValue({ state: '100,100,50' })
       ).toBe('0');
     });
 
     test('convertParamsToValue SpecialColorLight Kelvin', () => {
       expect(
-        Command.convertParamsToValue(
-          params,
-          {},
-          {
-            customData: { deviceType: 'SpecialColorLight', useKelvin: true }
-          }
-        )
+        new Command(params, {
+          customData: { deviceType: 'SpecialColorLight', useKelvin: true }
+        }).convertParamsToValue()
       ).toBe('2000');
     });
   });
 
   test('getResponseStates', () => {
-    expect(Command.getResponseStates(params)).toStrictEqual({
+    expect(new Command(params).getResponseStates()).toStrictEqual({
       color: {
         temperatureK: 2000
       }

@@ -1,8 +1,8 @@
 const Command = require('../../functions/commands/medianext.js');
 
 describe('mediaNext Command', () => {
-  test('validateParams', () => {
-    expect(Command.validateParams({})).toBe(true);
+  test('hasValidParams', () => {
+    expect(new Command({}).hasValidParams).toBe(true);
   });
 
   test('getItemName', () => {
@@ -13,13 +13,13 @@ describe('mediaNext Command', () => {
         }
       }
     };
-    expect(Command.getItemName(device)).toBe('TransportItem');
+    expect(new Command({}, device).itemName).toBe('TransportItem');
     expect(() => {
-      Command.getItemName({ customData: { members: {} } });
+      new Command().itemName({ customData: { members: {} } });
     }).toThrow();
   });
 
   test('convertParamsToValue', () => {
-    expect(Command.convertParamsToValue()).toBe('NEXT');
+    expect(new Command().convertParamsToValue()).toBe('NEXT');
   });
 });

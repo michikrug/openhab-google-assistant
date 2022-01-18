@@ -179,8 +179,8 @@ class OpenHAB {
           const SetLow = getCommandType('action.devices.commands.ThermostatTemperatureSetpointLow', execution.params);
           if (SetHigh && SetLow) {
             promises.push(
-              SetHigh.execute(this._apiHandler, command.devices, execution.params, execution.challenge).then(() => {
-                return SetLow.execute(this._apiHandler, command.devices, execution.params, execution.challenge);
+              this.execute(SetHigh, command.devices, execution.params, execution.challenge).then(() => {
+                return this.execute(SetLow, command.devices, execution.params, execution.challenge);
               })
             );
             return;
@@ -218,7 +218,7 @@ class OpenHAB {
    */
   async execute(commandType, devices, params, challenge) {
     const promises = devices.map((device) => {
-      const command = new commandType(device, params, challenge);
+      const command = new commandType(params, device, challenge);
       return command.execute(this._apiHandler);
     });
     const responseDetails = await Promise.all(promises);

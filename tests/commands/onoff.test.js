@@ -1,7 +1,7 @@
 const Command = require('../../functions/commands/onoff.js');
 
 describe('OnOff Command', () => {
-  test('validateParams', () => {
+  test('hasValidParams', () => {
     expect(new Command({}).hasValidParams).toBe(false);
     expect(new Command({ on: true }).hasValidParams).toBe(true);
   });

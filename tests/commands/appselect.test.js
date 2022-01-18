@@ -4,19 +4,19 @@ describe('appSelect Command', () => {
   const paramsKey = { newApplication: 'netflix' };
   const paramsName = { newApplicationName: 'Net Flix' };
 
-  test('validateParams', () => {
-    expect(Command.validateParams({})).toBe(false);
-    expect(Command.validateParams(paramsKey)).toBe(true);
-    expect(Command.validateParams(paramsName)).toBe(true);
+  test('hasValidParams', () => {
+    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command(paramsKey).hasValidParams).toBe(true);
+    expect(new Command(paramsName).hasValidParams).toBe(true);
   });
 
   test('requiresItem', () => {
-    expect(Command.requiresItem()).toBe(true);
+    expect(new Command().requiresItem).toBe(true);
   });
 
   test('getItemName', () => {
     expect(() => {
-      Command.getItemName({ id: 'Item' });
+      new Command({}, { id: 'Item' }).itemName;
     }).toThrow();
     const device = {
       customData: {
@@ -25,7 +25,7 @@ describe('appSelect Command', () => {
         }
       }
     };
-    expect(Command.getItemName(device)).toBe('ApplicationItem');
+    expect(new Command({}, device).itemName).toBe('ApplicationItem');
   });
 
   test('convertParamsToValue', () => {
@@ -38,14 +38,14 @@ describe('appSelect Command', () => {
         }
       }
     };
-    expect(Command.convertParamsToValue(paramsKey, item)).toBe('netflix');
-    expect(Command.convertParamsToValue(paramsName, item)).toBe('netflix');
-    expect(Command.convertParamsToValue({ newApplicationName: 'Tube' }, item)).toBe('youtube');
+    expect(new Command(paramsKey).convertParamsToValue(item)).toBe('netflix');
+    expect(new Command(paramsName).convertParamsToValue(item)).toBe('netflix');
+    expect(new Command({ newApplicationName: 'Tube' }).convertParamsToValue(item)).toBe('youtube');
     expect(() => {
-      Command.convertParamsToValue({ newApplication: 'wrong' }, item);
+      new Command({ newApplication: 'wrong' }).convertParamsToValue(item);
     }).toThrow();
     expect(() => {
-      Command.convertParamsToValue({ newApplicationName: 'wrong' }, item);
+      new Command({ newApplicationName: 'wrong' }).convertParamsToValue(item);
     }).toThrow();
   });
 
@@ -59,7 +59,7 @@ describe('appSelect Command', () => {
         }
       }
     };
-    expect(Command.getResponseStates(paramsKey, item)).toStrictEqual({ currentApplication: 'netflix' });
-    expect(Command.getResponseStates(paramsName, item)).toStrictEqual({ currentApplication: 'netflix' });
+    expect(new Command(paramsKey).getResponseStates(item)).toStrictEqual({ currentApplication: 'netflix' });
+    expect(new Command(paramsName).getResponseStates(item)).toStrictEqual({ currentApplication: 'netflix' });
   });
 });

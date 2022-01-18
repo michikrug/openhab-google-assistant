@@ -3,7 +3,7 @@ const Device = require('../../functions/devices/dimmablelight.js');
 describe('DimmableLight Device', () => {
   test('validDeviceType', () => {
     expect(
-       new Device({
+      new Device({
         metadata: {
           ga: {
             value: 'LIGHT'

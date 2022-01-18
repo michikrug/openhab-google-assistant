@@ -22,7 +22,6 @@ class Camera extends DefaultDevice {
       cameraStreamNeedDrmEncryption: false
     };
   }
-
 }
 
 module.exports = Camera;

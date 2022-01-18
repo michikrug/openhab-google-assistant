@@ -3,7 +3,7 @@ const Device = require('../../functions/devices/valve.js');
 describe('Valve Device', () => {
   test('validDeviceType', () => {
     expect(
-       new Device({
+      new Device({
         metadata: {
           ga: {
             value: 'VALVE'

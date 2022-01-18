@@ -29,7 +29,6 @@ class ColorLight extends DefaultDevice {
     return attributes;
   }
 
-
   get state() {
     const [hue, sat, val] = this.item.state.split(',').map((s) => Number(s.trim()));
     return {

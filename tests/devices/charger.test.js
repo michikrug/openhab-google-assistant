@@ -3,7 +3,7 @@ const Device = require('../../functions/devices/charger.js');
 describe('Charger Device', () => {
   test('validDeviceType', () => {
     expect(
-       new Device({
+      new Device({
         type: 'Group',
         metadata: {
           ga: {
@@ -13,7 +13,7 @@ describe('Charger Device', () => {
       }).validDeviceType
     ).toBe(false);
     expect(
-       new Device({
+      new Device({
         type: 'Group',
         metadata: {
           ga: {

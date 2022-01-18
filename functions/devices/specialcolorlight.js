@@ -13,7 +13,7 @@ class SpecialColorLight extends DefaultDevice {
     return ['Group'];
   }
 
- get supportedMembers() {
+  get supportedMembers() {
     return [
       { name: 'lightPower', types: ['Switch'] },
       { name: 'lightColor', types: ['Color'] },

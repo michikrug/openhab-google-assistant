@@ -2,35 +2,34 @@ const DefaultCommand = require('./default.js');
 const TV = require('../devices/tv.js');
 
 class AppSelect extends DefaultCommand {
-  static get type() {
+  get type() {
     return 'action.devices.commands.appSelect';
   }
 
-  static validateParams(params) {
+  get hasValidParams() {
     return (
-      ('newApplication' in params && typeof params.newApplication === 'string') ||
-      ('newApplicationName' in params && typeof params.newApplicationName === 'string')
+      ('newApplication' in this.params && typeof this.params.newApplication === 'string') ||
+      ('newApplicationName' in this.params && typeof this.params.newApplicationName === 'string')
     );
   }
 
-  static requiresItem() {
+  get requiresItem() {
     return true;
   }
 
-  static getItemName(device) {
-    const members = this.getMembers(device);
-    if ('tvApplication' in members) {
-      return members.tvApplication;
+  get itemName() {
+    if ('tvApplication' in this.members) {
+      return this.members.tvApplication;
     }
     throw { statusCode: 400 };
   }
 
-  static convertParamsToValue(params, item) {
+  convertParamsToValue(item) {
     const applicationMap = new TV(item).applicationMap;
-    if (params.newApplication && params.newApplication in applicationMap) {
-      return params.newApplication;
+    if (this.params.newApplication && this.params.newApplication in applicationMap) {
+      return this.params.newApplication;
     }
-    const search = params.newApplicationName;
+    const search = this.params.newApplicationName;
     for (const key in applicationMap) {
       if (applicationMap[key].includes(search)) {
         return key;
@@ -39,9 +38,9 @@ class AppSelect extends DefaultCommand {
     throw { errorCode: 'noAvailableApp' };
   }
 
-  static getResponseStates(params, item) {
+  getResponseStates(item) {
     return {
-      currentApplication: this.convertParamsToValue(params, item)
+      currentApplication: this.convertParamsToValue(item)
     };
   }
 }

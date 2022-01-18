@@ -1,12 +1,10 @@
 const glob = require('glob');
 
-const Commands = [];
+const Commands = {};
 
 glob.sync('./!(index).js', { cwd: __dirname }).forEach((file) => {
   const command = require(file);
-  if (command.type) {
-    Commands.push(command);
-  }
+  Commands[command.name.toLowerCase()] = command;
 });
 
 module.exports = {
@@ -15,6 +13,12 @@ module.exports = {
    * @param {object} params
    */
   getCommandType: (command, params) => {
-    return Commands.find((commandType) => command === commandType.type && commandType.validateParams(params));
+    const commandName = command.split('.')[3].toLowerCase();
+    if (commandName in Commands) {
+      const commandType = new Commands[commandName](params);
+      if (commandType.hasValidParams) {
+        return Commands[commandName];
+      }
+    }
   }
 };

@@ -1,42 +1,37 @@
 const DefaultCommand = require('./default.js');
 
 class SetFanSpeed extends DefaultCommand {
-  static get type() {
+  get type() {
     return 'action.devices.commands.SetFanSpeed';
   }
 
-  static validateParams(params) {
-    return 'fanSpeed' in params && typeof params.fanSpeed === 'string';
+  get hasValidParams() {
+    return 'fanSpeed' in this.params && typeof this.params.fanSpeed === 'string';
   }
 
-  static requiresItem(device) {
-    const deviceType = this.getDeviceType(device);
-    return (
-      ['AirPurifier', 'Fan', 'Hood'].includes(deviceType) &&
-      this.getItemType(device) !== 'Dimmer' &&
-      !this.hasMembers(device)
-    );
+  get requiresItem() {
+    const deviceType = this.deviceType;
+    return ['AirPurifier', 'Fan', 'Hood'].includes(deviceType) && this.itemType !== 'Dimmer' && !this.hasMembers;
   }
 
-  static getItemName(device) {
-    const deviceType = this.getDeviceType(device);
-    if (['AirPurifier', 'Fan', 'Hood'].includes(deviceType) && this.getItemType(device) !== 'Dimmer') {
-      const members = this.getMembers(device);
-      if ('fanSpeed' in members) {
-        return members.fanSpeed;
+  get itemName() {
+    const deviceType = this.deviceType;
+    if (['AirPurifier', 'Fan', 'Hood'].includes(deviceType) && this.itemType !== 'Dimmer') {
+      if ('fanSpeed' in this.members) {
+        return this.members.fanSpeed;
       }
       throw { statusCode: 400 };
     }
-    return device.id;
+    return this.device.id;
   }
 
-  static convertParamsToValue(params) {
-    return params.fanSpeed.toString();
+  convertParamsToValue() {
+    return this.params.fanSpeed.toString();
   }
 
-  static getResponseStates(params) {
+  getResponseStates() {
     return {
-      currentFanSpeedSetting: params.fanSpeed
+      currentFanSpeedSetting: this.params.fanSpeed
     };
   }
 }

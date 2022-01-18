@@ -3,39 +3,36 @@ const Thermostat = require('../devices/thermostat.js');
 const convertToFahrenheit = require('../utilities.js').convertToFahrenheit;
 
 class ThermostatTemperatureSetpointHigh extends DefaultCommand {
-  static get type() {
+  get type() {
     return 'action.devices.commands.ThermostatTemperatureSetpointHigh';
   }
 
-  static validateParams(params) {
+  get hasValidParams() {
     return (
-      'thermostatTemperatureSetpointHigh' in params && typeof params.thermostatTemperatureSetpointHigh === 'number'
+      'thermostatTemperatureSetpointHigh' in this.params &&
+      typeof this.params.thermostatTemperatureSetpointHigh === 'number'
     );
   }
 
-  static requiresItem() {
+  get requiresItem() {
     return true;
   }
 
-  static getItemName(device) {
-    const members = this.getMembers(device);
-    if ('thermostatTemperatureSetpointHigh' in members) {
-      return members.thermostatTemperatureSetpointHigh;
+  get itemName() {
+    if ('thermostatTemperatureSetpointHigh' in this.members) {
+      return this.members.thermostatTemperatureSetpointHigh;
     }
     throw { statusCode: 400 };
   }
 
-  static convertParamsToValue(params, item) {
-    let value = params.thermostatTemperatureSetpointHigh;
-    if (new Thermostat(item).useFahrenheit) {
-      value = convertToFahrenheit(value);
-    }
-    return value.toString();
+  convertParamsToValue(item) {
+    let value = this.params.thermostatTemperatureSetpointHigh;
+    return (new Thermostat(item).useFahrenheit ? convertToFahrenheit(value) : value).toString();
   }
 
-  static getResponseStates(params, item) {
+  getResponseStates(item) {
     const states = new Thermostat(item).state;
-    states.thermostatTemperatureSetpointHigh = params.thermostatTemperatureSetpointHigh;
+    states.thermostatTemperatureSetpointHigh = this.params.thermostatTemperatureSetpointHigh;
     return states;
   }
 }

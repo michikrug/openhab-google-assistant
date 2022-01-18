@@ -74,7 +74,7 @@ class DefaultCommand {
     return false;
   }
 
-  validateParams() {
+  get hasValidParams() {
     return true;
   }
 

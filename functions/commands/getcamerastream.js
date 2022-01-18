@@ -1,28 +1,28 @@
 const DefaultCommand = require('./default.js');
 
 class GetCameraStream extends DefaultCommand {
-  static get type() {
+  get type() {
     return 'action.devices.commands.GetCameraStream';
   }
 
-  static validateParams(params) {
+  get hasValidParams() {
     return (
-      'StreamToChromecast' in params &&
-      typeof params.StreamToChromecast === 'boolean' &&
-      'SupportedStreamProtocols' in params &&
-      typeof params.SupportedStreamProtocols === 'object'
+      'StreamToChromecast' in this.params &&
+      typeof this.params.StreamToChromecast === 'boolean' &&
+      'SupportedStreamProtocols' in this.params &&
+      typeof this.params.SupportedStreamProtocols === 'object'
     );
   }
 
-  static requiresItem() {
+  get requiresItem() {
     return true;
   }
 
-  static convertParamsToValue() {
+  convertParamsToValue() {
     return null;
   }
 
-  static getResponseStates(_, item) {
+  getResponseStates(item) {
     return {
       cameraStreamAccessUrl: item.state
     };

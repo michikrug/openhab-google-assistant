@@ -1,36 +1,36 @@
 const DefaultCommand = require('./default.js');
 
 class BrightnessAbsolute extends DefaultCommand {
-  static get type() {
+  get type() {
     return 'action.devices.commands.BrightnessAbsolute';
   }
 
-  static validateParams(params) {
-    return 'brightness' in params && typeof params.brightness === 'number';
+  get hasValidParams() {
+    return 'brightness' in this.params && typeof this.params.brightness === 'number';
   }
 
-  static requiresItem(device) {
-    return this.getDeviceType(device) === 'SpecialColorLight' && !this.hasMembers(device);
+  get requiresItem() {
+    return this.deviceType === 'SpecialColorLight' && !this.hasMembers;
   }
 
-  static getItemName(device) {
-    if (this.getDeviceType(device) === 'SpecialColorLight') {
-      const members = this.getMembers(device);
+  get itemName() {
+    if (this.deviceType === 'SpecialColorLight') {
+      const members = this.members;
       if ('lightBrightness' in members) {
         return members.lightBrightness;
       }
       throw { statusCode: 400 };
     }
-    return device.id;
+    return this.device.id;
   }
 
-  static convertParamsToValue(params) {
-    return params.brightness.toString();
+  convertParamsToValue() {
+    return this.params.brightness.toString();
   }
 
-  static getResponseStates(params) {
+  getResponseStates() {
     return {
-      brightness: params.brightness
+      brightness: this.params.brightness
     };
   }
 }

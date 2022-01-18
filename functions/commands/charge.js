@@ -2,37 +2,36 @@ const DefaultCommand = require('./default.js');
 const Charger = require('../devices/charger.js');
 
 class Charge extends DefaultCommand {
-  static get type() {
+  get type() {
     return 'action.devices.commands.Charge';
   }
 
-  static validateParams(params) {
-    return 'charge' in params && typeof params.charge === 'boolean';
+  get hasValidParams() {
+    return 'charge' in this.params && typeof this.params.charge === 'boolean';
   }
 
-  static requiresItem(device) {
+  get requiresItem() {
     return true;
   }
 
-  static getItemName(device) {
-    const members = this.getMembers(device);
-    if ('chargerCharging' in members) {
-      return members.chargerCharging;
+  get itemName() {
+    if ('chargerCharging' in this.members) {
+      return this.members.chargerCharging;
     }
     throw { statusCode: 400 };
   }
 
-  static convertParamsToValue(params, _, device) {
-    let charge = params.charge;
-    if (this.isInverted(device) === true) {
+  convertParamsToValue() {
+    let charge = this.params.charge;
+    if (this.isInverted === true) {
       charge = !charge;
     }
     return charge ? 'ON' : 'OFF';
   }
 
-  static getResponseStates(params, item) {
+  getResponseStates(item) {
     const states = new Charger(item).state;
-    states.isCharging = params.charge;
+    states.isCharging = this.params.charge;
     return states;
   }
 }

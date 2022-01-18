@@ -1,53 +1,51 @@
 const DefaultCommand = require('./default.js');
 
 class Mute extends DefaultCommand {
-  static get type() {
+  get type() {
     return 'action.devices.commands.mute';
   }
 
-  static validateParams(params) {
-    return 'mute' in params && typeof params.mute === 'boolean';
+  get hasValidParams() {
+    return 'mute' in this.params && typeof this.params.mute === 'boolean';
   }
 
-  static requiresItem(device) {
-    return this.getDeviceType(device) === 'TV' && !this.hasMembers(device);
+  get requiresItem() {
+    return this.deviceType === 'TV' && !this.hasMembers;
   }
 
-  static getItemName(device) {
-    if (this.getDeviceType(device) === 'TV') {
-      const members = this.getMembers(device);
-      if ('tvMute' in members) {
-        return members.tvMute;
+  get itemName() {
+    if (this.deviceType === 'TV') {
+      if ('tvMute' in this.members) {
+        return this.members.tvMute;
       }
-      if ('tvVolume' in members) {
-        return members.tvVolume;
+      if ('tvVolume' in this.members) {
+        return this.members.tvVolume;
       }
       throw { statusCode: 400 };
     }
-    return device.id;
+    return this.device.id;
   }
 
-  static convertParamsToValue(params, item, device) {
-    let itemType = this.getItemType(device);
-    if (this.getDeviceType(device) === 'TV') {
-      const members = this.getMembers(device);
-      if ('tvMute' in members) {
+  convertParamsToValue() {
+    let itemType = this.itemType;
+    if (this.deviceType === 'TV') {
+      if ('tvMute' in this.members) {
         itemType = 'Switch';
       }
     }
-    let mute = params.mute;
+    let mute = this.params.mute;
     if (itemType !== 'Switch') {
       return mute ? '0' : undefined;
     }
-    if (this.isInverted(device)) {
+    if (this.isInverted) {
       mute = !mute;
     }
     return mute ? 'ON' : 'OFF';
   }
 
-  static getResponseStates(params) {
+  getResponseStates() {
     return {
-      isMuted: params.mute
+      isMuted: this.params.mute
     };
   }
 }

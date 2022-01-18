@@ -2,36 +2,35 @@ const DefaultCommand = require('./default.js');
 const TV = require('../devices/tv.js');
 
 class SelectChannel extends DefaultCommand {
-  static get type() {
+  get type() {
     return 'action.devices.commands.selectChannel';
   }
 
-  static validateParams(params) {
+  get hasValidParams() {
     return (
-      ('channelCode' in params && typeof params.channelCode === 'string') ||
-      ('channelName' in params && typeof params.channelName === 'string') ||
-      ('channelNumber' in params && typeof params.channelNumber === 'string')
+      ('channelCode' in this.params && typeof this.params.channelCode === 'string') ||
+      ('channelName' in this.params && typeof this.params.channelName === 'string') ||
+      ('channelNumber' in this.params && typeof this.params.channelNumber === 'string')
     );
   }
 
-  static requiresItem() {
+  get requiresItem() {
     return true;
   }
 
-  static getItemName(device) {
-    const members = this.getMembers(device);
-    if ('tvChannel' in members) {
-      return members.tvChannel;
+  get itemName() {
+    if ('tvChannel' in this.members) {
+      return this.members.tvChannel;
     }
     throw { statusCode: 400 };
   }
 
-  static convertParamsToValue(params, item) {
+  convertParamsToValue(item) {
     const channelMap = new TV(item).channelMap;
-    if (params.channelNumber && params.channelNumber in channelMap) {
-      return params.channelNumber;
+    if (this.params.channelNumber && this.params.channelNumber in channelMap) {
+      return this.params.channelNumber;
     }
-    const search = params.channelName || params.channelCode;
+    const search = this.params.channelName || this.params.channelCode;
     for (const number in channelMap) {
       if (channelMap[number].includes(search)) {
         return number;
@@ -40,9 +39,9 @@ class SelectChannel extends DefaultCommand {
     throw { errorCode: 'noAvailableChannel' };
   }
 
-  static getResponseStates(params, item) {
+  getResponseStates(item) {
     return {
-      channelNumber: this.convertParamsToValue(params, item)
+      channelNumber: this.convertParamsToValue(item)
     };
   }
 }

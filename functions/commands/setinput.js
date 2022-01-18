@@ -1,33 +1,32 @@
 const DefaultCommand = require('./default.js');
 
 class SetInput extends DefaultCommand {
-  static get type() {
+  get type() {
     return 'action.devices.commands.SetInput';
   }
 
-  static validateParams(params) {
-    return 'newInput' in params && typeof params.newInput === 'string';
+  get hasValidParams() {
+    return 'newInput' in this.params && typeof this.params.newInput === 'string';
   }
 
-  static requiresItem(device) {
-    return !this.hasMembers(device);
+  get requiresItem() {
+    return !this.hasMembers;
   }
 
-  static getItemName(device) {
-    const members = this.getMembers(device);
-    if ('tvInput' in members) {
-      return members.tvInput;
+  get itemName() {
+    if ('tvInput' in this.members) {
+      return this.members.tvInput;
     }
     throw { statusCode: 400 };
   }
 
-  static convertParamsToValue(params) {
-    return params.newInput;
+  convertParamsToValue() {
+    return this.params.newInput;
   }
 
-  static getResponseStates(params) {
+  getResponseStates() {
     return {
-      currentInput: params.newInput
+      currentInput: this.params.newInput
     };
   }
 }

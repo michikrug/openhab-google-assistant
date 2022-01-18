@@ -1,46 +1,45 @@
 const DefaultCommand = require('./default.js');
 
 class ColorAbsolute extends DefaultCommand {
-  static get type() {
+  get type() {
     return 'action.devices.commands.ColorAbsolute';
   }
 
-  static validateParams(params) {
+  get hasValidParams() {
     return (
-      'color' in params &&
-      typeof params.color === 'object' &&
-      'spectrumHSV' in params.color &&
-      typeof params.color.spectrumHSV === 'object'
+      'color' in this.params &&
+      typeof this.params.color === 'object' &&
+      'spectrumHSV' in this.params.color &&
+      typeof this.params.color.spectrumHSV === 'object'
     );
   }
 
-  static requiresItem(device) {
-    return this.getDeviceType(device) === 'SpecialColorLight' && !this.hasMembers(device);
+  get requiresItem() {
+    return this.deviceType === 'SpecialColorLight' && !this.hasMembers;
   }
 
-  static getItemName(device) {
-    if (this.getDeviceType(device) === 'SpecialColorLight') {
-      const members = this.getMembers(device);
-      if ('lightColor' in members) {
-        return members.lightColor;
+  get itemName() {
+    if (this.deviceType === 'SpecialColorLight') {
+      if ('lightColor' in this.members) {
+        return this.members.lightColor;
       }
       throw { statusCode: 400 };
     }
-    return device.id;
+    return this.device.id;
   }
 
-  static convertParamsToValue(params, _, device) {
-    if (this.getDeviceType(device) !== 'ColorLight' && this.getDeviceType(device) !== 'SpecialColorLight') {
+  convertParamsToValue() {
+    if (this.deviceType !== 'ColorLight' && this.deviceType !== 'SpecialColorLight') {
       throw { statusCode: 400 };
     }
-    const hsv = params.color.spectrumHSV;
+    const hsv = this.params.color.spectrumHSV;
     return [hsv.hue, hsv.saturation * 100, hsv.value * 100].join(',');
   }
 
-  static getResponseStates(params) {
+  getResponseStates() {
     return {
       color: {
-        spectrumHsv: params.color.spectrumHSV
+        spectrumHsv: this.params.color.spectrumHSV
       }
     };
   }

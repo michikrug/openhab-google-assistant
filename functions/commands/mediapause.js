@@ -1,23 +1,22 @@
 const DefaultCommand = require('./default.js');
 
 class MediaPause extends DefaultCommand {
-  static get type() {
+  get type() {
     return 'action.devices.commands.mediaPause';
   }
 
-  static requiresItem(device) {
-    return !this.hasMembers(device);
+  get requiresItem() {
+    return !this.hasMembers;
   }
 
-  static getItemName(device) {
-    const members = this.getMembers(device);
-    if ('tvTransport' in members) {
-      return members.tvTransport;
+  get itemName() {
+    if ('tvTransport' in this.members) {
+      return this.members.tvTransport;
     }
     throw { statusCode: 400 };
   }
 
-  static convertParamsToValue() {
+  convertParamsToValue() {
     return 'PAUSE';
   }
 }

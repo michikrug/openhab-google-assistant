@@ -1,36 +1,35 @@
 const DefaultCommand = require('./default.js');
 
 class SetVolume extends DefaultCommand {
-  static get type() {
+  get type() {
     return 'action.devices.commands.setVolume';
   }
 
-  static validateParams(params) {
-    return 'volumeLevel' in params && typeof params.volumeLevel === 'number';
+  get hasValidParams() {
+    return 'volumeLevel' in this.params && typeof this.params.volumeLevel === 'number';
   }
 
-  static requiresItem(device) {
-    return this.getDeviceType(device) === 'TV' && !this.hasMembers(device);
+  get requiresItem() {
+    return this.deviceType === 'TV' && !this.hasMembers;
   }
 
-  static getItemName(device) {
-    if (this.getDeviceType(device) === 'TV') {
-      const members = this.getMembers(device);
-      if ('tvVolume' in members) {
-        return members.tvVolume;
+  get itemName() {
+    if (this.deviceType === 'TV') {
+      if ('tvVolume' in this.members) {
+        return this.members.tvVolume;
       }
       throw { statusCode: 400 };
     }
-    return device.id;
+    return this.device.id;
   }
 
-  static convertParamsToValue(params) {
-    return params.volumeLevel.toString();
+  convertParamsToValue() {
+    return this.params.volumeLevel.toString();
   }
 
-  static getResponseStates(params) {
+  getResponseStates() {
     return {
-      currentVolume: params.volumeLevel
+      currentVolume: this.params.volumeLevel
     };
   }
 }

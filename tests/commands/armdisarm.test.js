@@ -3,7 +3,7 @@ const SecuritySystem = require('../../functions/devices/securitysystem.js');
 
 describe('ArmDisarm Command', () => {
   test('hasValidParams', () => {
-    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command().hasValidParams).toBe(false);
     expect(new Command({ arm: true }).hasValidParams).toBe(true);
     expect(new Command({ arm: 'true' }).hasValidParams).toBe(false);
   });
@@ -15,14 +15,18 @@ describe('ArmDisarm Command', () => {
       expect(
         new Command(
           { arm: true, armLevel: 'L1' },
-          { customData: { deviceType: 'SecuritySystem' } }
+          { id: 'Item', customData: { deviceType: 'SecuritySystem' } }
         ).convertParamsToValue()
       ).toBe('L1');
     });
 
     test('convertParamsToValue inverted', () => {
-      expect(new Command({ arm: true }, { customData: { inverted: true } }).convertParamsToValue()).toBe('OFF');
-      expect(new Command({ arm: false }, { customData: { inverted: true } }).convertParamsToValue()).toBe('ON');
+      expect(new Command({ arm: true }, { id: 'Item', customData: { inverted: true } }).convertParamsToValue()).toBe(
+        'OFF'
+      );
+      expect(new Command({ arm: false }, { id: 'Item', customData: { inverted: true } }).convertParamsToValue()).toBe(
+        'ON'
+      );
     });
   });
 
@@ -48,6 +52,7 @@ describe('ArmDisarm Command', () => {
 
       test('getItemName SecuritySystem normal', () => {
         const device = {
+          id: 'Item',
           customData: {
             deviceType: 'SecuritySystem',
             members: {}
@@ -61,6 +66,7 @@ describe('ArmDisarm Command', () => {
 
       test('getItemName SecuritySystem missing armed member', () => {
         const device = {
+          id: 'Item',
           customData: {
             deviceType: 'SecuritySystem',
             members: {}
@@ -74,6 +80,7 @@ describe('ArmDisarm Command', () => {
 
       test('getItemName SecuritySystem missing armLevel member', () => {
         const device = {
+          id: 'Item',
           customData: {
             deviceType: 'SecuritySystem',
             members: {}
@@ -96,10 +103,10 @@ describe('ArmDisarm Command', () => {
   });
 
   test('bypassPin', () => {
-    expect(new Command({}, { customData: {} }).bypassPin).toBe(false);
-    expect(new Command({}, { customData: { pinOnDisarmOnly: true } }).bypassPin).toBe(false);
-    expect(new Command({ arm: true }, { customData: { pinOnDisarmOnly: true } }).bypassPin).toBe(true);
-    expect(new Command({ armLevel: 'L1' }, { customData: { pinOnDisarmOnly: true } }).bypassPin).toBe(true);
+    expect(new Command({}, { id: 'Item', customData: {} }).bypassPin).toBe(false);
+    expect(new Command({}, { id: 'Item', customData: { pinOnDisarmOnly: true } }).bypassPin).toBe(false);
+    expect(new Command({ arm: true }, { id: 'Item', customData: { pinOnDisarmOnly: true } }).bypassPin).toBe(true);
+    expect(new Command({ armLevel: 'L1' }, { id: 'Item', customData: { pinOnDisarmOnly: true } }).bypassPin).toBe(true);
   });
 
   describe('validateStateChange', () => {
@@ -124,10 +131,12 @@ describe('ArmDisarm Command', () => {
       }
 
       item.state = 'ON';
-      expect(new Command({ arm: true }, { customData: { inverted: true } }).validateStateChange(item)).toBe(true);
+      expect(new Command({ arm: true }, { id: 'Item', customData: { inverted: true } }).validateStateChange(item)).toBe(
+        true
+      );
       item.state = 'OFF';
       try {
-        new Command({ arm: true }, { customData: { inverted: true } }).validateStateChange(item);
+        new Command({ arm: true }, { id: 'Item', customData: { inverted: true } }).validateStateChange(item);
       } catch (e) {
         expect(e.errorCode).toBe('alreadyArmed');
       }
@@ -153,14 +162,18 @@ describe('ArmDisarm Command', () => {
         expect.assertions(2);
         item.members[0].state = 'ON';
         try {
-          new Command({ arm: true }, { customData: { deviceType: 'SecuritySystem' } }).validateStateChange(item);
+          new Command({ arm: true }, { id: 'Item', customData: { deviceType: 'SecuritySystem' } }).validateStateChange(
+            item
+          );
         } catch (e) {
           expect(e.errorCode).toBe('alreadyArmed');
         }
 
         item.members[0].state = 'OFF';
         expect(
-          new Command({ arm: true }, { customData: { deviceType: 'SecuritySystem' } }).validateStateChange(item)
+          new Command({ arm: true }, { id: 'Item', customData: { deviceType: 'SecuritySystem' } }).validateStateChange(
+            item
+          )
         ).toBe(true);
       });
 
@@ -170,7 +183,7 @@ describe('ArmDisarm Command', () => {
         try {
           new Command(
             { arm: true },
-            { customData: { deviceType: 'SecuritySystem', inverted: true } }
+            { id: 'Item', customData: { deviceType: 'SecuritySystem', inverted: true } }
           ).validateStateChange(item);
         } catch (e) {
           expect(e.errorCode).toBe('alreadyArmed');
@@ -180,7 +193,7 @@ describe('ArmDisarm Command', () => {
         expect(
           new Command(
             { arm: true },
-            { customData: { deviceType: 'SecuritySystem', inverted: true } }
+            { id: 'Item', customData: { deviceType: 'SecuritySystem', inverted: true } }
           ).validateStateChange(item)
         ).toBe(true);
       });
@@ -192,7 +205,7 @@ describe('ArmDisarm Command', () => {
         expect(
           new Command(
             { arm: true, armLevel: 'L2' },
-            { customData: { deviceType: 'SecuritySystem' } }
+            { id: 'Item', customData: { deviceType: 'SecuritySystem' } }
           ).validateStateChange(item)
         ).toBe(true);
 
@@ -200,7 +213,7 @@ describe('ArmDisarm Command', () => {
         try {
           new Command(
             { arm: true, armLevel: 'L1' },
-            { customData: { deviceType: 'SecuritySystem' } }
+            { id: 'Item', customData: { deviceType: 'SecuritySystem' } }
           ).validateStateChange(item);
         } catch (e) {
           expect(e.errorCode).toBe('alreadyInState');
@@ -211,12 +224,16 @@ describe('ArmDisarm Command', () => {
         expect.assertions(2);
         item.members[0].state = 'ON';
         expect(
-          new Command({ arm: false }, { customData: { deviceType: 'SecuritySystem' } }).validateStateChange(item)
+          new Command({ arm: false }, { id: 'Item', customData: { deviceType: 'SecuritySystem' } }).validateStateChange(
+            item
+          )
         ).toBe(true);
 
         item.members[0].state = 'OFF';
         try {
-          new Command({ arm: false }, { customData: { deviceType: 'SecuritySystem' } }).validateStateChange(item);
+          new Command({ arm: false }, { id: 'Item', customData: { deviceType: 'SecuritySystem' } }).validateStateChange(
+            item
+          );
         } catch (e) {
           expect(e.errorCode).toBe('alreadyDisarmed');
         }
@@ -246,9 +263,11 @@ describe('ArmDisarm Command', () => {
       }
 
       item.state = 'ON';
-      expect(new Command({ arm: false }, { customData: { inverted: true } }).validateUpdate(item)).toBeUndefined();
+      expect(
+        new Command({ arm: false }, { id: 'Item', customData: { inverted: true } }).validateUpdate(item)
+      ).toBeUndefined();
       try {
-        new Command({ arm: true }, { customData: { inverted: true } }).validateUpdate(item);
+        new Command({ arm: true }, { id: 'Item', customData: { inverted: true } }).validateUpdate(item);
       } catch (e) {
         expect(e.errorCode).toBe('armFailure');
       }
@@ -273,35 +292,39 @@ describe('ArmDisarm Command', () => {
         expect.assertions(7);
         item.members[0].state = 'ON';
         expect(
-          new Command({ arm: true }, { customData: { deviceType: 'SecuritySystem' } }).validateUpdate(item)
+          new Command({ arm: true }, { id: 'Item', customData: { deviceType: 'SecuritySystem' } }).validateUpdate(item)
         ).toBeUndefined();
 
         try {
-          new Command({ arm: false }, { customData: { deviceType: 'SecuritySystem' } }).validateUpdate(item);
+          new Command({ arm: false }, { id: 'Item', customData: { deviceType: 'SecuritySystem' } }).validateUpdate(
+            item
+          );
         } catch (e) {
           expect(e.errorCode).toBe('disarmFailure');
         }
 
         item.members[0].state = 'OFF';
         expect(
-          new Command({ arm: false }, { customData: { deviceType: 'SecuritySystem' } }).validateUpdate(item)
+          new Command({ arm: false }, { id: 'Item', customData: { deviceType: 'SecuritySystem' } }).validateUpdate(item)
         ).toBeUndefined();
         try {
-          new Command({ arm: true }, { customData: { deviceType: 'SecuritySystem' } }).validateUpdate(item);
+          new Command({ arm: true }, { id: 'Item', customData: { deviceType: 'SecuritySystem' } }).validateUpdate(item);
         } catch (e) {
           expect(e.errorCode).toBe('armFailure');
         }
 
         item.members[0].state = 'ON';
         expect(
-          new Command({ arm: false }, { customData: { deviceType: 'SecuritySystem', inverted: true } }).validateUpdate(
-            item
-          )
+          new Command(
+            { arm: false },
+            { id: 'Item', customData: { deviceType: 'SecuritySystem', inverted: true } }
+          ).validateUpdate(item)
         ).toBeUndefined();
         try {
-          new Command({ arm: true }, { customData: { deviceType: 'SecuritySystem', inverted: true } }).validateUpdate(
-            item
-          );
+          new Command(
+            { arm: true },
+            { id: 'Item', customData: { deviceType: 'SecuritySystem', inverted: true } }
+          ).validateUpdate(item);
         } catch (e) {
           expect(e.errorCode).toBe('armFailure');
         }
@@ -345,23 +368,25 @@ describe('ArmDisarm Command', () => {
         item.members[0].state = 'ON';
         item.members[1].state = 'L1';
         expect(
-          new Command({ arm: true, armLevel: 'L1' }, { customData: { deviceType: 'SecuritySystem' } }).validateUpdate(
-            item
-          )
+          new Command(
+            { arm: true, armLevel: 'L1' },
+            { id: 'Item', customData: { deviceType: 'SecuritySystem' } }
+          ).validateUpdate(item)
         ).toBeUndefined();
 
         item.members[0].state = 'OFF';
         try {
-          new Command({ arm: true, armLevel: 'L1' }, { customData: { deviceType: 'SecuritySystem' } }).validateUpdate(
-            item
-          );
+          new Command(
+            { arm: true, armLevel: 'L1' },
+            { id: 'Item', customData: { deviceType: 'SecuritySystem' } }
+          ).validateUpdate(item);
         } catch (e) {
           expect(e.errorCode).toBe('armFailure');
         }
 
         item.members[0].state = 'OFF';
         try {
-          new Command({ arm: true, armLevel: 'L3' }, {}).validateUpdate(item);
+          new Command({ arm: true, armLevel: 'L3' }, { id: 'Item' }).validateUpdate(item);
         } catch (e) {
           expect(e.errorCode).toBe('armFailure');
         }
@@ -371,12 +396,14 @@ describe('ArmDisarm Command', () => {
         expect.assertions(2);
         item.members[0].state = 'OFF';
         expect(
-          new Command({ arm: false }, { customData: { deviceType: 'SecuritySystem' } }).validateUpdate(item)
+          new Command({ arm: false }, { id: 'Item', customData: { deviceType: 'SecuritySystem' } }).validateUpdate(item)
         ).toBeUndefined();
 
         item.members[0].state = 'ON';
         try {
-          new Command({ arm: false }, { customData: { deviceType: 'SecuritySystem' } }).validateUpdate(item);
+          new Command({ arm: false }, { id: 'Item', customData: { deviceType: 'SecuritySystem' } }).validateUpdate(
+            item
+          );
         } catch (e) {
           expect(e.errorCode).toBe('disarmFailure');
         }

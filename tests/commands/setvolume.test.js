@@ -4,7 +4,7 @@ describe('setVolume Command', () => {
   const params = { volumeLevel: 20 };
 
   test('hasValidParams', () => {
-    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command().hasValidParams).toBe(false);
     expect(new Command(params).hasValidParams).toBe(true);
   });
 
@@ -19,6 +19,7 @@ describe('setVolume Command', () => {
         new Command({}, { id: 'Item', customData: { deviceType: 'TV' } }).itemName();
       }).toThrow();
       const device = {
+        id: 'Item',
         customData: {
           deviceType: 'TV',
           members: {

@@ -1,3 +1,4 @@
+/// <reference path="../../typedefs.js" />
 const glob = require('glob');
 
 const Devices = {};
@@ -9,7 +10,7 @@ glob.sync('./!(index).js', { cwd: __dirname }).forEach((file) => {
 
 module.exports = {
   /**
-   * @param {object} item
+   * @param {Item} item
    */
   getDeviceForItem: (item) => {
     if (!item.metadata || !item.metadata.ga) {
@@ -22,6 +23,9 @@ module.exports = {
       }
     }
   },
+  /**
+   * @param {string} deviceType
+   */
   getDevice: (deviceType) => {
     return Devices[deviceType];
   }

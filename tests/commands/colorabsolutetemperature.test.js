@@ -8,16 +8,17 @@ describe('ColorAbsoluteTemperature Command', () => {
   };
 
   test('hasValidParams', () => {
-    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command().hasValidParams).toBe(false);
     expect(new Command({ color: {} }).hasValidParams).toBe(false);
     expect(new Command(params).hasValidParams).toBe(true);
   });
 
   test('requiresItem', () => {
-    expect(new Command({}, {}).requiresItem).toBe(true);
-    expect(new Command({}, { customData: { deviceType: 'SpecialColorLight' } }).requiresItem).toBe(true);
+    expect(new Command({}).requiresItem).toBe(true);
+    expect(new Command({}, { id: 'Item', customData: { deviceType: 'SpecialColorLight' } }).requiresItem).toBe(true);
     expect(
-      new Command({}, { customData: { deviceType: 'SpecialColorLight', members: { test: 1 } } }).requiresItem
+      new Command({}, { id: 'Item', customData: { deviceType: 'SpecialColorLight', members: { test: 1 } } })
+        .requiresItem
     ).toBe(false);
   });
 
@@ -45,12 +46,13 @@ describe('ColorAbsoluteTemperature Command', () => {
 
   describe('convertParamsToValue', () => {
     test('convertParamsToValue', () => {
-      expect(new Command(params, {}).convertParamsToValue({ state: '100,100,50' })).toBe('30.62,95,50');
+      expect(new Command(params).convertParamsToValue({ state: '100,100,50' })).toBe('30.62,95,50');
     });
 
     test('convertParamsToValue SpecialColorLight', () => {
       expect(
         new Command(params, {
+          id: 'Item',
           customData: {
             deviceType: 'SpecialColorLight',
             colorTemperatureRange: { temperatureMinK: 1000, temperatureMaxK: 5000 }
@@ -59,6 +61,7 @@ describe('ColorAbsoluteTemperature Command', () => {
       ).toBe('75');
       expect(
         new Command(params, {
+          id: 'Item',
           customData: {
             deviceType: 'SpecialColorLight'
           }
@@ -69,6 +72,7 @@ describe('ColorAbsoluteTemperature Command', () => {
     test('convertParamsToValue SpecialColorLight Kelvin', () => {
       expect(
         new Command(params, {
+          id: 'Item',
           customData: { deviceType: 'SpecialColorLight', useKelvin: true }
         }).convertParamsToValue()
       ).toBe('2000');

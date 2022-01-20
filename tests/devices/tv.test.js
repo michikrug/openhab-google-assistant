@@ -139,6 +139,7 @@ describe('TV Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'TV',
             config: {}
           }
         },
@@ -172,6 +173,7 @@ describe('TV Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'TV',
             config: {
               volumeDefaultPercentage: '20',
               volumeMaxLevel: '80',
@@ -202,6 +204,7 @@ describe('TV Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'TV',
             config: {
               transportControlSupportedCommands: 'PAUSE,RESUME'
             }
@@ -236,6 +239,7 @@ describe('TV Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'TV',
             config: {
               availableInputs: 'input1=hdmi1,input2=hdmi2'
             }
@@ -282,6 +286,7 @@ describe('TV Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'TV',
             config: {
               availableChannels: '1=channel1=ARD,2=channel2=ZDF'
             }
@@ -320,6 +325,7 @@ describe('TV Device', () => {
     const item = {
       metadata: {
         ga: {
+          value: 'TV',
           config: {
             availableApplications: 'youtube=YouTube,netflix=Netflix'
           }
@@ -474,6 +480,7 @@ describe('TV Device', () => {
     const item = {
       metadata: {
         ga: {
+          value: 'TV',
           config: {
             availableChannels: '20=channel1=Channel 1:Kanal 1,10=channel2=Channel 2:Kanal 2'
           }
@@ -490,6 +497,7 @@ describe('TV Device', () => {
     const item = {
       metadata: {
         ga: {
+          value: 'TV',
           config: {
             availableApplications: 'youtube=YouTube:Tube,netflix=Net Flix:Flix'
           }

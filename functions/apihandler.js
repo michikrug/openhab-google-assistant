@@ -18,12 +18,13 @@
  * @author Michael Krug - Rework
  *
  */
+/// <reference path="../typedefs.js" />
 const http = require('http');
 const https = require('https');
 
 class ApiHandler {
   /**
-   * @param {object} config
+   * @param {Object} config
    */
   constructor(config = { host: '', path: '/rest/items/', port: 80 }) {
     if (!config.path.startsWith('/')) {
@@ -46,7 +47,7 @@ class ApiHandler {
   }
 
   /**
-   * @param {object} data
+   * @param {Object} data
    */
   updateCache(data) {
     if (data.name) {
@@ -56,6 +57,7 @@ class ApiHandler {
 
   /**
    * @param {string} itemName
+   * @returns {Item[]}
    */
   getFromCache(itemName) {
     if (itemName) {
@@ -67,9 +69,10 @@ class ApiHandler {
   }
 
   /**
-   * @param {string} method
+   * @param {'GET'|'POST'} method
    * @param {string} itemName
    * @param {number} length
+   * @returns {Object}
    */
   getOptions(method = 'GET', itemName = '', length = 0) {
     const queryString =
@@ -102,6 +105,7 @@ class ApiHandler {
 
   /**
    * @param {string} itemName
+   * @returns {Promise<Item[]>}
    */
   getItem(itemName = '') {
     const cached = this.getFromCache(itemName);
@@ -143,6 +147,9 @@ class ApiHandler {
     });
   }
 
+  /**
+   * @returns {Promise<Item[]>}
+   */
   getItems() {
     return this.getItem();
   }
@@ -151,6 +158,7 @@ class ApiHandler {
    * @param {string} itemName
    * @param {string} payload
    * @param {string} deviceId
+   * @returns {Promise}
    */
   sendCommand(itemName, payload, deviceId) {
     const options = this.getOptions('POST', itemName, payload.length);

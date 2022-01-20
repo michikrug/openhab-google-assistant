@@ -4,7 +4,7 @@ describe('SetModes Command', () => {
   const params = { updateModeSettings: { mode: 'value' } };
 
   test('hasValidParams', () => {
-    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command().hasValidParams).toBe(false);
     expect(new Command(params).hasValidParams).toBe(true);
   });
 
@@ -31,7 +31,7 @@ describe('SetModes Command', () => {
 
     test('getItemName Fan', () => {
       expect(() => {
-        new Command({}, { name: 'Item', customData: { deviceType: 'Fan' } }).itemName;
+        new Command({}, { id: 'Item', customData: { deviceType: 'Fan' } }).itemName;
       }).toThrow();
       const device = {
         id: 'Item',

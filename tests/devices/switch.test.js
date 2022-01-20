@@ -30,6 +30,7 @@ describe('Switch Device', () => {
       state: 'ON',
       metadata: {
         ga: {
+          value: 'SWITCH',
           config: {
             inverted: true
           }

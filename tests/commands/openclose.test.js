@@ -2,7 +2,7 @@ const Command = require('../../functions/commands/openclose.js');
 
 describe('OpenClose Command', () => {
   test('hasValidParams', () => {
-    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command().hasValidParams).toBe(false);
     expect(new Command({ openPercent: 100 }).hasValidParams).toBe(true);
     expect(new Command({ openPercent: '5' }).hasValidParams).toBe(false);
   });
@@ -17,7 +17,7 @@ describe('OpenClose Command', () => {
     });
 
     test('convertParamsToValue inverted', () => {
-      const device = { customData: { inverted: true } };
+      const device = { id: 'Item', customData: { inverted: true } };
       expect(new Command({ openPercent: 0 }, device).convertParamsToValue()).toBe('100');
       expect(new Command({ openPercent: 20 }, device).convertParamsToValue()).toBe('80');
       expect(new Command({ openPercent: 50 }, device).convertParamsToValue()).toBe('50');
@@ -26,21 +26,21 @@ describe('OpenClose Command', () => {
     });
 
     test('convertParamsToValue Rollershutter', () => {
-      const device = { customData: { itemType: 'Rollershutter' } };
+      const device = { id: 'Item', customData: { itemType: 'Rollershutter' } };
       expect(new Command({ openPercent: 0 }, device).convertParamsToValue()).toBe('DOWN');
       expect(new Command({ openPercent: 20 }, device).convertParamsToValue()).toBe('80');
       expect(new Command({ openPercent: 100 }, device).convertParamsToValue()).toBe('UP');
     });
 
     test('convertParamsToValue Switch', () => {
-      const device = { customData: { itemType: 'Switch' } };
+      const device = { id: 'Item', customData: { itemType: 'Switch' } };
       expect(new Command({ openPercent: 0 }, device).convertParamsToValue()).toBe('OFF');
       expect(new Command({ openPercent: 20 }, device).convertParamsToValue()).toBe('ON');
       expect(new Command({ openPercent: 100 }, device).convertParamsToValue()).toBe('ON');
     });
 
     test('convertParamsToValue Contact', () => {
-      const device = { customData: { itemType: 'Contact' } };
+      const device = { id: 'Item', customData: { itemType: 'Contact' } };
       expect(() => {
         new Command({}, device).convertParamsToValue();
       }).toThrow();

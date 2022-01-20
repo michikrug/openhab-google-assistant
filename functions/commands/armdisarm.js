@@ -93,6 +93,7 @@ class ArmDisarm extends DefaultCommand {
     return true;
   }
 
+  // @ts-ignore
   validateUpdate(item) {
     if (this.deviceType === 'SecuritySystem') {
       const securitySystem = new SecuritySystem(item);

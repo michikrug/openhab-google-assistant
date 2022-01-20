@@ -9,7 +9,7 @@ describe('StartStopSwitch Device', () => {
   });
 
   test('get attributes', () => {
-    expect(new Device().attributes).toStrictEqual({ pausable: false });
+    expect(new Device({}).attributes).toStrictEqual({ pausable: false });
   });
 
   describe('get state', () => {
@@ -29,6 +29,7 @@ describe('StartStopSwitch Device', () => {
         state: 'ON',
         metadata: {
           ga: {
+            value: '',
             config: {
               inverted: true
             }

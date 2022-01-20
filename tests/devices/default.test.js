@@ -70,10 +70,11 @@ describe('Default Device', () => {
     });
   });
 
-  test('get mtadata legacy', () => {
+  test('get metadata legacy', () => {
     const metadata = new Device({
       metadata: {
         ga: {
+          value: '',
           config: {
             tfaAck: true,
             tfaPin: '1234'

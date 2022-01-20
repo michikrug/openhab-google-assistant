@@ -4,7 +4,7 @@ describe('SetFanSpeed Command', () => {
   const params = { fanSpeed: '50' };
 
   test('hasValidParams', () => {
-    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command().hasValidParams).toBe(false);
     expect(new Command(params).hasValidParams).toBe(true);
   });
 
@@ -18,6 +18,7 @@ describe('SetFanSpeed Command', () => {
         new Command({}, { id: 'Item', customData: { deviceType: 'Fan', itemType: 'Group' } }).itemName;
       }).toThrow();
       const device = {
+        id: 'Item',
         customData: {
           deviceType: 'Fan',
           itemType: 'Group',

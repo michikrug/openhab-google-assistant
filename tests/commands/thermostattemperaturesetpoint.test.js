@@ -4,7 +4,7 @@ describe('ThermostatTemperatureSetpoint Command', () => {
   const params = { thermostatTemperatureSetpoint: 20 };
 
   test('hasValidParams', () => {
-    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command().hasValidParams).toBe(false);
     expect(new Command(params).hasValidParams).toBe(true);
   });
 
@@ -17,6 +17,7 @@ describe('ThermostatTemperatureSetpoint Command', () => {
       new Command({}, { id: 'Item' }).itemName;
     }).toThrow();
     const device = {
+      id: 'Item',
       customData: {
         members: {
           thermostatTemperatureSetpoint: 'SetpointItem'

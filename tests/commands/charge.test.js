@@ -2,7 +2,7 @@ const Command = require('../../functions/commands/charge.js');
 
 describe('Charge Command', () => {
   test('hasValidParams', () => {
-    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command().hasValidParams).toBe(false);
     expect(new Command({ charge: true }).hasValidParams).toBe(true);
   });
 
@@ -12,6 +12,7 @@ describe('Charge Command', () => {
     }).toThrow();
 
     const device = {
+      id: 'Item',
       customData: {
         members: {
           chargerCharging: 'ChargingItem'
@@ -27,7 +28,9 @@ describe('Charge Command', () => {
     });
 
     test('convertParamsToValue inverted', () => {
-      expect(new Command({ charge: true }, { customData: { inverted: true } }).convertParamsToValue()).toBe('OFF');
+      expect(new Command({ charge: true }, { id: 'Item', customData: { inverted: true } }).convertParamsToValue()).toBe(
+        'OFF'
+      );
     });
   });
 

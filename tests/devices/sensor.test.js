@@ -50,6 +50,7 @@ describe('Sensor Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'SENSOR',
             config: {}
           }
         }
@@ -61,6 +62,7 @@ describe('Sensor Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'SENSOR',
             config: {
               sensorName: 'Sensor',
               valueUnit: 'AQI',
@@ -90,6 +92,7 @@ describe('Sensor Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'SENSOR',
             config: {
               sensorName: 'Sensor',
               valueUnit: 'AQI',
@@ -114,6 +117,7 @@ describe('Sensor Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'SENSOR',
             config: {
               sensorName: 'Sensor',
               valueUnit: 'AQI',
@@ -139,6 +143,7 @@ describe('Sensor Device', () => {
     const item = {
       metadata: {
         ga: {
+          value: 'SENSOR',
           config: {
             sensorName: 'Sensor',
             valueUnit: 'AQI',

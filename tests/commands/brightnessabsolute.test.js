@@ -2,7 +2,7 @@ const Command = require('../../functions/commands/brightnessabsolute.js');
 
 describe('BrightnessAbsolute Command', () => {
   test('hasValidParams', () => {
-    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command().hasValidParams).toBe(false);
     expect(new Command({ brightness: 100 }).hasValidParams).toBe(true);
     expect(new Command({ brightness: '100' }).hasValidParams).toBe(false);
   });

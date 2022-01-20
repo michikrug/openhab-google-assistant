@@ -4,7 +4,7 @@ describe('SetInput Command', () => {
   const params = { newInput: 'hdmi1' };
 
   test('hasValidParams', () => {
-    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command().hasValidParams).toBe(false);
     expect(new Command(params).hasValidParams).toBe(true);
   });
 
@@ -13,6 +13,7 @@ describe('SetInput Command', () => {
       new Command({}, { id: 'Item' }).itemName;
     }).toThrow();
     const device = {
+      id: 'Item',
       customData: {
         members: {
           tvInput: 'InputItem'

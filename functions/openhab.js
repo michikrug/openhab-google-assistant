@@ -18,36 +18,44 @@
  * @author Michael Krug - Rework
  *
  */
+/// <reference path="../typedefs.js" />
 const { v4: uuidv4 } = require('uuid');
 const getDeviceForItem = require('./devices').getDeviceForItem;
 const getCommandType = require('./commands').getCommandType;
 
 class OpenHAB {
   /**
-   * @param {object} apiHandler
+   * @param {Object} apiHandler
    */
   constructor(apiHandler) {
     this._apiHandler = apiHandler;
   }
 
+  /**
+   * @returns {string}
+   */
   static uuid() {
     return uuidv4();
   }
 
   /**
-   * @param {object} headers
+   * @param {Object} headers
    */
   setTokenFromHeader(headers) {
     this._apiHandler.authToken = headers.authorization ? headers.authorization.split(' ')[1] : null;
   }
 
+  /**
+   * @returns {Object}
+   */
   onDisconnect() {
     return {};
   }
 
   /**
-   * @param {object} body
-   * @param {object} headers
+   * @param {SyncIntent} body
+   * @param {Object} headers
+   * @returns {Promise<SyncResponse>}
    */
   async onSync(body, headers) {
     console.log('openhabGoogleAssistant - onSync');
@@ -67,8 +75,9 @@ class OpenHAB {
   }
 
   /**
-   * @param {object} body
-   * @param {object} headers
+   * @param {QueryIntent} body
+   * @param {Object} headers
+   * @returns {Promise<QueryResponse>}
    */
   async onQuery(body, headers) {
     const devices =
@@ -91,8 +100,9 @@ class OpenHAB {
   }
 
   /**
-   * @param {object} body
-   * @param {object} headers
+   * @param {ExecuteIntent} body
+   * @param {Object} headers
+   * @returns {Promise<ExecuteResponse>}
    */
   async onExecute(body, headers) {
     const commands =
@@ -114,8 +124,11 @@ class OpenHAB {
     };
   }
 
+  /**
+   * @returns {Promise<SyncResponsePayload>}
+   */
   async handleSync() {
-    const result = await this._apiHandler.getItems().then((items) => {
+    const result = await this._apiHandler.getItems().then((/** @type {Item[]} */ items) => {
       const discoveredDevicesList = [];
       items = items.filter((item) => item.metadata && item.metadata.ga);
       items.forEach((item) => {
@@ -135,39 +148,39 @@ class OpenHAB {
   }
 
   /**
-   * @param {array} devices
+   * @param {QueryIntentDevice[]} devices
+   * @returns {Promise<QueryResponsePayload>}
    */
   async handleQuery(devices) {
     const payload = { devices: {} };
-    const promises = devices.map((queryDevice) =>
-      this._apiHandler
-        .getItem(queryDevice.id)
-        .then((item) => {
-          const device = getDeviceForItem(item);
-          if (!device) {
-            throw { statusCode: 404, message: `Device type not found for item: ${item.type} ${item.name}` };
-          }
-          if (item.state === 'NULL' && !device.supportedMembers.length) {
-            throw { statusCode: 406, message: `Item state is NULL: ${item.type} ${item.name}` };
-          }
-          payload.devices[queryDevice.id] = Object.assign({ status: 'SUCCESS', online: true }, device.state);
-        })
-        .catch((error) => {
-          console.error(`openhabGoogleAssistant - handleQuery - getItem: ERROR ${JSON.stringify(error)}`);
-          payload.devices[queryDevice.id] = {
-            status: 'ERROR',
-            errorCode:
-              error.statusCode == 404 ? 'deviceNotFound' : error.statusCode == 406 ? 'deviceNotReady' : 'deviceOffline'
-          };
-        })
-    );
+    const promises = devices.map(async (queryDevice) => {
+      try {
+        const item = await this._apiHandler.getItem(queryDevice.id);
+        const device = getDeviceForItem(item);
+        if (!device) {
+          throw { statusCode: 404, message: `Device type not found for item: ${item.type} ${item.name}` };
+        }
+        if (item.state === 'NULL' && !device.supportedMembers.length) {
+          throw { statusCode: 406, message: `Item state is NULL: ${item.type} ${item.name}` };
+        }
+        payload.devices[queryDevice.id] = Object.assign({ status: 'SUCCESS', online: true }, device.state);
+      } catch (error) {
+        console.error(`openhabGoogleAssistant - handleQuery - getItem: ERROR ${JSON.stringify(error)}`);
+        payload.devices[queryDevice.id] = {
+          status: 'ERROR',
+          errorCode:
+            error.statusCode == 404 ? 'deviceNotFound' : error.statusCode == 406 ? 'deviceNotReady' : 'deviceOffline'
+        };
+      }
+    });
 
     await Promise.all(promises);
     return payload;
   }
 
   /**
-   * @param {array} commands
+   * @param {ExecuteIntentCommand[]} commands
+   * @returns {Promise<ExecuteResponsePayload>}
    */
   async handleExecute(commands) {
     const promises = [];
@@ -209,10 +222,11 @@ class OpenHAB {
   }
 
   /**
-   * @param {object} commandType
-   * @param {array} devices
-   * @param {object} params
-   * @param {object} challenge
+   * @param {Object} commandType
+   * @param {ExecuteIntentCommandDevice[]} devices
+   * @param {ExecuteIntentCommandExecutionParams} params
+   * @param {ExecuteIntentCommandExecutionChallenge} challenge
+   * @returns {Promise<ExecuteResponsePayloadCommand[]>}
    */
   async execute(commandType, devices, params, challenge) {
     const promises = devices.map((device) => new commandType(params, device, challenge).execute(this._apiHandler));
@@ -221,9 +235,9 @@ class OpenHAB {
   }
 
   /**
-   * @param {object} req
-   * @param {object} res
-   * @param {object} homegraphClient
+   * @param {Object} req
+   * @param {Object} res
+   * @param {Object} homegraphClient
    */
   async onStateReport(req, res, homegraphClient) {
     try {
@@ -241,9 +255,9 @@ class OpenHAB {
   }
 
   /**
-   * @param {object} item
+   * @param {Item} item
    * @param {string} userId
-   * @param {object} homegraphClient
+   * @param {Object} homegraphClient
    */
   async handleStateReport(item, userId, homegraphClient) {
     const device = getDeviceForItem(item);

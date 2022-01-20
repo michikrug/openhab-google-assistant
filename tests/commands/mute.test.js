@@ -2,7 +2,7 @@ const Command = require('../../functions/commands/mute.js');
 
 describe('Mute Command', () => {
   test('hasValidParams', () => {
-    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command().hasValidParams).toBe(false);
     expect(new Command({ mute: true }).hasValidParams).toBe(true);
   });
 
@@ -51,16 +51,26 @@ describe('Mute Command', () => {
     });
 
     test('convertParamsToValue Switch', () => {
-      expect(new Command({ mute: true }, { customData: { itemType: 'Switch' } }).convertParamsToValue()).toBe('ON');
-      expect(new Command({ mute: false }, { customData: { itemType: 'Switch' } }).convertParamsToValue()).toBe('OFF');
+      expect(
+        new Command({ mute: true }, { id: 'Item', customData: { itemType: 'Switch' } }).convertParamsToValue()
+      ).toBe('ON');
+      expect(
+        new Command({ mute: false }, { id: 'Item', customData: { itemType: 'Switch' } }).convertParamsToValue()
+      ).toBe('OFF');
     });
 
     test('convertParamsToValue inverted', () => {
       expect(
-        new Command({ mute: true }, { customData: { itemType: 'Switch', inverted: true } }).convertParamsToValue()
+        new Command(
+          { mute: true },
+          { id: 'Item', customData: { itemType: 'Switch', inverted: true } }
+        ).convertParamsToValue()
       ).toBe('OFF');
       expect(
-        new Command({ mute: false }, { customData: { itemType: 'Switch', inverted: true } }).convertParamsToValue()
+        new Command(
+          { mute: false },
+          { id: 'Item', customData: { itemType: 'Switch', inverted: true } }
+        ).convertParamsToValue()
       ).toBe('ON');
     });
 
@@ -68,7 +78,7 @@ describe('Mute Command', () => {
       expect(
         new Command(
           { mute: true },
-          { customData: { deviceType: 'TV', members: { tvMute: 'MuteItem' } } }
+          { id: 'Item', customData: { deviceType: 'TV', members: { tvMute: 'MuteItem' } } }
         ).convertParamsToValue()
       ).toBe('ON');
     });
@@ -77,7 +87,7 @@ describe('Mute Command', () => {
       expect(
         new Command(
           { mute: true },
-          { customData: { deviceType: 'TV', members: { tvVolume: 'VolumeItem' } } }
+          { id: 'Item', customData: { deviceType: 'TV', members: { tvVolume: 'VolumeItem' } } }
         ).convertParamsToValue()
       ).toBe('0');
     });

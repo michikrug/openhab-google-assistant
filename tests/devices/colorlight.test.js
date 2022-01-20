@@ -25,6 +25,7 @@ describe('ColorLight Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'LIGHT',
             config: {
               colorTemperatureRange: '1000,2000'
             }
@@ -44,6 +45,7 @@ describe('ColorLight Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'LIGHT',
             config: {
               colorTemperatureRange: 'a,b'
             }

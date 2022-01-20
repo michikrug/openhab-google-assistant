@@ -25,6 +25,7 @@ describe('Camera Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'CAMERA',
             config: {}
           }
         }
@@ -40,6 +41,7 @@ describe('Camera Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'CAMERA',
             config: {
               protocols: 'hls,test',
               token: true

@@ -20,11 +20,12 @@ class TestCommand2 extends TestCommand1 {
 
 class TestCommand3 extends TestCommand1 {
   convertParamsToValue() {
-    return;
+    return null;
   }
 }
 
 class TestCommand4 extends TestCommand1 {
+  // @ts-ignore
   convertParamsToValue() {
     throw { statusCode: 400 };
   }
@@ -43,31 +44,36 @@ class TestCommand6 extends TestCommand1 {
   get requiresUpdateValidation() {
     return true;
   }
+  // @ts-ignore
   validateUpdate() {
-    return { someError: true };
+    return {
+      ids: ['TestDevice'],
+      status: 'EXCEPTIONS',
+      states: { online: true, currentStatusReport: 'report' }
+    };
   }
 }
 
 describe('Default Command', () => {
   test('hasValidParams', () => {
-    expect(new Command({}, {}, {}).hasValidParams).toBe(true);
+    expect(new Command({}, { id: 'Item' }).hasValidParams).toBe(true);
   });
 
   test('convertParamsToValue', () => {
-    expect(new Command({}, {}, {}).convertParamsToValue()).toBe(null);
+    expect(new Command({}, { id: 'Item' }).convertParamsToValue({})).toBe(null);
   });
 
   test('getResponseStates', () => {
-    expect(new Command({}, {}, {}).getResponseStates({})).toStrictEqual({});
+    expect(new Command({}, { id: 'Item' }).getResponseStates({})).toStrictEqual({});
   });
 
   test('getItemName', () => {
-    expect(new Command({}, { id: 'Item' }, {}).itemName).toBe('Item');
+    expect(new Command({}, { id: 'Item' }).itemName).toBe('Item');
   });
 
   test('getMembers', () => {
     expect(new Command().members).toStrictEqual({});
-    expect(new Command({}, { customData: { members: { testMember: 'testItem' } } }, {}).members).toStrictEqual({
+    expect(new Command({}, { id: 'Item', customData: { members: { testMember: 'testItem' } } }).members).toStrictEqual({
       testMember: 'testItem'
     });
   });
@@ -209,20 +215,6 @@ describe('Default Command', () => {
       expect(getItemMock).toHaveBeenCalledTimes(1);
       expect(sendCommandMock).toHaveBeenCalledTimes(1);
       expect(result).toStrictEqual(successResponse);
-    });
-
-    xtest('execute with multiple getItem', async () => {
-      // needs to be moved to openhab test
-      const successResponse2 = Object.assign({}, successResponse);
-      successResponse2.ids = ['Item2'];
-      const device = [
-        { id: 'Item1', customData: { deviceType: 'Switch' } },
-        { id: 'Item2', customData: { deviceType: 'Switch' } }
-      ];
-      const result = await new TestCommand2({ on: true }, device).execute(apiHandler);
-      expect(getItemMock).toHaveBeenCalledTimes(2);
-      expect(sendCommandMock).toHaveBeenCalledTimes(2);
-      expect(result).toStrictEqual([successResponse, successResponse2]);
     });
 
     test('execute with pinNeeded', async () => {
@@ -392,11 +384,16 @@ describe('Default Command', () => {
       const result = await new TestCommand6({ on: true }, device).execute(apiHandler);
       expect(getItemMock).toHaveBeenCalledTimes(2);
       expect(sendCommandMock).toHaveBeenCalledTimes(1);
-      expect(result).toStrictEqual({ someError: true });
+      expect(result).toStrictEqual({
+        ids: ['TestDevice'],
+        status: 'EXCEPTIONS',
+        states: { online: true, currentStatusReport: 'report' }
+      });
     });
 
     test('execute with updateValidation and wait time', async () => {
       const timeoutSpy = jest.spyOn(global, 'setTimeout');
+      // @ts-ignore
       timeoutSpy.mockImplementation((fn) => fn());
       getItemMock.mockReturnValue(
         Promise.resolve({ name: 'TestItem', type: 'Switch', state: 'ON', metadata: { ga: { value: 'Switch' } } })

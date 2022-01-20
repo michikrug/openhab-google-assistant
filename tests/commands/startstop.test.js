@@ -2,7 +2,7 @@ const Command = require('../../functions/commands/startstop.js');
 
 describe('StartStop Command', () => {
   test('hasValidParams', () => {
-    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command().hasValidParams).toBe(false);
     expect(new Command({ start: true }).hasValidParams).toBe(true);
     expect(new Command({ start: '1' }).hasValidParams).toBe(false);
   });
@@ -14,13 +14,13 @@ describe('StartStop Command', () => {
     });
 
     test('convertParamsToValue Rollershutter', () => {
-      const device = { customData: { itemType: 'Rollershutter' } };
+      const device = { id: 'Item', customData: { itemType: 'Rollershutter' } };
       expect(new Command({ start: true }, device).convertParamsToValue()).toBe('MOVE');
       expect(new Command({ start: false }, device).convertParamsToValue()).toBe('STOP');
     });
 
     test('convertParamsToValue Contact', () => {
-      const device = { customData: { itemType: 'Contact' } };
+      const device = { id: 'Item', customData: { itemType: 'Contact' } };
       expect(() => {
         new Command({}, device).convertParamsToValue();
       }).toThrow();

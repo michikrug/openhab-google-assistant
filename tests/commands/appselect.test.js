@@ -5,7 +5,7 @@ describe('appSelect Command', () => {
   const paramsName = { newApplicationName: 'Net Flix' };
 
   test('hasValidParams', () => {
-    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command().hasValidParams).toBe(false);
     expect(new Command(paramsKey).hasValidParams).toBe(true);
     expect(new Command(paramsName).hasValidParams).toBe(true);
   });
@@ -19,6 +19,7 @@ describe('appSelect Command', () => {
       new Command({}, { id: 'Item' }).itemName;
     }).toThrow();
     const device = {
+      id: 'Item',
       customData: {
         members: {
           tvApplication: 'ApplicationItem'

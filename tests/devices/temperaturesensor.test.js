@@ -26,6 +26,7 @@ describe('TemperatureSensor Device', () => {
       const item1 = {
         metadata: {
           ga: {
+            value: 'temperaturesensor',
             config: {}
           }
         }
@@ -40,6 +41,7 @@ describe('TemperatureSensor Device', () => {
       const item2 = {
         metadata: {
           ga: {
+            value: 'temperaturesensor',
             config: {
               useFahrenheit: true
             }
@@ -62,6 +64,7 @@ describe('TemperatureSensor Device', () => {
       state: '10',
       metadata: {
         ga: {
+          value: 'temperaturesensor',
           config: {
             useFahrenheit: true
           }

@@ -178,6 +178,7 @@ describe('SpecialColorLight Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'LIGHT',
             config: {
               colorTemperatureRange: '1000,2000'
             }
@@ -196,6 +197,7 @@ describe('SpecialColorLight Device', () => {
       const item1 = {
         metadata: {
           ga: {
+            value: 'LIGHT',
             config: {
               colorTemperatureRange: 'a,b'
             }
@@ -209,6 +211,7 @@ describe('SpecialColorLight Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'LIGHT',
             config: {
               colorTemperatureRange: '1000,2000'
             }
@@ -241,6 +244,7 @@ describe('SpecialColorLight Device', () => {
       type: 'Group',
       metadata: {
         ga: {
+          value: 'LIGHT',
           config: {
             colorTemperatureRange: '1000,2000',
             useKelvin: true

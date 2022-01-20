@@ -2,7 +2,7 @@ const Command = require('../../functions/commands/lockunlock.js');
 
 describe('LockUnlock Command', () => {
   test('hasValidParams', () => {
-    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command().hasValidParams).toBe(false);
     expect(new Command({ lock: true }).hasValidParams).toBe(true);
   });
 
@@ -12,12 +12,16 @@ describe('LockUnlock Command', () => {
       expect(new Command({ lock: false }).convertParamsToValue()).toBe('OFF');
     });
     test('convertParamsToValue inverted', () => {
-      expect(new Command({ lock: true }, { customData: { inverted: true } }).convertParamsToValue()).toBe('OFF');
-      expect(new Command({ lock: false }, { customData: { inverted: true } }).convertParamsToValue()).toBe('ON');
+      expect(new Command({ lock: true }, { id: 'Item', customData: { inverted: true } }).convertParamsToValue()).toBe(
+        'OFF'
+      );
+      expect(new Command({ lock: false }, { id: 'Item', customData: { inverted: true } }).convertParamsToValue()).toBe(
+        'ON'
+      );
     });
     test('convertParamsToValue Contact', () => {
       expect(() => {
-        new Command({ lock: true }, { customData: { itemType: 'Contact' } }).convertParamsToValue();
+        new Command({ lock: true }, { id: 'Item', customData: { itemType: 'Contact' } }).convertParamsToValue();
       }).toThrow();
     });
   });

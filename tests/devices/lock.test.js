@@ -46,6 +46,7 @@ describe('Lock Device', () => {
         state: 'ON',
         metadata: {
           ga: {
+            value: 'LOCK',
             config: {
               inverted: true
             }
@@ -62,6 +63,7 @@ describe('Lock Device', () => {
         state: 'OPEN',
         metadata: {
           ga: {
+            value: 'LOCK',
             config: {
               inverted: true
             }

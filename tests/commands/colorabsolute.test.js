@@ -8,7 +8,7 @@ describe('ColorAbsolute Command', () => {
   };
 
   test('hasValidParams', () => {
-    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command().hasValidParams).toBe(false);
     expect(new Command({ color: {} }).hasValidParams).toBe(false);
     expect(new Command(params).hasValidParams).toBe(true);
   });
@@ -37,11 +37,15 @@ describe('ColorAbsolute Command', () => {
   });
 
   test('convertParamsToValue', () => {
-    expect(new Command(params, { customData: { deviceType: 'ColorLight' } }).convertParamsToValue()).toBe('10,20,30');
-    expect(new Command(params, { customData: { deviceType: 'SpecialColorLight' } }).convertParamsToValue()).toBe(
+    expect(new Command(params, { id: 'Item', customData: { deviceType: 'ColorLight' } }).convertParamsToValue()).toBe(
       '10,20,30'
     );
-    expect(() => new Command(params, { customData: { deviceType: 'Light' } }).convertParamsToValue()).toThrow();
+    expect(
+      new Command(params, { id: 'Item', customData: { deviceType: 'SpecialColorLight' } }).convertParamsToValue()
+    ).toBe('10,20,30');
+    expect(() =>
+      new Command(params, { id: 'Item', customData: { deviceType: 'Light' } }).convertParamsToValue()
+    ).toThrow();
   });
 
   test('getResponseStates', () => {

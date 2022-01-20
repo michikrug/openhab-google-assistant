@@ -1,3 +1,4 @@
+/// <reference path="../../typedefs.js" />
 const glob = require('glob');
 
 const Commands = {};
@@ -10,7 +11,7 @@ glob.sync('./!(index).js', { cwd: __dirname }).forEach((file) => {
 module.exports = {
   /**
    * @param {string} command
-   * @param {object} params
+   * @param {ExecuteIntentCommandExecutionParams} params
    */
   getCommandType: (command, params) => {
     const commandName = command.split('.')[3].toLowerCase();

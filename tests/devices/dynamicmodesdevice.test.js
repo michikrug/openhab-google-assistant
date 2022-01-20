@@ -5,6 +5,7 @@ describe('DynamicModesDevice Device', () => {
     type: 'Group',
     metadata: {
       ga: {
+        value: '',
         config: {
           mode: 'mode_name,alternate_mode_name',
           ordered: true
@@ -46,6 +47,7 @@ describe('DynamicModesDevice Device', () => {
       const invalid_item = {
         metadata: {
           ga: {
+            value: '',
             config: {}
           }
         }

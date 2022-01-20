@@ -25,6 +25,7 @@ describe('Speaker Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'SPEAKER',
             config: {}
           }
         }
@@ -39,6 +40,7 @@ describe('Speaker Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'SPEAKER',
             config: {
               volumeDefaultPercentage: '20',
               volumeMaxLevel: '90',

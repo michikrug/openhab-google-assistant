@@ -4,7 +4,7 @@ describe('volumeRelative Command', () => {
   const params = { relativeSteps: 10 };
 
   test('hasValidParams', () => {
-    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command().hasValidParams).toBe(false);
     expect(new Command(params).hasValidParams).toBe(true);
   });
 
@@ -23,6 +23,7 @@ describe('volumeRelative Command', () => {
         new Command({}, { id: 'Item', customData: { deviceType: 'TV' } }).itemName;
       }).toThrow();
       const device = {
+        id: 'Item',
         customData: {
           deviceType: 'TV',
           members: {
@@ -53,14 +54,16 @@ describe('volumeRelative Command', () => {
           }
         ]
       };
-      expect(new Command(params, { customData: { deviceType: 'TV' } }).convertParamsToValue(item)).toBe('30');
+      expect(new Command(params, { id: 'Item', customData: { deviceType: 'TV' } }).convertParamsToValue(item)).toBe(
+        '30'
+      );
       expect(() => {
-        new Command(params, { customData: { deviceType: 'TV' } }).convertParamsToValue({});
+        new Command(params, { id: 'Item', customData: { deviceType: 'TV' } }).convertParamsToValue({});
       }).toThrow();
     });
   });
 
   test('getResponseStates', () => {
-    expect(new Command(params).getResponseStates({ state: 20 }, {})).toStrictEqual({ currentVolume: 30 });
+    expect(new Command(params).getResponseStates({ state: 20 })).toStrictEqual({ currentVolume: 30 });
   });
 });

@@ -1,71 +1,122 @@
 /* eslint-disable no-unused-vars */
+/// <reference path="../../typedefs.js" />
 const packageVersion = require('../package.json').version;
 
 class DefaultDevice {
   /**
-   * @param {object} item
+   * @param {Item} item
    */
-  constructor(item = {}) {
+  constructor(item) {
     this._item = item;
-    this._metadata = (item && item.metadata && item.metadata.ga) || {};
+    this._metadata = (item && item.metadata && item.metadata.ga) || { value: '', config: {} };
   }
 
+  /**
+   * @returns {Item}
+   */
   get item() {
     return this._item;
   }
 
+  /**
+   * @returns {Members}
+   */
   get members() {
     return this._members || this.getMembers();
   }
+
+  /**
+   * @returns {Object}
+   */
 
   get config() {
     return this._metadata.config || {};
   }
 
+  /**
+   * @returns {string}
+   */
+
   get itemType() {
     return (this._item.groupType || this._item.type || '').split(':')[0];
   }
+
+  /**
+   * @returns {string}
+   */
 
   get deviceType() {
     return this._metadata.value || '';
   }
 
+  /**
+   * @returns {boolean}
+   */
+
   get validItemType() {
     return !!(!this.requiredItemTypes.length || this.requiredItemTypes.includes(this.itemType));
   }
 
+  /**
+   * @returns {boolean}
+   */
   get validDeviceType() {
     return !!(this.type.toLowerCase() === `action.devices.types.${this.deviceType}`.toLowerCase());
   }
 
+  /**
+   * @returns {string}
+   */
   get type() {
     return '';
   }
 
+  /**
+   * @returns {string[]}
+   */
   get traits() {
     return [];
   }
 
+  /**
+   * @returns {string[]}
+   */
   get requiredItemTypes() {
     return [];
   }
 
+  /**
+   * @returns {Object}
+   */
   get attributes() {
     return {};
   }
 
+  /**
+   * @returns {SupportedMember[]}
+   */
   get supportedMembers() {
     return [];
   }
 
+  /**
+   * @returns {Object}
+   */
   get state() {
     return {};
   }
+
+  /**
+   * @returns {Object}
+   */
 
   getNotification() {
     return {};
   }
 
+  /**
+   * @returns {Metadata}
+   */
   get metadata() {
     const config = this.config;
     const deviceName = config.name || this.item.label || this.item.name;
@@ -124,6 +175,9 @@ class DefaultDevice {
     return metadata;
   }
 
+  /**
+   * @returns {Members}
+   */
   getMembers() {
     this._members = {};
     if (this.supportedMembers.length && this.item.members && this.item.members.length) {

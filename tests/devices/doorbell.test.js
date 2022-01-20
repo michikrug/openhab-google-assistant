@@ -28,7 +28,10 @@ describe('Doorbell Device', () => {
     expect(new Device({}).getNotification()).toStrictEqual({});
     expect(new Device({ state: 'ON' }).getNotification().ObjectDetection).not.toBeUndefined();
     expect(
-      new Device({ state: 'OFF', metadata: { ga: { config: { inverted: true } } } }).getNotification().ObjectDetection
+      new Device({
+        state: 'OFF',
+        metadata: { ga: { value: 'DOORBELL', config: { inverted: true } } }
+      }).getNotification().ObjectDetection
     ).not.toBeUndefined();
   });
 });

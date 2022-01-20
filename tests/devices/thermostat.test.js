@@ -42,6 +42,7 @@ describe('Thermostat Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'THERMOSTAT',
             config: {
               thermostatTemperatureUnit: 'F'
             }
@@ -54,6 +55,7 @@ describe('Thermostat Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'THERMOSTAT',
             config: {
               useFahrenheit: true
             }
@@ -69,6 +71,7 @@ describe('Thermostat Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'THERMOSTAT',
             config: {}
           }
         }
@@ -83,6 +86,7 @@ describe('Thermostat Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'THERMOSTAT',
             config: {
               modes: 'on=1,off=2',
               useFahrenheit: true
@@ -100,6 +104,7 @@ describe('Thermostat Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'THERMOSTAT',
             config: {
               thermostatTemperatureRange: '10,30'
             }
@@ -120,6 +125,7 @@ describe('Thermostat Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'THERMOSTAT',
             config: {
               thermostatTemperatureRange: 'a,b'
             }
@@ -136,6 +142,7 @@ describe('Thermostat Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'THERMOSTAT',
             config: {}
           }
         },
@@ -258,6 +265,7 @@ describe('Thermostat Device', () => {
     const item = {
       metadata: {
         ga: {
+          value: 'THERMOSTAT',
           config: {
             modes: 'on=ON:1,off=OFF:2,auto=3'
           }
@@ -284,6 +292,7 @@ describe('Thermostat Device', () => {
     const item = {
       metadata: {
         ga: {
+          value: 'THERMOSTAT',
           config: {
             modes: 'on=ON:1,off=OFF:2,auto=3'
           }
@@ -301,6 +310,7 @@ describe('Thermostat Device', () => {
     const item = {
       metadata: {
         ga: {
+          value: 'THERMOSTAT',
           config: {
             modes: 'on=ON:1,off=OFF:2,auto=3'
           }
@@ -392,6 +402,7 @@ describe('Thermostat Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'THERMOSTAT',
             config: {
               useFahrenheit: true
             }

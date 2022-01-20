@@ -165,6 +165,7 @@ describe('SecuritySystem Device', () => {
         ],
         metadata: {
           ga: {
+            value: 'SECURITYSYSTEM',
             config: {
               inverted: true
             }
@@ -184,6 +185,7 @@ describe('SecuritySystem Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'SECURITYSYSTEM',
             config: {}
           }
         }
@@ -196,6 +198,7 @@ describe('SecuritySystem Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'SECURITYSYSTEM',
             config: {
               lang: 'de',
               ordered: true
@@ -211,6 +214,7 @@ describe('SecuritySystem Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'SECURITYSYSTEM',
             config: {
               armLevels: 'L1=Stay',
               lang: 'de',
@@ -239,6 +243,7 @@ describe('SecuritySystem Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'SECURITYSYSTEM',
             config: {
               armLevels: 'L1=Stay',
               lang: 'en'
@@ -255,6 +260,7 @@ describe('SecuritySystem Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'SECURITYSYSTEM',
             config: {
               armLevels: 'L1=Stay'
             }
@@ -279,6 +285,7 @@ describe('SecuritySystem Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'SECURITYSYSTEM',
             config: {
               armLevels: 'L1=Stay,L2=Night,L3=Away',
               lang: 'en',

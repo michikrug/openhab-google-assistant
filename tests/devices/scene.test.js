@@ -22,7 +22,7 @@ describe('Scene Device', () => {
 
   describe('get attributes', () => {
     test('get attributes no config', () => {
-      expect(new Device().attributes).toStrictEqual({
+      expect(new Device({}).attributes).toStrictEqual({
         sceneReversible: true
       });
     });
@@ -31,6 +31,7 @@ describe('Scene Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'SCENE',
             config: {
               sceneReversible: true
             }
@@ -46,6 +47,7 @@ describe('Scene Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'SCENE',
             config: {
               sceneReversible: false
             }

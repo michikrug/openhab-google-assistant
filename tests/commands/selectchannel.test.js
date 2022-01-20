@@ -2,7 +2,7 @@ const Command = require('../../functions/commands/selectchannel.js');
 
 describe('selectChannel Command', () => {
   test('hasValidParams', () => {
-    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command().hasValidParams).toBe(false);
     expect(new Command({ channelCode: 'channel1' }).hasValidParams).toBe(true);
     expect(new Command({ channelName: 'Channel 1' }).hasValidParams).toBe(true);
     expect(new Command({ channelNumber: '1' }).hasValidParams).toBe(true);
@@ -17,6 +17,7 @@ describe('selectChannel Command', () => {
       new Command({}, { id: 'Item' }).itemName;
     }).toThrow();
     const device = {
+      id: 'Item',
       customData: {
         members: {
           tvChannel: 'ChannelItem'

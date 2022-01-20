@@ -141,6 +141,7 @@ describe('Fan Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'FAN',
             config: {}
           }
         }
@@ -152,6 +153,7 @@ describe('Fan Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'FAN',
             config: {
               ordered: true,
               fanSpeeds: '0=null:off,50=slow,100=full:fast',
@@ -201,6 +203,7 @@ describe('Fan Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'FAN',
             config: {
               fanModeName: 'OperationMode,Modus',
               fanModeSettings: '1=Silent,2=Normal,3=Night'

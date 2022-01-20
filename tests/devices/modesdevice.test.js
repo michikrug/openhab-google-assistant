@@ -12,6 +12,7 @@ describe('ModesDevice Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: '',
             config: {}
           }
         }
@@ -23,6 +24,7 @@ describe('ModesDevice Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: '',
             config: {
               mode: 'mode_name,alternate_mode_name',
               settings: 'setting1=mode_value:alternate_mode_value,setting2=mode_value2',
@@ -75,6 +77,7 @@ describe('ModesDevice Device', () => {
         state: 'mode_value',
         metadata: {
           ga: {
+            value: '',
             config: {
               mode: 'mode_name,alternate_mode_name',
               settings: 'setting1=mode_value:alternate_mode_value,setting2=mode_value2'

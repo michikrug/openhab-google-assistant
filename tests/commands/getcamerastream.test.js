@@ -2,7 +2,7 @@ const Command = require('../../functions/commands/getcamerastream.js');
 
 describe('GetCameraStream Command', () => {
   test('hasValidParams', () => {
-    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command().hasValidParams).toBe(false);
     expect(new Command({ StreamToChromecast: true }).hasValidParams).toBe(false);
     expect(new Command({ StreamToChromecast: true, SupportedStreamProtocols: {} }).hasValidParams).toBe(true);
   });

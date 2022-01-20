@@ -7,6 +7,7 @@ describe('mediaResume Command', () => {
 
   test('getItemName', () => {
     const device = {
+      id: 'Item',
       customData: {
         members: {
           tvTransport: 'TransportItem'
@@ -15,7 +16,7 @@ describe('mediaResume Command', () => {
     };
     expect(new Command({}, device).itemName).toBe('TransportItem');
     expect(() => {
-      new Command({}, { customData: { members: {} } }).itemName();
+      new Command({}, { id: 'Item', customData: { members: {} } }).itemName();
     }).toThrow();
   });
 

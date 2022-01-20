@@ -35,6 +35,7 @@ describe('Valve Device', () => {
         state: 'ON',
         metadata: {
           ga: {
+            value: 'VALVE',
             config: {
               inverted: true
             }

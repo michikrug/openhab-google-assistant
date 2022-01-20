@@ -44,6 +44,7 @@ describe('Charger Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'Charger',
             config: {}
           }
         },
@@ -68,6 +69,7 @@ describe('Charger Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'Charger',
             config: {}
           }
         },
@@ -92,6 +94,7 @@ describe('Charger Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'Charger',
             config: {
               isRechargeable: true
             }

@@ -12,6 +12,7 @@ describe('OpenCloseDevice Device', () => {
         type: 'Rollershutter',
         metadata: {
           ga: {
+            value: '',
             config: {
               discreteOnly: true,
               queryOnly: true
@@ -108,6 +109,7 @@ describe('OpenCloseDevice Device', () => {
         state: 'CLOSED',
         metadata: {
           ga: {
+            value: '',
             config: {
               inverted: true
             }
@@ -125,6 +127,7 @@ describe('OpenCloseDevice Device', () => {
         state: 'ON',
         metadata: {
           ga: {
+            value: '',
             config: {
               inverted: true
             }
@@ -142,6 +145,7 @@ describe('OpenCloseDevice Device', () => {
         state: '25',
         metadata: {
           ga: {
+            value: '',
             config: {
               inverted: true
             }

@@ -2,7 +2,7 @@ const Command = require('../../functions/commands/onoff.js');
 
 describe('OnOff Command', () => {
   test('hasValidParams', () => {
-    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command().hasValidParams).toBe(false);
     expect(new Command({ on: true }).hasValidParams).toBe(true);
   });
 
@@ -46,7 +46,7 @@ describe('OnOff Command', () => {
 
     test('getItemName TV', () => {
       expect(() => {
-        new Command({}, { name: 'Item', customData: { deviceType: 'TV' } }).itemName;
+        new Command({}, { id: 'Item', customData: { deviceType: 'TV' } }).itemName;
       }).toThrow();
       const device = {
         id: 'Item',
@@ -62,7 +62,7 @@ describe('OnOff Command', () => {
 
     test('getItemName Fan', () => {
       expect(() => {
-        new Command({}, { name: 'Item', customData: { deviceType: 'Fan', itemType: 'Group' } }).itemName;
+        new Command({}, { id: 'Item', customData: { deviceType: 'Fan', itemType: 'Group' } }).itemName;
       }).toThrow();
       const device = {
         id: 'Item',
@@ -83,11 +83,13 @@ describe('OnOff Command', () => {
 
   describe('convertParamsToValue', () => {
     test('convertParamsToValue', () => {
-      expect(new Command({ on: true }, {}).convertParamsToValue()).toBe('ON');
+      expect(new Command({ on: true }).convertParamsToValue()).toBe('ON');
     });
 
     test('convertParamsToValue inverted', () => {
-      expect(new Command({ on: true }, { customData: { inverted: true } }).convertParamsToValue()).toBe('OFF');
+      expect(new Command({ on: true }, { id: 'Item', customData: { inverted: true } }).convertParamsToValue()).toBe(
+        'OFF'
+      );
     });
   });
 

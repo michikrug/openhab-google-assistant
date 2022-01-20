@@ -35,6 +35,7 @@ describe('SimpleSecuritySystem Device', () => {
         state: 'ON',
         metadata: {
           ga: {
+            value: 'SECURITYSYSTEM',
             config: {
               inverted: true
             }

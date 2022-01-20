@@ -4,7 +4,7 @@ describe('ThermostatSetMode Command', () => {
   const params = { thermostatMode: 'eco' };
 
   test('hasValidParams', () => {
-    expect(new Command({}).hasValidParams).toBe(false);
+    expect(new Command().hasValidParams).toBe(false);
     expect(new Command(params).hasValidParams).toBe(true);
   });
 
@@ -17,6 +17,7 @@ describe('ThermostatSetMode Command', () => {
       new Command({}, { id: 'Item' }).itemName;
     }).toThrow();
     const device = {
+      id: 'Item',
       customData: {
         members: {
           thermostatMode: 'ModeItem'

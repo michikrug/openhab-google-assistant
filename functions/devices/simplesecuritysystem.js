@@ -1,21 +1,21 @@
 const DefaultDevice = require('./default.js');
 
 class SimpleSecuritySystem extends DefaultDevice {
-  static get type() {
+  get type() {
     return 'action.devices.types.SECURITYSYSTEM';
   }
 
-  static getTraits() {
+  get traits() {
     return ['action.devices.traits.ArmDisarm'];
   }
 
-  static get requiredItemTypes() {
+  get requiredItemTypes() {
     return ['Switch'];
   }
 
-  static getState(item) {
-    let state = item.state === 'ON';
-    if (this.getConfig(item).inverted === true) {
+  get state() {
+    let state = this.item.state === 'ON';
+    if (this.config.inverted === true) {
       state = !state;
     }
     return {

@@ -1,15 +1,15 @@
 const Device = require('../../functions/devices/simplelight.js');
 
 describe('SimpleLight Device', () => {
-  test('matchesDeviceType', () => {
+  test('validDeviceType', () => {
     expect(
-      Device.matchesDeviceType({
+      new Device({
         metadata: {
           ga: {
             value: 'LIGHT'
           }
         }
-      })
+      }).validDeviceType
     ).toBe(true);
   });
 });

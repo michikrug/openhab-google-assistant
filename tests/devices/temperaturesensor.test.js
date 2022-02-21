@@ -1,60 +1,62 @@
 const Device = require('../../functions/devices/temperaturesensor.js');
 
 describe('TemperatureSensor Device', () => {
-  test('matchesDeviceType', () => {
+  test('validDeviceType', () => {
     expect(
-      Device.matchesDeviceType({
+      new Device({
         metadata: {
           ga: {
             value: 'temperaturesensor'
           }
         }
-      })
+      }).validDeviceType
     ).toBe(true);
   });
 
-  test('matchesItemType', () => {
-    expect(Device.matchesItemType({ type: 'Number' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'Number:Temperature' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'Dimmer' })).toBe(false);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'Dimmer' })).toBe(false);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'Number' })).toBe(true);
+  test('validItemType', () => {
+    expect(new Device({ type: 'Number' }).validItemType).toBe(true);
+    expect(new Device({ type: 'Number:Temperature' }).validItemType).toBe(true);
+    expect(new Device({ type: 'Dimmer' }).validItemType).toBe(false);
+    expect(new Device({ type: 'Group', groupType: 'Dimmer' }).validItemType).toBe(false);
+    expect(new Device({ type: 'Group', groupType: 'Number' }).validItemType).toBe(true);
   });
 
-  describe('getAttributes', () => {
-    test('getAttributes no config', () => {
+  describe('get attributes', () => {
+    test('get attributes no config', () => {
       const item1 = {
         metadata: {
           ga: {
+            value: 'temperaturesensor',
             config: {}
           }
         }
       };
-      expect(Device.getAttributes(item1)).toStrictEqual({
+      expect(new Device(item1).attributes).toStrictEqual({
         queryOnlyTemperatureControl: true,
         temperatureUnitForUX: 'C'
       });
     });
 
-    test('getAttributes useFahrenheit', () => {
+    test('get attributes useFahrenheit', () => {
       const item2 = {
         metadata: {
           ga: {
+            value: 'temperaturesensor',
             config: {
               useFahrenheit: true
             }
           }
         }
       };
-      expect(Device.getAttributes(item2)).toStrictEqual({
+      expect(new Device(item2).attributes).toStrictEqual({
         queryOnlyTemperatureControl: true,
         temperatureUnitForUX: 'F'
       });
     });
   });
 
-  test('getState', () => {
-    expect(Device.getState({ state: '10' })).toStrictEqual({
+  test('get state', () => {
+    expect(new Device({ state: '10' }).state).toStrictEqual({
       temperatureSetpointCelsius: 10,
       temperatureAmbientCelsius: 10
     });
@@ -62,13 +64,14 @@ describe('TemperatureSensor Device', () => {
       state: '10',
       metadata: {
         ga: {
+          value: 'temperaturesensor',
           config: {
             useFahrenheit: true
           }
         }
       }
     };
-    expect(Device.getState(item)).toStrictEqual({
+    expect(new Device(item).state).toStrictEqual({
       temperatureSetpointCelsius: -12.2,
       temperatureAmbientCelsius: -12.2
     });

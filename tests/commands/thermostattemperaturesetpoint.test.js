@@ -3,27 +3,28 @@ const Command = require('../../functions/commands/thermostattemperaturesetpoint.
 describe('ThermostatTemperatureSetpoint Command', () => {
   const params = { thermostatTemperatureSetpoint: 20 };
 
-  test('validateParams', () => {
-    expect(Command.validateParams({})).toBe(false);
-    expect(Command.validateParams(params)).toBe(true);
+  test('hasValidParams', () => {
+    expect(new Command().hasValidParams).toBe(false);
+    expect(new Command(params).hasValidParams).toBe(true);
   });
 
   test('requiresItem', () => {
-    expect(Command.requiresItem()).toBe(true);
+    expect(new Command().requiresItem).toBe(true);
   });
 
   test('getItemName', () => {
     expect(() => {
-      Command.getItemName({ id: 'Item' });
+      new Command({}, { id: 'Item' }).itemName;
     }).toThrow();
     const device = {
+      id: 'Item',
       customData: {
         members: {
           thermostatTemperatureSetpoint: 'SetpointItem'
         }
       }
     };
-    expect(Command.getItemName(device)).toBe('SetpointItem');
+    expect(new Command({}, device).itemName).toBe('SetpointItem');
   });
 
   test('convertParamsToValue', () => {
@@ -36,8 +37,8 @@ describe('ThermostatTemperatureSetpoint Command', () => {
         }
       }
     };
-    expect(Command.convertParamsToValue(params, item)).toBe('68');
-    expect(Command.convertParamsToValue(params, {})).toBe('20');
+    expect(new Command(params).convertParamsToValue(item)).toBe('68');
+    expect(new Command(params).convertParamsToValue({})).toBe('20');
   });
 
   test('getResponseStates', () => {
@@ -52,6 +53,6 @@ describe('ThermostatTemperatureSetpoint Command', () => {
         }
       ]
     };
-    expect(Command.getResponseStates(params, item)).toStrictEqual({ thermostatTemperatureSetpoint: 20 });
+    expect(new Command(params).getResponseStates(item)).toStrictEqual({ thermostatTemperatureSetpoint: 20 });
   });
 });

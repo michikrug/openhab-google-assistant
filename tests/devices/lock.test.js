@@ -1,58 +1,59 @@
 const Device = require('../../functions/devices/lock.js');
 
 describe('Lock Device', () => {
-  test('matchesDeviceType', () => {
+  test('validDeviceType', () => {
     expect(
-      Device.matchesDeviceType({
+      new Device({
         metadata: {
           ga: {
             value: 'LOCK'
           }
         }
-      })
+      }).validDeviceType
     ).toBe(true);
   });
 
-  test('matchesItemType', () => {
-    expect(Device.matchesItemType({ type: 'Switch' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'Contact' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'String' })).toBe(false);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'Switch' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'Contact' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'String' })).toBe(false);
+  test('validItemType', () => {
+    expect(new Device({ type: 'Switch' }).validItemType).toBe(true);
+    expect(new Device({ type: 'Contact' }).validItemType).toBe(true);
+    expect(new Device({ type: 'String' }).validItemType).toBe(false);
+    expect(new Device({ type: 'Group', groupType: 'Switch' }).validItemType).toBe(true);
+    expect(new Device({ type: 'Group', groupType: 'Contact' }).validItemType).toBe(true);
+    expect(new Device({ type: 'Group', groupType: 'String' }).validItemType).toBe(false);
   });
 
-  describe('getState', () => {
-    test('getState Switch', () => {
-      expect(Device.getState({ state: 'ON' })).toStrictEqual({
+  describe('get state', () => {
+    test('get state Switch', () => {
+      expect(new Device({ state: 'ON' }).state).toStrictEqual({
         isLocked: true
       });
-      expect(Device.getState({ state: 'OFF' })).toStrictEqual({
+      expect(new Device({ state: 'OFF' }).state).toStrictEqual({
         isLocked: false
       });
     });
 
-    test('getState Contact', () => {
-      expect(Device.getState({ state: 'CLOSED' })).toStrictEqual({
+    test('get state Contact', () => {
+      expect(new Device({ state: 'CLOSED' }).state).toStrictEqual({
         isLocked: true
       });
-      expect(Device.getState({ state: 'OPEN' })).toStrictEqual({
+      expect(new Device({ state: 'OPEN' }).state).toStrictEqual({
         isLocked: false
       });
     });
 
-    test('getState inverted Swtich', () => {
+    test('get state inverted Swtich', () => {
       const item1 = {
         state: 'ON',
         metadata: {
           ga: {
+            value: 'LOCK',
             config: {
               inverted: true
             }
           }
         }
       };
-      expect(Device.getState(item1)).toStrictEqual({
+      expect(new Device(item1).state).toStrictEqual({
         isLocked: false
       });
     });
@@ -62,13 +63,14 @@ describe('Lock Device', () => {
         state: 'OPEN',
         metadata: {
           ga: {
+            value: 'LOCK',
             config: {
               inverted: true
             }
           }
         }
       };
-      expect(Device.getState(item2)).toStrictEqual({
+      expect(new Device(item2).state).toStrictEqual({
         isLocked: true
       });
     });

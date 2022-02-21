@@ -3,26 +3,27 @@ const Command = require('../../functions/commands/volumerelative.js');
 describe('volumeRelative Command', () => {
   const params = { relativeSteps: 10 };
 
-  test('validateParams', () => {
-    expect(Command.validateParams({})).toBe(false);
-    expect(Command.validateParams(params)).toBe(true);
+  test('hasValidParams', () => {
+    expect(new Command().hasValidParams).toBe(false);
+    expect(new Command(params).hasValidParams).toBe(true);
   });
 
   test('requiresItem', () => {
-    expect(Command.requiresItem()).toBe(true);
+    expect(new Command().requiresItem).toBe(true);
   });
 
   describe('getItemName', () => {
     test('getItemName', () => {
-      expect(Command.getItemName({ id: 'Item' })).toBe('Item');
-      expect(Command.getItemName({ id: 'Item', customData: {} })).toBe('Item');
+      expect(new Command({}, { id: 'Item' }).itemName).toBe('Item');
+      expect(new Command({}, { id: 'Item', customData: {} }).itemName).toBe('Item');
     });
 
     test('getItemName TV', () => {
       expect(() => {
-        Command.getItemName({ id: 'Item', customData: { deviceType: 'TV' } });
+        new Command({}, { id: 'Item', customData: { deviceType: 'TV' } }).itemName;
       }).toThrow();
       const device = {
+        id: 'Item',
         customData: {
           deviceType: 'TV',
           members: {
@@ -30,13 +31,13 @@ describe('volumeRelative Command', () => {
           }
         }
       };
-      expect(Command.getItemName(device)).toBe('VolumeItem');
+      expect(new Command({}, device).itemName).toBe('VolumeItem');
     });
   });
 
   describe('convertParamsToValue', () => {
     test('convertParamsToValue', () => {
-      expect(Command.convertParamsToValue(params, { state: 20 }, {})).toBe('30');
+      expect(new Command(params).convertParamsToValue({ state: 20 })).toBe('30');
     });
 
     test('convertParamsToValue TV', () => {
@@ -53,14 +54,16 @@ describe('volumeRelative Command', () => {
           }
         ]
       };
-      expect(Command.convertParamsToValue(params, item, { customData: { deviceType: 'TV' } })).toBe('30');
+      expect(new Command(params, { id: 'Item', customData: { deviceType: 'TV' } }).convertParamsToValue(item)).toBe(
+        '30'
+      );
       expect(() => {
-        Command.convertParamsToValue(params, {}, { customData: { deviceType: 'TV' } });
+        new Command(params, { id: 'Item', customData: { deviceType: 'TV' } }).convertParamsToValue({});
       }).toThrow();
     });
   });
 
   test('getResponseStates', () => {
-    expect(Command.getResponseStates(params, { state: 20 }, {})).toStrictEqual({ currentVolume: 30 });
+    expect(new Command(params).getResponseStates({ state: 20 })).toStrictEqual({ currentVolume: 30 });
   });
 });

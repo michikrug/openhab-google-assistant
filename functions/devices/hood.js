@@ -1,7 +1,7 @@
 const Fan = require('./fan.js');
 
 class Hood extends Fan {
-  static get type() {
+  get type() {
     return 'action.devices.types.HOOD';
   }
 }

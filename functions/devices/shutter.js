@@ -1,7 +1,7 @@
 const OpenCloseDevice = require('./openclosedevice.js');
 
 class Shutter extends OpenCloseDevice {
-  static get type() {
+  get type() {
     return 'action.devices.types.SHUTTER';
   }
 }

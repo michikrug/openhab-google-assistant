@@ -1,22 +1,21 @@
 const DefaultDevice = require('./default.js');
 
 class Scene extends DefaultDevice {
-  static get type() {
+  get type() {
     return 'action.devices.types.SCENE';
   }
 
-  static getTraits() {
+  get traits() {
     return ['action.devices.traits.Scene'];
   }
 
-  static get requiredItemTypes() {
+  get requiredItemTypes() {
     return ['Switch'];
   }
 
-  static getAttributes(item) {
-    const config = this.getConfig(item);
+  get attributes() {
     return {
-      sceneReversible: config.sceneReversible !== false
+      sceneReversible: this.config.sceneReversible !== false
     };
   }
 }

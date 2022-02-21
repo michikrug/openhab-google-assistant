@@ -7,43 +7,49 @@ describe('ColorAbsolute Command', () => {
     }
   };
 
-  test('validateParams', () => {
-    expect(Command.validateParams({})).toBe(false);
-    expect(Command.validateParams({ color: {} })).toBe(false);
-    expect(Command.validateParams(params)).toBe(true);
+  test('hasValidParams', () => {
+    expect(new Command().hasValidParams).toBe(false);
+    expect(new Command({ color: {} }).hasValidParams).toBe(false);
+    expect(new Command(params).hasValidParams).toBe(true);
   });
 
   test('getItemName', () => {
-    expect(Command.getItemName({ id: 'Item' })).toBe('Item');
-    expect(Command.getItemName({ id: 'Item' }, {})).toBe('Item');
-    expect(Command.getItemName({ id: 'Item' }, { customData: {} })).toBe('Item');
-    expect(Command.getItemName({ id: 'Item' }, { customData: { deviceType: 'ColorLight' } })).toBe('Item');
+    expect(new Command({}, { id: 'Item' }).itemName).toBe('Item');
+    expect(new Command({}, { id: 'Item', customData: {} }).itemName).toBe('Item');
+    expect(new Command({}, { id: 'Item', customData: { deviceType: 'ColorLight' } }).itemName).toBe('Item');
     expect(() => {
-      Command.getItemName({ id: 'Item', customData: { deviceType: 'SpecialColorLight' } });
+      new Command({}, { id: 'Item', customData: { deviceType: 'SpecialColorLight' } }).itemName;
     }).toThrow();
     expect(
-      Command.getItemName({
-        id: 'Item',
-        customData: {
-          deviceType: 'SpecialColorLight',
-          members: {
-            lightColor: 'ColorItem'
+      new Command(
+        {},
+        {
+          id: 'Item',
+          customData: {
+            deviceType: 'SpecialColorLight',
+            members: {
+              lightColor: 'ColorItem'
+            }
           }
         }
-      })
+      ).itemName
     ).toBe('ColorItem');
   });
 
   test('convertParamsToValue', () => {
-    expect(Command.convertParamsToValue(params, {}, { customData: { deviceType: 'ColorLight' } })).toBe('10,20,30');
-    expect(Command.convertParamsToValue(params, {}, { customData: { deviceType: 'SpecialColorLight' } })).toBe(
+    expect(new Command(params, { id: 'Item', customData: { deviceType: 'ColorLight' } }).convertParamsToValue()).toBe(
       '10,20,30'
     );
-    expect(() => Command.convertParamsToValue(params, {}, { customData: { deviceType: 'Light' } })).toThrow();
+    expect(
+      new Command(params, { id: 'Item', customData: { deviceType: 'SpecialColorLight' } }).convertParamsToValue()
+    ).toBe('10,20,30');
+    expect(() =>
+      new Command(params, { id: 'Item', customData: { deviceType: 'Light' } }).convertParamsToValue()
+    ).toThrow();
   });
 
   test('getResponseStates', () => {
-    expect(Command.getResponseStates(params)).toStrictEqual({
+    expect(new Command(params).getResponseStates()).toStrictEqual({
       color: {
         spectrumHsv: { hue: 10, saturation: 0.2, value: 0.3 }
       }

@@ -3,27 +3,28 @@ const Command = require('../../functions/commands/thermostatsetmode.js');
 describe('ThermostatSetMode Command', () => {
   const params = { thermostatMode: 'eco' };
 
-  test('validateParams', () => {
-    expect(Command.validateParams({})).toBe(false);
-    expect(Command.validateParams(params)).toBe(true);
+  test('hasValidParams', () => {
+    expect(new Command().hasValidParams).toBe(false);
+    expect(new Command(params).hasValidParams).toBe(true);
   });
 
   test('requiresItem', () => {
-    expect(Command.requiresItem()).toBe(true);
+    expect(new Command().requiresItem).toBe(true);
   });
 
   test('getItemName', () => {
     expect(() => {
-      Command.getItemName({ id: 'Item' });
+      new Command({}, { id: 'Item' }).itemName;
     }).toThrow();
     const device = {
+      id: 'Item',
       customData: {
         members: {
           thermostatMode: 'ModeItem'
         }
       }
     };
-    expect(Command.getItemName(device)).toBe('ModeItem');
+    expect(new Command({}, device).itemName).toBe('ModeItem');
   });
 
   test('convertParamsToValue', () => {
@@ -36,7 +37,7 @@ describe('ThermostatSetMode Command', () => {
         }
       }
     };
-    expect(Command.convertParamsToValue(params, item)).toBe('ECO');
+    expect(new Command(params).convertParamsToValue(item)).toBe('ECO');
   });
 
   test('getResponseStates', () => {
@@ -51,6 +52,6 @@ describe('ThermostatSetMode Command', () => {
         }
       ]
     };
-    expect(Command.getResponseStates(params, item)).toStrictEqual({ thermostatMode: 'eco' });
+    expect(new Command(params).getResponseStates(item)).toStrictEqual({ thermostatMode: 'eco' });
   });
 });

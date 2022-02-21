@@ -35,7 +35,7 @@ module.exports = {
   },
   /**
    * @param {number} kelvin color temperature as Kelvin
-   * @returns {object} color temperature value converted to RGB
+   * @returns {Object} color temperature value converted to RGB
    */
   kelvin2rgb: (kelvin) => {
     const temp = kelvin / 100;
@@ -52,8 +52,8 @@ module.exports = {
     };
   },
   /**
-   * @param {object} rgb color as RGB
-   * @returns {object} color value converted to HSV
+   * @param {Object} rgb color as RGB
+   * @returns {Object} color value converted to HSV
    */
   rgb2hsv: ({ r, g, b }) => {
     r = r / 255;

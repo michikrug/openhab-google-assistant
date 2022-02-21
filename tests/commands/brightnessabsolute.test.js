@@ -1,17 +1,17 @@
 const Command = require('../../functions/commands/brightnessabsolute.js');
 
 describe('BrightnessAbsolute Command', () => {
-  test('validateParams', () => {
-    expect(Command.validateParams({})).toBe(false);
-    expect(Command.validateParams({ brightness: 100 })).toBe(true);
-    expect(Command.validateParams({ brightness: '100' })).toBe(false);
+  test('hasValidParams', () => {
+    expect(new Command().hasValidParams).toBe(false);
+    expect(new Command({ brightness: 100 }).hasValidParams).toBe(true);
+    expect(new Command({ brightness: '100' }).hasValidParams).toBe(false);
   });
 
   test('getItemName', () => {
-    expect(Command.getItemName({ id: 'Item' })).toBe('Item');
-    expect(Command.getItemName({ id: 'Item', customData: {} })).toBe('Item');
+    expect(new Command({}, { id: 'Item' }).itemName).toBe('Item');
+    expect(new Command({}, { id: 'Item', customData: {} }).itemName).toBe('Item');
     expect(() => {
-      Command.getItemName({ id: 'Item', customData: { deviceType: 'SpecialColorLight' } });
+      new Command({}, { id: 'Item', customData: { deviceType: 'SpecialColorLight' } }).itemName;
     }).toThrow();
     const device = {
       id: 'Item',
@@ -22,16 +22,16 @@ describe('BrightnessAbsolute Command', () => {
         }
       }
     };
-    expect(Command.getItemName(device)).toBe('BrightnessItem');
+    expect(new Command({}, device).itemName).toBe('BrightnessItem');
   });
 
   test('convertParamsToValue', () => {
-    expect(Command.convertParamsToValue({ brightness: 0 })).toBe('0');
-    expect(Command.convertParamsToValue({ brightness: 100 })).toBe('100');
+    expect(new Command({ brightness: 0 }).convertParamsToValue()).toBe('0');
+    expect(new Command({ brightness: 100 }).convertParamsToValue()).toBe('100');
   });
 
   test('getResponseStates', () => {
-    expect(Command.getResponseStates({ brightness: 0 })).toStrictEqual({ brightness: 0 });
-    expect(Command.getResponseStates({ brightness: 100 })).toStrictEqual({ brightness: 100 });
+    expect(new Command({ brightness: 0 }).getResponseStates()).toStrictEqual({ brightness: 0 });
+    expect(new Command({ brightness: 100 }).getResponseStates()).toStrictEqual({ brightness: 100 });
   });
 });

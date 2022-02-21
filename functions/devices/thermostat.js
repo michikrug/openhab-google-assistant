@@ -2,65 +2,18 @@ const DefaultDevice = require('./default.js');
 const convertToCelsius = require('../utilities.js').convertToCelsius;
 
 class Thermostat extends DefaultDevice {
-  static get type() {
+  get type() {
     return 'action.devices.types.THERMOSTAT';
   }
-  static getTraits() {
+  get traits() {
     return ['action.devices.traits.TemperatureSetting'];
   }
 
-  static get requiredItemTypes() {
+  get requiredItemTypes() {
     return ['Group'];
   }
 
-  static matchesDeviceType(item) {
-    return super.matchesDeviceType(item) && Object.keys(this.getMembers(item)).length > 0;
-  }
-
-  static getAttributes(item) {
-    const config = this.getConfig(item);
-    const attributes = {
-      thermostatTemperatureUnit: this.useFahrenheit(item) ? 'F' : 'C'
-    };
-    if ('thermostatTemperatureRange' in config) {
-      const [min, max] = config.thermostatTemperatureRange.split(',').map((s) => parseFloat(s.trim()));
-      if (!isNaN(min) && !isNaN(max)) {
-        attributes.thermostatTemperatureRange = {
-          minThresholdCelsius: min,
-          maxThresholdCelsius: max
-        };
-      }
-    }
-    const members = this.getMembers(item);
-    if (
-      'thermostatTemperatureAmbient' in members &&
-      !('thermostatMode' in members) &&
-      !('thermostatTemperatureSetpoint' in members)
-    ) {
-      attributes.queryOnlyTemperatureSetting = true;
-    } else {
-      attributes.availableThermostatModes = Object.keys(this.getModeMap(item));
-    }
-    return attributes;
-  }
-
-  static getState(item) {
-    const state = {};
-    const members = this.getMembers(item);
-    for (const member in members) {
-      if (member == 'thermostatMode') {
-        state[member] = this.translateModeToGoogle(item, members[member].state);
-      } else {
-        state[member] = Number(parseFloat(members[member].state).toFixed(1));
-        if (member.indexOf('Temperature') > 0 && this.useFahrenheit(item)) {
-          state[member] = convertToCelsius(state[member]);
-        }
-      }
-    }
-    return state;
-  }
-
-  static get supportedMembers() {
+  get supportedMembers() {
     return [
       { name: 'thermostatMode', types: ['Number', 'String', 'Switch'] },
       { name: 'thermostatTemperatureSetpoint', types: ['Number'] },
@@ -71,16 +24,60 @@ class Thermostat extends DefaultDevice {
     ];
   }
 
-  static useFahrenheit(item) {
-    const config = this.getConfig(item);
-    return config.thermostatTemperatureUnit === 'F' || config.useFahrenheit === true;
+  get validDeviceType() {
+    return super.validDeviceType && Object.keys(this.members).length > 0;
   }
 
-  static getModeMap(item) {
-    const config = this.getConfig(item);
+  get attributes() {
+    const attributes = {
+      thermostatTemperatureUnit: this.useFahrenheit ? 'F' : 'C'
+    };
+    if ('thermostatTemperatureRange' in this.config) {
+      const [min, max] = this.config.thermostatTemperatureRange.split(',').map((s) => parseFloat(s.trim()));
+      if (!isNaN(min) && !isNaN(max)) {
+        attributes.thermostatTemperatureRange = {
+          minThresholdCelsius: min,
+          maxThresholdCelsius: max
+        };
+      }
+    }
+    const members = this.members;
+    if (
+      'thermostatTemperatureAmbient' in members &&
+      !('thermostatMode' in members) &&
+      !('thermostatTemperatureSetpoint' in members)
+    ) {
+      attributes.queryOnlyTemperatureSetting = true;
+    } else {
+      attributes.availableThermostatModes = Object.keys(this.modeMap);
+    }
+    return attributes;
+  }
+
+  get state() {
+    const state = {};
+    const members = this.members;
+    for (const member in members) {
+      if (member == 'thermostatMode') {
+        state[member] = this.translateModeToGoogle(members[member].state);
+      } else {
+        state[member] = Number(parseFloat(members[member].state).toFixed(1));
+        if (member.indexOf('Temperature') > 0 && this.useFahrenheit) {
+          state[member] = convertToCelsius(state[member]);
+        }
+      }
+    }
+    return state;
+  }
+
+  get useFahrenheit() {
+    return this.config.thermostatTemperatureUnit === 'F' || this.config.useFahrenheit === true;
+  }
+
+  get modeMap() {
     let modes = ['off', 'heat', 'cool', 'on', 'heatcool', 'auto', 'eco'];
-    if ('modes' in config) {
-      modes = config.modes.split(',').map((s) => s.trim());
+    if ('modes' in this.config) {
+      modes = this.config.modes.split(',').map((s) => s.trim());
     }
     const modeMap = {};
     modes.forEach((pair) => {
@@ -90,16 +87,16 @@ class Thermostat extends DefaultDevice {
     return modeMap;
   }
 
-  static translateModeToOpenhab(item, mode) {
-    const modeMap = this.getModeMap(item);
+  translateModeToOpenhab(mode) {
+    const modeMap = this.modeMap;
     if (mode in modeMap) {
       return modeMap[mode][0];
     }
     throw { statusCode: 400 };
   }
 
-  static translateModeToGoogle(item, mode) {
-    const modeMap = this.getModeMap(item);
+  translateModeToGoogle(mode) {
+    const modeMap = this.modeMap;
     for (const key in modeMap) {
       if (modeMap[key].includes(mode)) {
         return key;

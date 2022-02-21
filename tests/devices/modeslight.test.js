@@ -1,10 +1,10 @@
 const Device = require('../../functions/devices/modeslight.js');
 
 describe('ModesLight Device', () => {
-  test('matchesDeviceType', () => {
-    expect(Device.matchesDeviceType({ type: 'Group' })).toBe(false);
+  test('validDeviceType', () => {
+    expect(new Device({ type: 'Group' }).validDeviceType).toBe(false);
     expect(
-      Device.matchesDeviceType({
+      new Device({
         type: 'Switch',
         metadata: {
           ga: {
@@ -12,10 +12,10 @@ describe('ModesLight Device', () => {
             config: {}
           }
         }
-      })
+      }).validDeviceType
     ).toBe(false);
     expect(
-      Device.matchesDeviceType({
+      new Device({
         type: 'Switch',
         metadata: {
           ga: {
@@ -26,7 +26,7 @@ describe('ModesLight Device', () => {
             }
           }
         }
-      })
+      }).validDeviceType
     ).toBe(true);
   });
 });

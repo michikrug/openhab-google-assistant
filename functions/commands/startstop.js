@@ -1,29 +1,28 @@
 const DefaultCommand = require('./default.js');
 
 class StartStop extends DefaultCommand {
-  static get type() {
+  get type() {
     return 'action.devices.commands.StartStop';
   }
 
-  static validateParams(params) {
-    return 'start' in params && typeof params.start === 'boolean';
+  get hasValidParams() {
+    return 'start' in this.params && typeof this.params.start === 'boolean';
   }
 
-  static convertParamsToValue(params, _, device) {
-    const itemType = this.getItemType(device);
-    if (itemType === 'Contact') {
+  convertParamsToValue() {
+    if (this.itemType === 'Contact') {
       throw { statusCode: 400 };
     }
-    if (itemType === 'Rollershutter') {
-      return params.start ? 'MOVE' : 'STOP';
+    if (this.itemType === 'Rollershutter') {
+      return this.params.start ? 'MOVE' : 'STOP';
     }
-    return params.start ? 'ON' : 'OFF';
+    return this.params.start ? 'ON' : 'OFF';
   }
 
-  static getResponseStates(params) {
+  getResponseStates() {
     return {
-      isRunning: params.start,
-      isPaused: !params.start
+      isRunning: this.params.start,
+      isPaused: !this.params.start
     };
   }
 }

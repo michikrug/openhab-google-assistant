@@ -1,53 +1,53 @@
 const Command = require('../../functions/commands/openclose.js');
 
 describe('OpenClose Command', () => {
-  test('validateParams', () => {
-    expect(Command.validateParams({})).toBe(false);
-    expect(Command.validateParams({ openPercent: 100 })).toBe(true);
-    expect(Command.validateParams({ openPercent: '5' })).toBe(false);
+  test('hasValidParams', () => {
+    expect(new Command().hasValidParams).toBe(false);
+    expect(new Command({ openPercent: 100 }).hasValidParams).toBe(true);
+    expect(new Command({ openPercent: '5' }).hasValidParams).toBe(false);
   });
 
   describe('convertParamsToValue', () => {
     test('convertParamsToValue', () => {
-      expect(Command.convertParamsToValue({ openPercent: 0 }, {}, {})).toBe('0');
-      expect(Command.convertParamsToValue({ openPercent: 20 }, {}, {})).toBe('20');
-      expect(Command.convertParamsToValue({ openPercent: 50 }, {}, {})).toBe('50');
-      expect(Command.convertParamsToValue({ openPercent: 70 }, {}, {})).toBe('70');
-      expect(Command.convertParamsToValue({ openPercent: 100 }, {}, {})).toBe('100');
+      expect(new Command({ openPercent: 0 }).convertParamsToValue()).toBe('0');
+      expect(new Command({ openPercent: 20 }).convertParamsToValue()).toBe('20');
+      expect(new Command({ openPercent: 50 }).convertParamsToValue()).toBe('50');
+      expect(new Command({ openPercent: 70 }).convertParamsToValue()).toBe('70');
+      expect(new Command({ openPercent: 100 }).convertParamsToValue()).toBe('100');
     });
 
     test('convertParamsToValue inverted', () => {
-      const device = { customData: { inverted: true } };
-      expect(Command.convertParamsToValue({ openPercent: 0 }, {}, device)).toBe('100');
-      expect(Command.convertParamsToValue({ openPercent: 20 }, {}, device)).toBe('80');
-      expect(Command.convertParamsToValue({ openPercent: 50 }, {}, device)).toBe('50');
-      expect(Command.convertParamsToValue({ openPercent: 70 }, {}, device)).toBe('30');
-      expect(Command.convertParamsToValue({ openPercent: 100 }, {}, device)).toBe('0');
+      const device = { id: 'Item', customData: { inverted: true } };
+      expect(new Command({ openPercent: 0 }, device).convertParamsToValue()).toBe('100');
+      expect(new Command({ openPercent: 20 }, device).convertParamsToValue()).toBe('80');
+      expect(new Command({ openPercent: 50 }, device).convertParamsToValue()).toBe('50');
+      expect(new Command({ openPercent: 70 }, device).convertParamsToValue()).toBe('30');
+      expect(new Command({ openPercent: 100 }, device).convertParamsToValue()).toBe('0');
     });
 
     test('convertParamsToValue Rollershutter', () => {
-      const device = { customData: { itemType: 'Rollershutter' } };
-      expect(Command.convertParamsToValue({ openPercent: 0 }, {}, device)).toBe('DOWN');
-      expect(Command.convertParamsToValue({ openPercent: 20 }, {}, device)).toBe('80');
-      expect(Command.convertParamsToValue({ openPercent: 100 }, {}, device)).toBe('UP');
+      const device = { id: 'Item', customData: { itemType: 'Rollershutter' } };
+      expect(new Command({ openPercent: 0 }, device).convertParamsToValue()).toBe('DOWN');
+      expect(new Command({ openPercent: 20 }, device).convertParamsToValue()).toBe('80');
+      expect(new Command({ openPercent: 100 }, device).convertParamsToValue()).toBe('UP');
     });
 
     test('convertParamsToValue Switch', () => {
-      const device = { customData: { itemType: 'Switch' } };
-      expect(Command.convertParamsToValue({ openPercent: 0 }, {}, device)).toBe('OFF');
-      expect(Command.convertParamsToValue({ openPercent: 20 }, {}, device)).toBe('ON');
-      expect(Command.convertParamsToValue({ openPercent: 100 }, {}, device)).toBe('ON');
+      const device = { id: 'Item', customData: { itemType: 'Switch' } };
+      expect(new Command({ openPercent: 0 }, device).convertParamsToValue()).toBe('OFF');
+      expect(new Command({ openPercent: 20 }, device).convertParamsToValue()).toBe('ON');
+      expect(new Command({ openPercent: 100 }, device).convertParamsToValue()).toBe('ON');
     });
 
     test('convertParamsToValue Contact', () => {
-      const device = { customData: { itemType: 'Contact' } };
+      const device = { id: 'Item', customData: { itemType: 'Contact' } };
       expect(() => {
-        Command.convertParamsToValue({}, {}, device);
+        new Command({}, device).convertParamsToValue();
       }).toThrow();
     });
   });
 
   test('getResponseStates', () => {
-    expect(Command.getResponseStates({ openPercent: 10 })).toStrictEqual({ openPercent: 10 });
+    expect(new Command({ openPercent: 10 }).getResponseStates()).toStrictEqual({ openPercent: 10 });
   });
 });

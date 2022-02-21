@@ -1,21 +1,21 @@
 const DefaultCommand = require('./default.js');
 
 class OpenClose extends DefaultCommand {
-  static get type() {
+  get type() {
     return 'action.devices.commands.OpenClose';
   }
 
-  static validateParams(params) {
-    return 'openPercent' in params && typeof params.openPercent === 'number';
+  get hasValidParams() {
+    return 'openPercent' in this.params && typeof this.params.openPercent === 'number';
   }
 
-  static convertParamsToValue(params, _, device) {
-    const itemType = this.getItemType(device);
+  convertParamsToValue() {
+    const itemType = this.itemType;
     if (itemType === 'Contact') {
       throw { statusCode: 400 };
     }
-    let openPercent = params.openPercent;
-    if (this.isInverted(device)) {
+    let openPercent = this.params.openPercent;
+    if (this.isInverted) {
       openPercent = 100 - openPercent;
     }
     if (itemType === 'Rollershutter') {
@@ -27,9 +27,9 @@ class OpenClose extends DefaultCommand {
     return openPercent.toString();
   }
 
-  static getResponseStates(params) {
+  getResponseStates() {
     return {
-      openPercent: params.openPercent
+      openPercent: this.params.openPercent
     };
   }
 }

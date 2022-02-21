@@ -34,6 +34,7 @@ app.onDisconnect(() => openHAB.onDisconnect());
 app.onExecute((body, headers) => openHAB.onExecute(body, headers));
 app.onQuery((body, headers) => openHAB.onQuery(body, headers));
 app.onSync((body, headers) => openHAB.onSync(body, headers));
+// @ts-ignore
 app.onStateReport = (req, res) => openHAB.onStateReport(req, res, homegraphClient);
 
 exports.openhabGoogleAssistant = app;

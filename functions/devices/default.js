@@ -1,75 +1,136 @@
 /* eslint-disable no-unused-vars */
+/// <reference path="../../typedefs.js" />
 const packageVersion = require('../package.json').version;
 
 class DefaultDevice {
-  static get type() {
+  /**
+   * @param {Item} item
+   */
+  constructor(item) {
+    this._item = item;
+    this._metadata = (item && item.metadata && item.metadata.ga) || { value: '', config: {} };
+  }
+
+  /**
+   * @returns {Item}
+   */
+  get item() {
+    return this._item;
+  }
+
+  /**
+   * @returns {Members}
+   */
+  get members() {
+    return this._members || this.getMembers();
+  }
+
+  /**
+   * @returns {Object}
+   */
+
+  get config() {
+    return this._metadata.config || {};
+  }
+
+  /**
+   * @returns {string}
+   */
+
+  get itemType() {
+    return (this._item.groupType || this._item.type || '').split(':')[0];
+  }
+
+  /**
+   * @returns {string}
+   */
+
+  get deviceType() {
+    return this._metadata.value || '';
+  }
+
+  /**
+   * @returns {boolean}
+   */
+
+  get validItemType() {
+    return !!(!this.requiredItemTypes.length || this.requiredItemTypes.includes(this.itemType));
+  }
+
+  /**
+   * @returns {boolean}
+   */
+  get validDeviceType() {
+    return !!(this.type.toLowerCase() === `action.devices.types.${this.deviceType}`.toLowerCase());
+  }
+
+  /**
+   * @returns {string}
+   */
+  get type() {
     return '';
   }
 
   /**
-   * @param {object} item
+   * @returns {string[]}
    */
-  static getTraits(item) {
-    return [];
-  }
-
-  static get requiredItemTypes() {
+  get traits() {
     return [];
   }
 
   /**
-   * @param {object} item
+   * @returns {string[]}
    */
-  static matchesDeviceType(item) {
-    return !!(
-      item.metadata &&
-      item.metadata.ga &&
-      this.type.toLowerCase() === `action.devices.types.${item.metadata.ga.value}`.toLowerCase()
-    );
+  get requiredItemTypes() {
+    return [];
   }
 
   /**
-   * @param {object} item
+   * @returns {Object}
    */
-  static matchesItemType(item) {
-    return !!(
-      !this.requiredItemTypes.length ||
-      this.requiredItemTypes.includes((item.groupType || item.type || '').split(':')[0])
-    );
-  }
-
-  /**
-   * @param {object} item
-   */
-  static getAttributes(item) {
+  get attributes() {
     return {};
   }
 
   /**
-   * @param {object} item
+   * @returns {SupportedMember[]}
    */
-  static getConfig(item) {
-    return (item && item.metadata && item.metadata.ga && item.metadata.ga.config) || {};
+  get supportedMembers() {
+    return [];
   }
 
   /**
-   * @param {object} item
+   * @returns {Object}
    */
-  static getMetadata(item) {
-    const config = this.getConfig(item);
-    const itemType = item.groupType || item.type;
-    const deviceName = config.name || item.label || item.name;
+  get state() {
+    return {};
+  }
+
+  /**
+   * @returns {Object}
+   */
+
+  getNotification() {
+    return {};
+  }
+
+  /**
+   * @returns {Metadata}
+   */
+  get metadata() {
+    const config = this.config;
+    const deviceName = config.name || this.item.label || this.item.name;
     const metadata = {
-      id: item.name,
+      id: this.item.name,
       type: this.type,
-      traits: this.getTraits(item),
+      traits: this.traits,
       name: {
         name: deviceName,
         defaultNames: [deviceName],
         nicknames: [
           deviceName,
-          ...(item.metadata && item.metadata.synonyms
-            ? item.metadata.synonyms.value.split(',').map((s) => s.trim())
+          ...(this.item.metadata && this.item.metadata.synonyms
+            ? this.item.metadata.synonyms.value.split(',').map((s) => s.trim())
             : [])
         ]
       },
@@ -79,14 +140,15 @@ class DefaultDevice {
       structureHint: config.structureHint,
       deviceInfo: {
         manufacturer: 'openHAB',
-        model: `${itemType}:${item.name}`,
+        model: `${this.itemType}:${this.item.name}`,
         hwVersion: '3.0.0',
         swVersion: packageVersion
       },
-      attributes: this.getAttributes(item),
+      attributes: this.attributes,
       customData: {
-        deviceType: this.name,
-        itemType: itemType
+        deviceType: this.constructor.name,
+        itemType: this.itemType,
+        members: {}
       }
     };
     if (config.inverted === true) {
@@ -105,8 +167,7 @@ class DefaultDevice {
       metadata.customData.waitForStateChange = parseInt(config.waitForStateChange);
     }
     if (this.supportedMembers.length) {
-      const members = this.getMembers(item);
-      metadata.customData.members = {};
+      const members = this.members;
       for (const member in members) {
         metadata.customData.members[member] = members[member].name;
       }
@@ -115,40 +176,24 @@ class DefaultDevice {
   }
 
   /**
-   * @param {object} item
+   * @returns {Members}
    */
-  static getState(item) {
-    return {};
-  }
-
-  /**
-   * @param {object} item
-   */
-  static getNotification(item) {
-    return {};
-  }
-
-  static get supportedMembers() {
-    return [];
-  }
-
-  static getMembers(item) {
-    const supportedMembers = this.supportedMembers;
-    const members = {};
-    if (item.members && item.members.length) {
-      item.members.forEach((member) => {
+  getMembers() {
+    this._members = {};
+    if (this.supportedMembers.length && this.item.members && this.item.members.length) {
+      this.item.members.forEach((member) => {
         if (member.metadata && member.metadata.ga) {
-          const memberType = supportedMembers.find((m) => {
+          const supportedMember = this.supportedMembers.find((m) => {
             const memberType = (member.groupType || member.type || '').split(':')[0];
             return m.types.includes(memberType) && member.metadata.ga.value.toLowerCase() === m.name.toLowerCase();
           });
-          if (memberType) {
-            members[memberType.name] = { name: member.name, state: member.state };
+          if (supportedMember) {
+            this._members[supportedMember.name] = { name: member.name, state: member.state };
           }
         }
       });
     }
-    return members;
+    return this._members;
   }
 }
 

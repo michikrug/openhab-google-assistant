@@ -1,24 +1,24 @@
 const Device = require('../../functions/devices/startstopswitch.js');
 
 describe('StartStopSwitch Device', () => {
-  test('matchesItemType', () => {
-    expect(Device.matchesItemType({ type: 'Switch' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'Dimmer' })).toBe(false);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'Switch' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'Dimmer' })).toBe(false);
+  test('validItemType', () => {
+    expect(new Device({ type: 'Switch' }).validItemType).toBe(true);
+    expect(new Device({ type: 'Dimmer' }).validItemType).toBe(false);
+    expect(new Device({ type: 'Group', groupType: 'Switch' }).validItemType).toBe(true);
+    expect(new Device({ type: 'Group', groupType: 'Dimmer' }).validItemType).toBe(false);
   });
 
-  test('getAttributes', () => {
-    expect(Device.getAttributes()).toStrictEqual({ pausable: false });
+  test('get attributes', () => {
+    expect(new Device({}).attributes).toStrictEqual({ pausable: false });
   });
 
-  describe('getState', () => {
-    test('getState', () => {
-      expect(Device.getState({ state: 'ON' })).toStrictEqual({
+  describe('get state', () => {
+    test('get state', () => {
+      expect(new Device({ state: 'ON' }).state).toStrictEqual({
         isRunning: true,
         isPaused: false
       });
-      expect(Device.getState({ state: 'OFF' })).toStrictEqual({
+      expect(new Device({ state: 'OFF' }).state).toStrictEqual({
         isRunning: false,
         isPaused: true
       });
@@ -29,18 +29,19 @@ describe('StartStopSwitch Device', () => {
         state: 'ON',
         metadata: {
           ga: {
+            value: '',
             config: {
               inverted: true
             }
           }
         }
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         isRunning: false,
         isPaused: true
       });
       item.state = 'OFF';
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         isRunning: true,
         isPaused: false
       });

@@ -22,28 +22,29 @@ describe('Default Device', () => {
     }
   };
 
-  test('matchesItemType', () => {
-    expect(Device.matchesItemType({ type: 'Number' })).toBe(true);
+  test('validItemType', () => {
+    expect(new Device({ type: 'Number' }).validItemType).toBe(true);
   });
 
-  test('getConfig', () => {
-    expect(Device.getConfig(item)).toStrictEqual({
+  test('get config', () => {
+    expect(new Device(item).config).toStrictEqual({
       ackNeeded: true,
       inverted: true,
       pinNeeded: '1234'
     });
   });
 
-  test('getState', () => {
-    expect(Device.getState(item)).toStrictEqual({});
+  test('get state', () => {
+    expect(new Device(item).state).toStrictEqual({});
   });
 
   test('getMetadata', () => {
-    expect(Device.getMetadata(item)).toStrictEqual({
+    expect(new Device(item).metadata).toStrictEqual({
       attributes: {},
       customData: {
         ackNeeded: true,
         deviceType: 'DefaultDevice',
+        members: {},
         inverted: true,
         itemType: 'Number',
         pinNeeded: '1234'
@@ -69,27 +70,28 @@ describe('Default Device', () => {
     });
   });
 
-  test('getMetadata legacy', () => {
-    const metadata = Device.getMetadata({
+  test('get metadata legacy', () => {
+    const metadata = new Device({
       metadata: {
         ga: {
+          value: '',
           config: {
             tfaAck: true,
             tfaPin: '1234'
           }
         }
       }
-    });
+    }).metadata;
     expect(metadata.customData.ackNeeded).toBe(true);
     expect(metadata.customData.pinNeeded).toBe('1234');
   });
 
-  test('getMetadata no label fallback', () => {
-    const metadata = Device.getMetadata({
+  test('get metadata no label fallback', () => {
+    const metadata = new Device({
       type: 'Number',
       state: '50',
       name: 'DefaultDevice'
-    });
+    }).metadata;
     expect(metadata.name.name).toBe('DefaultDevice');
   });
 });

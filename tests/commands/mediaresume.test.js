@@ -1,25 +1,26 @@
 const Command = require('../../functions/commands/mediaresume.js');
 
 describe('mediaResume Command', () => {
-  test('validateParams', () => {
-    expect(Command.validateParams({})).toBe(true);
+  test('hasValidParams', () => {
+    expect(new Command({}).hasValidParams).toBe(true);
   });
 
   test('getItemName', () => {
     const device = {
+      id: 'Item',
       customData: {
         members: {
           tvTransport: 'TransportItem'
         }
       }
     };
-    expect(Command.getItemName(device)).toBe('TransportItem');
+    expect(new Command({}, device).itemName).toBe('TransportItem');
     expect(() => {
-      Command.getItemName({ customData: { members: {} } });
+      new Command({}, { id: 'Item', customData: { members: {} } }).itemName();
     }).toThrow();
   });
 
   test('convertParamsToValue', () => {
-    expect(Command.convertParamsToValue()).toBe('PLAY');
+    expect(new Command().convertParamsToValue()).toBe('PLAY');
   });
 });

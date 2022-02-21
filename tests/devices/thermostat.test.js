@@ -1,18 +1,18 @@
 const Device = require('../../functions/devices/thermostat.js');
 
 describe('Thermostat Device', () => {
-  test('matchesDeviceType', () => {
+  test('validDeviceType', () => {
     expect(
-      Device.matchesDeviceType({
+      new Device({
         metadata: {
           ga: {
             value: 'THERMOSTAT'
           }
         }
-      })
+      }).validDeviceType
     ).toBe(false);
     expect(
-      Device.matchesDeviceType({
+      new Device({
         metadata: {
           ga: {
             value: 'THERMOSTAT'
@@ -28,13 +28,13 @@ describe('Thermostat Device', () => {
             }
           }
         ]
-      })
+      }).validDeviceType
     ).toBe(true);
   });
 
-  test('matchesItemType', () => {
-    expect(Device.matchesItemType({ type: 'Number' })).toBe(false);
-    expect(Device.matchesItemType({ type: 'Group' })).toBe(true);
+  test('validItemType', () => {
+    expect(new Device({ type: 'Number' }).validItemType).toBe(false);
+    expect(new Device({ type: 'Group' }).validItemType).toBe(true);
   });
 
   describe('useFahrenheit', () => {
@@ -42,47 +42,51 @@ describe('Thermostat Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'THERMOSTAT',
             config: {
               thermostatTemperatureUnit: 'F'
             }
           }
         }
       };
-      expect(Device.useFahrenheit(item)).toBe(true);
+      expect(new Device(item).useFahrenheit).toBe(true);
     });
     test('useFahrenheit useFahrenheit', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'THERMOSTAT',
             config: {
               useFahrenheit: true
             }
           }
         }
       };
-      expect(Device.useFahrenheit(item)).toBe(true);
+      expect(new Device(item).useFahrenheit).toBe(true);
     });
   });
 
-  describe('getAttributes', () => {
-    test('getAttributes no config', () => {
+  describe('get attributes', () => {
+    test('get attributes no config', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'THERMOSTAT',
             config: {}
           }
         }
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         availableThermostatModes: ['off', 'heat', 'cool', 'on', 'heatcool', 'auto', 'eco'],
         thermostatTemperatureUnit: 'C'
       });
     });
 
-    test('getAttributes modes, fahrenheit', () => {
+    test('get attributes modes, fahrenheit', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'THERMOSTAT',
             config: {
               modes: 'on=1,off=2',
               useFahrenheit: true
@@ -90,23 +94,24 @@ describe('Thermostat Device', () => {
           }
         }
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         availableThermostatModes: ['on', 'off'],
         thermostatTemperatureUnit: 'F'
       });
     });
 
-    test('getAttributes temperaturerange', () => {
+    test('get attributes temperaturerange', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'THERMOSTAT',
             config: {
               thermostatTemperatureRange: '10,30'
             }
           }
         }
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         availableThermostatModes: ['off', 'heat', 'cool', 'on', 'heatcool', 'auto', 'eco'],
         thermostatTemperatureUnit: 'C',
         thermostatTemperatureRange: {
@@ -116,26 +121,28 @@ describe('Thermostat Device', () => {
       });
     });
 
-    test('getAttributes invalid temperaturerange', () => {
+    test('get attributes invalid temperaturerange', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'THERMOSTAT',
             config: {
               thermostatTemperatureRange: 'a,b'
             }
           }
         }
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         availableThermostatModes: ['off', 'heat', 'cool', 'on', 'heatcool', 'auto', 'eco'],
         thermostatTemperatureUnit: 'C'
       });
     });
 
-    test('getAttributes queryOnly', () => {
+    test('get attributes queryOnly', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'THERMOSTAT',
             config: {}
           }
         },
@@ -150,7 +157,7 @@ describe('Thermostat Device', () => {
           }
         ]
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         thermostatTemperatureUnit: 'C',
         queryOnlyTemperatureSetting: true
       });
@@ -158,9 +165,9 @@ describe('Thermostat Device', () => {
   });
 
   describe('getMembers', () => {
-    expect(Device.getMembers({ members: [{}] })).toStrictEqual({});
-    expect(Device.getMembers({ members: [{ metadata: { ga: { value: 'invalid' } } }] })).toStrictEqual({});
-    test('getMembers', () => {
+    expect(new Device({ members: [{}] }).members).toStrictEqual({});
+    expect(new Device({ members: [{ metadata: { ga: { value: 'invalid' } } }] }).members).toStrictEqual({});
+    test('get members', () => {
       const item = {
         members: [
           {
@@ -225,7 +232,7 @@ describe('Thermostat Device', () => {
           }
         ]
       };
-      expect(Device.getMembers(item)).toStrictEqual({
+      expect(new Device(item).members).toStrictEqual({
         thermostatMode: {
           name: 'Mode',
           state: 'on'
@@ -254,22 +261,23 @@ describe('Thermostat Device', () => {
     });
   });
 
-  test('getModeMap', () => {
+  test('get modeMap', () => {
     const item = {
       metadata: {
         ga: {
+          value: 'THERMOSTAT',
           config: {
             modes: 'on=ON:1,off=OFF:2,auto=3'
           }
         }
       }
     };
-    expect(Device.getModeMap(item)).toStrictEqual({
+    expect(new Device(item).modeMap).toStrictEqual({
       on: ['ON', '1'],
       off: ['OFF', '2'],
       auto: ['3']
     });
-    expect(Device.getModeMap({})).toStrictEqual({
+    expect(new Device({}).modeMap).toStrictEqual({
       off: ['off'],
       heat: ['heat'],
       cool: ['cool'],
@@ -284,16 +292,17 @@ describe('Thermostat Device', () => {
     const item = {
       metadata: {
         ga: {
+          value: 'THERMOSTAT',
           config: {
             modes: 'on=ON:1,off=OFF:2,auto=3'
           }
         }
       }
     };
-    expect(Device.translateModeToOpenhab(item, 'off')).toBe('OFF');
-    expect(Device.translateModeToOpenhab(item, 'auto')).toBe('3');
+    expect(new Device(item).translateModeToOpenhab('off')).toBe('OFF');
+    expect(new Device(item).translateModeToOpenhab('auto')).toBe('3');
     expect(() => {
-      Device.translateModeToOpenhab(item, 'invalid');
+      new Device(item).translateModeToOpenhab('invalid');
     }).toThrow();
   });
 
@@ -301,19 +310,20 @@ describe('Thermostat Device', () => {
     const item = {
       metadata: {
         ga: {
+          value: 'THERMOSTAT',
           config: {
             modes: 'on=ON:1,off=OFF:2,auto=3'
           }
         }
       }
     };
-    expect(Device.translateModeToGoogle(item, 'OFF')).toBe('off');
-    expect(Device.translateModeToGoogle(item, '3')).toBe('auto');
-    expect(Device.translateModeToGoogle(item, 'invalid')).toBe('on');
+    expect(new Device(item).translateModeToGoogle('OFF')).toBe('off');
+    expect(new Device(item).translateModeToGoogle('3')).toBe('auto');
+    expect(new Device(item).translateModeToGoogle('invalid')).toBe('on');
   });
 
-  describe('getState', () => {
-    test('getState', () => {
+  describe('get state', () => {
+    test('get state', () => {
       const item = {
         members: [
           {
@@ -378,7 +388,7 @@ describe('Thermostat Device', () => {
           }
         ]
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         thermostatHumidityAmbient: 50,
         thermostatMode: 'on',
         thermostatTemperatureAmbient: 20,
@@ -392,6 +402,7 @@ describe('Thermostat Device', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'THERMOSTAT',
             config: {
               useFahrenheit: true
             }
@@ -410,7 +421,7 @@ describe('Thermostat Device', () => {
           }
         ]
       };
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         thermostatTemperatureAmbient: -6.7
       });
     });

@@ -2,46 +2,45 @@ const DefaultCommand = require('./default.js');
 const TV = require('../devices/tv.js');
 
 class VolumeRelative extends DefaultCommand {
-  static get type() {
+  get type() {
     return 'action.devices.commands.volumeRelative';
   }
 
-  static validateParams(params) {
-    return 'relativeSteps' in params && typeof params.relativeSteps === 'number';
+  get hasValidParams() {
+    return 'relativeSteps' in this.params && typeof this.params.relativeSteps === 'number';
   }
 
-  static requiresItem() {
+  get requiresItem() {
     return true;
   }
 
-  static getItemName(device) {
-    if (this.getDeviceType(device) === 'TV') {
-      const members = this.getMembers(device);
-      if ('tvVolume' in members) {
-        return members.tvVolume;
+  get itemName() {
+    if (this.deviceType === 'TV') {
+      if ('tvVolume' in this.members) {
+        return this.members.tvVolume;
       }
       throw { statusCode: 400 };
     }
-    return device.id;
+    return this.device.id;
   }
 
-  static convertParamsToValue(params, item, device) {
+  convertParamsToValue(item) {
     let state = item.state;
-    if (this.getDeviceType(device) === 'TV') {
-      const members = TV.getMembers(item);
+    if (this.deviceType === 'TV') {
+      const members = new TV(item).members;
       if ('tvVolume' in members) {
         state = members.tvVolume.state;
       } else {
         throw { statusCode: 400 };
       }
     }
-    let level = parseInt(state) + params.relativeSteps;
+    let level = parseInt(state) + this.params.relativeSteps;
     return (level < 0 ? 0 : level > 100 ? 100 : level).toString();
   }
 
-  static getResponseStates(params, item, device) {
+  getResponseStates(item) {
     return {
-      currentVolume: parseInt(this.convertParamsToValue(params, item, device))
+      currentVolume: parseInt(this.convertParamsToValue(item))
     };
   }
 }

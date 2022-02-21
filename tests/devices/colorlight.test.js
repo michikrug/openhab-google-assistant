@@ -1,37 +1,38 @@
 const Device = require('../../functions/devices/colorlight.js');
 
 describe('ColorLight Device', () => {
-  test('matchesDeviceType', () => {
+  test('validDeviceType', () => {
     expect(
-      Device.matchesDeviceType({
+      new Device({
         metadata: {
           ga: {
             value: 'LIGHT'
           }
         }
-      })
+      }).validDeviceType
     ).toBe(true);
   });
 
-  test('matchesItemType', () => {
-    expect(Device.matchesItemType({ type: 'Color' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'Dimmer' })).toBe(false);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'Color' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'Dimmer' })).toBe(false);
+  test('validItemType', () => {
+    expect(new Device({ type: 'Color' }).validItemType).toBe(true);
+    expect(new Device({ type: 'Dimmer' }).validItemType).toBe(false);
+    expect(new Device({ type: 'Group', groupType: 'Color' }).validItemType).toBe(true);
+    expect(new Device({ type: 'Group', groupType: 'Dimmer' }).validItemType).toBe(false);
   });
 
-  describe('getAttributes', () => {
-    test('getAttributes colorTemperatureRange', () => {
+  describe('get attributes', () => {
+    test('get attributes colorTemperatureRange', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'LIGHT',
             config: {
               colorTemperatureRange: '1000,2000'
             }
           }
         }
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         colorModel: 'hsv',
         colorTemperatureRange: {
           temperatureMinK: 1000,
@@ -40,24 +41,25 @@ describe('ColorLight Device', () => {
       });
     });
 
-    test('getAttributes invalid colorTemperatureRange', () => {
+    test('get attributes invalid colorTemperatureRange', () => {
       const item = {
         metadata: {
           ga: {
+            value: 'LIGHT',
             config: {
               colorTemperatureRange: 'a,b'
             }
           }
         }
       };
-      expect(Device.getAttributes(item)).toStrictEqual({
+      expect(new Device(item).attributes).toStrictEqual({
         colorModel: 'hsv'
       });
     });
   });
 
-  test('getState', () => {
-    expect(Device.getState({ state: '100,50,10' })).toStrictEqual({
+  test('get state', () => {
+    expect(new Device({ state: '100,50,10' }).state).toStrictEqual({
       on: true,
       brightness: 10,
       color: {

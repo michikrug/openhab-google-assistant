@@ -1,42 +1,47 @@
 const DefaultCommand = require('./default.js');
 
 class SetModes extends DefaultCommand {
-  static get type() {
+  get type() {
     return 'action.devices.commands.SetModes';
   }
 
-  static validateParams(params) {
-    return 'updateModeSettings' in params && typeof params.updateModeSettings === 'object';
+  get hasValidParams() {
+    return 'updateModeSettings' in this.params && typeof this.params.updateModeSettings === 'object';
   }
 
-  static getItemName(device) {
-    const deviceType = this.getDeviceType(device);
-    const members = this.getMembers(device);
-    if (deviceType.startsWith('DynamicModes')) {
-      if ('modesCurrentMode' in members) {
-        return members.modesCurrentMode;
+  get requiresItem() {
+    const deviceType = this.deviceType;
+    return (
+      (deviceType.startsWith('DynamicModes') || ['AirPurifier', 'Fan', 'Hood'].includes(deviceType)) && !this.hasMembers
+    );
+  }
+
+  get itemName() {
+    if (this.deviceType.startsWith('DynamicModes')) {
+      if ('modesCurrentMode' in this.members) {
+        return this.members.modesCurrentMode;
       }
       throw { statusCode: 400 };
     }
-    if (['AirPurifier', 'Fan', 'Hood'].includes(deviceType)) {
-      if ('fanMode' in members) {
-        return members.fanMode;
+    if (['AirPurifier', 'Fan', 'Hood'].includes(this.deviceType)) {
+      if ('fanMode' in this.members) {
+        return this.members.fanMode;
       }
       throw { statusCode: 400 };
     }
-    return device.id;
+    return this.device.id;
   }
 
-  static convertParamsToValue(params) {
-    const mode = Object.keys(params.updateModeSettings)[0];
-    return params.updateModeSettings[mode].toString();
+  convertParamsToValue() {
+    const mode = Object.keys(this.params.updateModeSettings)[0];
+    return this.params.updateModeSettings[mode].toString();
   }
 
-  static getResponseStates(params) {
-    const mode = Object.keys(params.updateModeSettings)[0];
+  getResponseStates() {
+    const mode = Object.keys(this.params.updateModeSettings)[0];
     return {
       currentModeSettings: {
-        [mode]: params.updateModeSettings[mode]
+        [mode]: this.params.updateModeSettings[mode]
       }
     };
   }

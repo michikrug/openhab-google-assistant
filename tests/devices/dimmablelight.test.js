@@ -1,31 +1,31 @@
 const Device = require('../../functions/devices/dimmablelight.js');
 
 describe('DimmableLight Device', () => {
-  test('matchesDeviceType', () => {
+  test('validDeviceType', () => {
     expect(
-      Device.matchesDeviceType({
+      new Device({
         metadata: {
           ga: {
             value: 'LIGHT'
           }
         }
-      })
+      }).validDeviceType
     ).toBe(true);
   });
 
-  test('matchesItemType', () => {
-    expect(Device.matchesItemType({ type: 'Dimmer' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'String' })).toBe(false);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'Dimmer' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'String' })).toBe(false);
+  test('validItemType', () => {
+    expect(new Device({ type: 'Dimmer' }).validItemType).toBe(true);
+    expect(new Device({ type: 'String' }).validItemType).toBe(false);
+    expect(new Device({ type: 'Group', groupType: 'Dimmer' }).validItemType).toBe(true);
+    expect(new Device({ type: 'Group', groupType: 'String' }).validItemType).toBe(false);
   });
 
-  test('getState', () => {
-    expect(Device.getState({ state: '50' })).toStrictEqual({
+  test('get state', () => {
+    expect(new Device({ state: '50' }).state).toStrictEqual({
       on: true,
       brightness: 50
     });
-    expect(Device.getState({ state: 'NULL' })).toStrictEqual({
+    expect(new Device({ state: 'NULL' }).state).toStrictEqual({
       on: false,
       brightness: 0
     });

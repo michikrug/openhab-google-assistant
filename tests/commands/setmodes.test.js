@@ -3,20 +3,19 @@ const Command = require('../../functions/commands/setmodes.js');
 describe('SetModes Command', () => {
   const params = { updateModeSettings: { mode: 'value' } };
 
-  test('validateParams', () => {
-    expect(Command.validateParams({})).toBe(false);
-    expect(Command.validateParams(params)).toBe(true);
+  test('hasValidParams', () => {
+    expect(new Command().hasValidParams).toBe(false);
+    expect(new Command(params).hasValidParams).toBe(true);
   });
 
   describe('getItemName', () => {
     test('getItemName', () => {
-      expect(Command.getItemName({ id: 'Item' })).toBe('Item');
-      expect(Command.getItemName({ id: 'Item', customData: {} })).toBe('Item');
+      expect(new Command({}, { id: 'Item' }).itemName).toBe('Item');
     });
 
     test('getItemName DynamicModesLight', () => {
       expect(() => {
-        Command.getItemName({ id: 'Item', customData: { deviceType: 'DynamicModesLight' } });
+        new Command({}, { id: 'Item', customData: { deviceType: 'DynamicModesLight' } }).itemName;
       }).toThrow();
       const device = {
         id: 'Item',
@@ -27,12 +26,12 @@ describe('SetModes Command', () => {
           }
         }
       };
-      expect(Command.getItemName(device)).toBe('CurrentMode');
+      expect(new Command({}, device).itemName).toBe('CurrentMode');
     });
 
     test('getItemName Fan', () => {
       expect(() => {
-        Command.getItemName({ name: 'Item', customData: { deviceType: 'Fan' } });
+        new Command({}, { id: 'Item', customData: { deviceType: 'Fan' } }).itemName;
       }).toThrow();
       const device = {
         id: 'Item',
@@ -43,16 +42,16 @@ describe('SetModes Command', () => {
           }
         }
       };
-      expect(Command.getItemName(device)).toBe('ModeItem');
+      expect(new Command({}, device).itemName).toBe('ModeItem');
     });
   });
 
   test('convertParamsToValue', () => {
-    expect(Command.convertParamsToValue(params)).toBe('value');
+    expect(new Command(params).convertParamsToValue()).toBe('value');
   });
 
   test('getResponseStates', () => {
-    expect(Command.getResponseStates(params)).toStrictEqual({
+    expect(new Command(params).getResponseStates()).toStrictEqual({
       currentModeSettings: { mode: 'value' }
     });
   });

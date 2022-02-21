@@ -1,33 +1,41 @@
 const DefaultDevice = require('./default.js');
 
 class Fan extends DefaultDevice {
-  static get type() {
+  get type() {
     return 'action.devices.types.FAN';
   }
 
-  static getTraits(item) {
+  get traits() {
     const traits = [];
-    const members = this.getMembers(item);
-    const itemType = item.groupType || item.type;
-    if (itemType === 'Dimmer' || 'fanPower' in members) traits.push('action.devices.traits.OnOff');
-    if (itemType === 'Dimmer' || 'fanSpeed' in members) traits.push('action.devices.traits.FanSpeed');
+    const members = this.members;
+    if (this.itemType === 'Dimmer' || 'fanPower' in members) traits.push('action.devices.traits.OnOff');
+    if (this.itemType === 'Dimmer' || 'fanSpeed' in members) traits.push('action.devices.traits.FanSpeed');
     if ('fanMode' in members) traits.push('action.devices.traits.Modes');
     if ('fanFilterLifeTime' in members || 'fanPM25' in members) traits.push('action.devices.traits.SensorState');
     return traits;
   }
 
-  static get requiredItemTypes() {
+  get requiredItemTypes() {
     return ['Group', 'Dimmer'];
   }
 
-  static matchesDeviceType(item) {
-    const itemType = item.groupType || item.type;
-    return super.matchesDeviceType(item) && (itemType === 'Dimmer' || Object.keys(this.getMembers(item)).length > 0);
+  get supportedMembers() {
+    return [
+      { name: 'fanPower', types: ['Switch'] },
+      { name: 'fanSpeed', types: ['Dimmer', 'Number'] },
+      { name: 'fanMode', types: ['Number', 'String'] },
+      { name: 'fanFilterLifeTime', types: ['Number'] },
+      { name: 'fanPM25', types: ['Number'] }
+    ];
   }
 
-  static getAttributes(item) {
-    const config = this.getConfig(item);
-    const members = this.getMembers(item);
+  get validDeviceType() {
+    return super.validDeviceType && (this.itemType === 'Dimmer' || Object.keys(this.members).length > 0);
+  }
+
+  get attributes() {
+    const config = this.config;
+    const members = this.members;
     const attributes = {};
     if (config.fanSpeeds) {
       attributes.availableFanSpeeds = {
@@ -118,17 +126,16 @@ class Fan extends DefaultDevice {
     return attributes;
   }
 
-  static getState(item) {
-    const itemType = item.groupType || item.type;
-    if (itemType === 'Dimmer') {
+  get state() {
+    if (this.itemType === 'Dimmer') {
       return {
-        currentFanSpeedSetting: item.state.toString(),
-        on: Number(item.state) > 0
+        currentFanSpeedSetting: this.item.state.toString(),
+        on: Number(this.item.state) > 0
       };
     } else {
       const state = {};
-      const config = this.getConfig(item);
-      const members = this.getMembers(item);
+      const config = this.config;
+      const members = this.members;
       if ('fanPower' in members) {
         state.on = members.fanPower.state === 'ON';
       } else if ('fanSpeed' in members) {
@@ -165,9 +172,9 @@ class Fan extends DefaultDevice {
     }
   }
 
-  static getNotification(item) {
-    const config = this.getConfig(item);
-    const members = this.getMembers(item);
+  getNotification() {
+    const config = this.config;
+    const members = this.members;
     if (
       'fanFilterLifeTime' in members &&
       Number(config.fanFilterLifeTimeNotification) >= Number(members.fanFilterLifeTime.state)
@@ -192,17 +199,13 @@ class Fan extends DefaultDevice {
     return {};
   }
 
-  static get supportedMembers() {
-    return [
-      { name: 'fanPower', types: ['Switch'] },
-      { name: 'fanSpeed', types: ['Dimmer', 'Number'] },
-      { name: 'fanMode', types: ['Number', 'String'] },
-      { name: 'fanFilterLifeTime', types: ['Number'] },
-      { name: 'fanPM25', types: ['Number'] }
-    ];
-  }
-
-  static translateFilterLifeTime(state) {
+  /**
+   * Translate the filter life time to a descriptive state
+   * @param {number} state - The filter life time in percent
+   * @return {string} - The descriptive state
+   * @private
+   */
+  translateFilterLifeTime(state) {
     const map = [
       { value: 'new', threshold: 90 },
       { value: 'good', threshold: 20 },

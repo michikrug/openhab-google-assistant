@@ -3,30 +3,31 @@ const Command = require('../../functions/commands/setinput.js');
 describe('SetInput Command', () => {
   const params = { newInput: 'hdmi1' };
 
-  test('validateParams', () => {
-    expect(Command.validateParams({})).toBe(false);
-    expect(Command.validateParams(params)).toBe(true);
+  test('hasValidParams', () => {
+    expect(new Command().hasValidParams).toBe(false);
+    expect(new Command(params).hasValidParams).toBe(true);
   });
 
   test('getItemName', () => {
     expect(() => {
-      Command.getItemName({ id: 'Item' });
+      new Command({}, { id: 'Item' }).itemName;
     }).toThrow();
     const device = {
+      id: 'Item',
       customData: {
         members: {
           tvInput: 'InputItem'
         }
       }
     };
-    expect(Command.getItemName(device)).toBe('InputItem');
+    expect(new Command({}, device).itemName).toBe('InputItem');
   });
 
   test('convertParamsToValue', () => {
-    expect(Command.convertParamsToValue(params)).toBe('hdmi1');
+    expect(new Command(params).convertParamsToValue()).toBe('hdmi1');
   });
 
   test('getResponseStates', () => {
-    expect(Command.getResponseStates(params)).toStrictEqual({ currentInput: 'hdmi1' });
+    expect(new Command(params).getResponseStates()).toStrictEqual({ currentInput: 'hdmi1' });
   });
 });

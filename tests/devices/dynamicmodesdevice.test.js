@@ -5,6 +5,7 @@ describe('DynamicModesDevice Device', () => {
     type: 'Group',
     metadata: {
       ga: {
+        value: '',
         config: {
           mode: 'mode_name,alternate_mode_name',
           ordered: true
@@ -35,26 +36,27 @@ describe('DynamicModesDevice Device', () => {
     ]
   };
 
-  test('matchesItemType', () => {
-    expect(Device.matchesItemType({ type: 'Color' })).toBe(false);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'Color' })).toBe(false);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'Dimmer' })).toBe(false);
+  test('validItemType', () => {
+    expect(new Device({ type: 'Color' }).validItemType).toBe(false);
+    expect(new Device({ type: 'Group', groupType: 'Color' }).validItemType).toBe(false);
+    expect(new Device({ type: 'Group', groupType: 'Dimmer' }).validItemType).toBe(false);
   });
 
-  describe('getAttributes', () => {
-    test('getAttributes no config', () => {
+  describe('get attributes', () => {
+    test('get attributes no config', () => {
       const invalid_item = {
         metadata: {
           ga: {
+            value: '',
             config: {}
           }
         }
       };
-      expect(Device.getAttributes(invalid_item)).toStrictEqual({});
+      expect(new Device(invalid_item).attributes).toStrictEqual({});
     });
 
-    test('getAttributes mode', () => {
-      expect(Device.getAttributes(item)).toStrictEqual({
+    test('get attributes mode', () => {
+      expect(new Device(item).attributes).toStrictEqual({
         availableModes: [
           {
             name: 'mode_name',
@@ -91,8 +93,8 @@ describe('DynamicModesDevice Device', () => {
     });
   });
 
-  test('getState', () => {
-    expect(Device.getState(item)).toStrictEqual({
+  test('get state', () => {
+    expect(new Device(item).state).toStrictEqual({
       currentModeSettings: {
         mode_name: 'mode_value'
       }

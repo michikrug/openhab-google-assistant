@@ -2,33 +2,32 @@ const DefaultCommand = require('./default.js');
 const Thermostat = require('../devices/thermostat.js');
 
 class ThermostatSetMode extends DefaultCommand {
-  static get type() {
+  get type() {
     return 'action.devices.commands.ThermostatSetMode';
   }
 
-  static validateParams(params) {
-    return 'thermostatMode' in params && typeof params.thermostatMode === 'string';
+  get hasValidParams() {
+    return 'thermostatMode' in this.params && typeof this.params.thermostatMode === 'string';
   }
 
-  static requiresItem() {
+  get requiresItem() {
     return true;
   }
 
-  static getItemName(device) {
-    const members = this.getMembers(device);
-    if ('thermostatMode' in members) {
-      return members.thermostatMode;
+  get itemName() {
+    if ('thermostatMode' in this.members) {
+      return this.members.thermostatMode;
     }
     throw { statusCode: 400 };
   }
 
-  static convertParamsToValue(params, item) {
-    return Thermostat.translateModeToOpenhab(item, params.thermostatMode);
+  convertParamsToValue(item) {
+    return new Thermostat(item).translateModeToOpenhab(this.params.thermostatMode);
   }
 
-  static getResponseStates(params, item) {
-    const states = Thermostat.getState(item);
-    states.thermostatMode = params.thermostatMode;
+  getResponseStates(item) {
+    const states = new Thermostat(item).state;
+    states.thermostatMode = this.params.thermostatMode;
     return states;
   }
 }

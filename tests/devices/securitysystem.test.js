@@ -2,18 +2,18 @@ const SecuritySystem = require('../../functions/devices/securitysystem.js');
 const Device = require('../../functions/devices/securitysystem.js');
 
 describe('SecuritySystem Device', () => {
-  test('matchesDeviceType', () => {
+  test('validDeviceType', () => {
     expect(
-      Device.matchesDeviceType({
+      new Device({
         metadata: {
           ga: {
             value: 'SECURITYSYSTEM'
           }
         }
-      })
+      }).validDeviceType
     ).toBe(false);
     expect(
-      Device.matchesDeviceType({
+      new Device({
         type: 'Group',
         members: [
           {
@@ -30,11 +30,11 @@ describe('SecuritySystem Device', () => {
             value: 'SECURITYSYSTEM'
           }
         }
-      })
+      }).validDeviceType
     ).toBe(true);
   });
 
-  test('matchesItemType', () => {
+  test('validItemType', () => {
     const item = {
       type: 'Group',
       members: [
@@ -48,20 +48,23 @@ describe('SecuritySystem Device', () => {
         }
       ]
     };
-    expect(Device.matchesItemType(item)).toBe(true);
-    expect(Device.matchesItemType({ type: 'Switch' })).toBe(false);
-    expect(Device.matchesItemType({ type: 'String' })).toBe(false);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'Switch' })).toBe(false);
-    expect(Device.matchesItemType({ type: 'Group', groupType: 'String' })).toBe(false);
+    expect(new Device(item).validItemType).toBe(true);
+    expect(new Device({ type: 'Switch' }).validItemType).toBe(false);
+    expect(new Device({ type: 'String' }).validItemType).toBe(false);
+    expect(new Device({ type: 'Group', groupType: 'Switch' }).validItemType).toBe(false);
+    expect(new Device({ type: 'Group', groupType: 'String' }).validItemType).toBe(false);
   });
 
-  test('getTraits', () => {
-    expect(Device.getTraits()).toStrictEqual(['action.devices.traits.ArmDisarm', 'action.devices.traits.StatusReport']);
+  test('get traits', () => {
+    expect(new Device({}).traits).toStrictEqual([
+      'action.devices.traits.ArmDisarm',
+      'action.devices.traits.StatusReport'
+    ]);
   });
 
-  describe('getState', () => {
+  describe('get state', () => {
     test('getState without armLevel', () => {
-      let device = {
+      const item = {
         type: 'Group',
         members: [
           {
@@ -75,20 +78,20 @@ describe('SecuritySystem Device', () => {
           }
         ]
       };
-      expect(Device.getState(device)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         currentStatusReport: [],
         isArmed: true
       });
 
-      device.members[0].state = 'OFF';
-      expect(Device.getState(device)).toStrictEqual({
+      item.members[0].state = 'OFF';
+      expect(new Device(item).state).toStrictEqual({
         currentStatusReport: [],
         isArmed: false
       });
     });
 
     test('getState without armed', () => {
-      let device = {
+      const item = {
         members: [
           {
             type: 'String',
@@ -101,18 +104,18 @@ describe('SecuritySystem Device', () => {
           }
         ]
       };
-      expect(Device.getState(device)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         isArmed: false
       });
 
-      device.members[0].state = 'OFF';
-      expect(Device.getState(device)).toStrictEqual({
+      item.members[0].state = 'OFF';
+      expect(new Device(item).state).toStrictEqual({
         isArmed: false
       });
     });
 
     test('getState with armLevel', () => {
-      let device = {
+      const item = {
         members: [
           {
             type: 'Switch',
@@ -134,14 +137,14 @@ describe('SecuritySystem Device', () => {
           }
         ]
       };
-      expect(Device.getState(device)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         isArmed: true,
         currentArmLevel: 'L1',
         currentStatusReport: []
       });
 
-      device.members[0].state = 'OFF';
-      expect(Device.getState(device)).toStrictEqual({
+      item.members[0].state = 'OFF';
+      expect(new Device(item).state).toStrictEqual({
         isArmed: false,
         currentStatusReport: []
       });
@@ -162,6 +165,7 @@ describe('SecuritySystem Device', () => {
         ],
         metadata: {
           ga: {
+            value: 'SECURITYSYSTEM',
             config: {
               inverted: true
             }
@@ -169,30 +173,32 @@ describe('SecuritySystem Device', () => {
         }
       };
 
-      expect(Device.getState(item)).toStrictEqual({
+      expect(new Device(item).state).toStrictEqual({
         isArmed: false,
         currentStatusReport: []
       });
     });
   });
 
-  describe('getAttributes', () => {
+  describe('get attributes', () => {
     test('just a switch with no config', () => {
-      let device = {
+      const item = {
         metadata: {
           ga: {
+            value: 'SECURITYSYSTEM',
             config: {}
           }
         }
       };
-      const attributes = Device.getAttributes(device);
+      const attributes = new Device(item).attributes;
       expect(attributes).toStrictEqual({});
     });
 
     test('no arm levels defined', () => {
-      let device = {
+      const item = {
         metadata: {
           ga: {
+            value: 'SECURITYSYSTEM',
             config: {
               lang: 'de',
               ordered: true
@@ -200,14 +206,15 @@ describe('SecuritySystem Device', () => {
           }
         }
       };
-      const attributes = Device.getAttributes(device);
+      const attributes = new Device(item).attributes;
       expect(attributes).toStrictEqual({});
     });
 
     test('armLevels, 1 level with lang and ordered set', () => {
-      let device = {
+      const item = {
         metadata: {
           ga: {
+            value: 'SECURITYSYSTEM',
             config: {
               armLevels: 'L1=Stay',
               lang: 'de',
@@ -216,14 +223,10 @@ describe('SecuritySystem Device', () => {
           }
         }
       };
-      const attributes = Device.getAttributes(device);
+      const attributes = new Device(item).attributes;
       expect(attributes.availableArmLevels).toBeDefined();
       expect(attributes.availableArmLevels.ordered).toBe(true);
-
-      expect(attributes.availableArmLevels.levels).toBeDefined();
-      const levels = attributes.availableArmLevels.levels;
-
-      expect(levels).toStrictEqual([
+      expect(attributes.availableArmLevels.levels).toStrictEqual([
         {
           level_name: 'L1',
           level_values: [
@@ -237,9 +240,10 @@ describe('SecuritySystem Device', () => {
     });
 
     test('armLevels, 1 level with default ordered value', () => {
-      let device = {
+      const item = {
         metadata: {
           ga: {
+            value: 'SECURITYSYSTEM',
             config: {
               armLevels: 'L1=Stay',
               lang: 'en'
@@ -247,27 +251,24 @@ describe('SecuritySystem Device', () => {
           }
         }
       };
-      const attributes = Device.getAttributes(device);
+      const attributes = new Device(item).attributes;
       expect(attributes.availableArmLevels).toBeDefined();
       expect(attributes.availableArmLevels.ordered).toBe(false);
     });
 
     test('armLevels, 1 level with default lang', () => {
-      let device = {
+      const item = {
         metadata: {
           ga: {
+            value: 'SECURITYSYSTEM',
             config: {
               armLevels: 'L1=Stay'
             }
           }
         }
       };
-      const attributes = Device.getAttributes(device);
-
-      expect(attributes.availableArmLevels.levels).toBeDefined();
-      const levels = attributes.availableArmLevels.levels;
-
-      expect(levels).toStrictEqual([
+      const attributes = new Device(item).attributes;
+      expect(attributes.availableArmLevels.levels).toStrictEqual([
         {
           level_name: 'L1',
           level_values: [
@@ -281,9 +282,10 @@ describe('SecuritySystem Device', () => {
     });
 
     test('armLevels, multiple levels', () => {
-      let device = {
+      const item = {
         metadata: {
           ga: {
+            value: 'SECURITYSYSTEM',
             config: {
               armLevels: 'L1=Stay,L2=Night,L3=Away',
               lang: 'en',
@@ -292,14 +294,10 @@ describe('SecuritySystem Device', () => {
           }
         }
       };
-      const attributes = Device.getAttributes(device);
+      const attributes = new Device(item).attributes;
       expect(attributes.availableArmLevels).toBeDefined();
       expect(attributes.availableArmLevels.ordered).toBe(true);
-
-      expect(attributes.availableArmLevels.levels).toBeDefined();
-      const levels = attributes.availableArmLevels.levels;
-
-      expect(levels).toStrictEqual([
+      expect(attributes.availableArmLevels.levels).toStrictEqual([
         {
           level_name: 'L1',
           level_values: [
@@ -339,7 +337,7 @@ describe('SecuritySystem Device', () => {
     const memberErrorCode = 'securitySystemTroubleCode';
 
     test('member without ga metadata', () => {
-      let device = {
+      const item = {
         members: [
           {
             name: 'armed',
@@ -357,15 +355,14 @@ describe('SecuritySystem Device', () => {
           }
         ]
       };
-      const members = Device.getMembers(device);
+      const members = new Device(item).members;
       let expectedMembers = {};
       expectedMembers[memberArmed] = { name: 'armed', state: 'ON', config: {} };
-
       expect(members).toStrictEqual(expectedMembers);
     });
 
     test('member with ga metadata but not an alarm item', () => {
-      let device = {
+      const item = {
         members: [
           {
             name: 'armed',
@@ -378,13 +375,13 @@ describe('SecuritySystem Device', () => {
           }
         ]
       };
-      const members = Device.getMembers(device);
+      const members = new Device(item).members;
       let expectedMembers = {};
       expect(members).toStrictEqual(expectedMembers);
     });
 
     test('all possible members defined with no extra config', () => {
-      let device = {
+      const item = {
         members: [
           {
             name: 'armed',
@@ -438,7 +435,7 @@ describe('SecuritySystem Device', () => {
           }
         ]
       };
-      const members = Device.getMembers(device);
+      const members = new Device(item).members;
       let expectedMembers = {};
       expectedMembers[memberArmed] = { name: 'armed', state: 'ON', config: {} };
       expectedMembers[memberArmLevel] = { name: 'armLevel', state: 'L1', config: {} };
@@ -449,7 +446,7 @@ describe('SecuritySystem Device', () => {
     });
 
     test('bare minimum members', () => {
-      let device = {
+      const item = {
         members: [
           {
             name: 'armed',
@@ -463,14 +460,14 @@ describe('SecuritySystem Device', () => {
           }
         ]
       };
-      const members = Device.getMembers(device);
+      const members = new Device(item).members;
       let expectedMembers = {};
       expectedMembers[memberArmed] = { name: 'armed', state: 'ON', config: {} };
       expect(members).toStrictEqual(expectedMembers);
     });
 
     test('zones with extra config', () => {
-      let device = {
+      const item = {
         members: [
           {
             name: 'zone1',
@@ -485,7 +482,7 @@ describe('SecuritySystem Device', () => {
           }
         ]
       };
-      const members = Device.getMembers(device);
+      const members = new Device(item).members;
       let expectedMembers = {};
       expectedMembers.zones = [{ name: 'zone1', state: 'OPEN', config: { zoneType: 'OpenClose' } }];
       expect(members).toStrictEqual(expectedMembers);
@@ -498,7 +495,7 @@ describe('SecuritySystem Device', () => {
     const memberErrorCode = 'securitySystemTroubleCode';
 
     test('trouble', () => {
-      let device = {
+      const item = {
         name: 'alarm',
         members: [
           {
@@ -523,7 +520,7 @@ describe('SecuritySystem Device', () => {
           }
         ]
       };
-      expect(Device.getStatusReport(device, Device.getMembers(device))).toStrictEqual([
+      expect(new Device(item).getStatusReport()).toStrictEqual([
         {
           blocking: false,
           deviceTarget: 'alarm',
@@ -534,7 +531,7 @@ describe('SecuritySystem Device', () => {
     });
 
     test('zones', () => {
-      let device = {
+      const item = {
         name: 'alarm',
         members: [
           {
@@ -582,7 +579,7 @@ describe('SecuritySystem Device', () => {
         ]
       };
 
-      expect(Device.getStatusReport(device, Device.getMembers(device))).toStrictEqual([
+      expect(new Device(item).getStatusReport()).toStrictEqual([
         {
           blocking: true,
           deviceTarget: 'zone1',

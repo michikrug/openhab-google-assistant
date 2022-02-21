@@ -1,19 +1,22 @@
 const DefaultCommand = require('./default.js');
 
 class MediaResume extends DefaultCommand {
-  static get type() {
+  get type() {
     return 'action.devices.commands.mediaResume';
   }
 
-  static getItemName(device) {
-    const members = this.getMembers(device);
-    if ('tvTransport' in members) {
-      return members.tvTransport;
+  get requiresItem() {
+    return !this.hasMembers;
+  }
+
+  get itemName() {
+    if ('tvTransport' in this.members) {
+      return this.members.tvTransport;
     }
     throw { statusCode: 400 };
   }
 
-  static convertParamsToValue() {
+  convertParamsToValue() {
     return 'PLAY';
   }
 }

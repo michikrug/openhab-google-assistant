@@ -1,27 +1,26 @@
 const DefaultDevice = require('./default.js');
 
 class Camera extends DefaultDevice {
-  static get type() {
+  get type() {
     return 'action.devices.types.CAMERA';
   }
 
-  static getTraits() {
+  get traits() {
     return ['action.devices.traits.CameraStream'];
   }
 
-  static getAttributes(item) {
-    const config = this.getConfig(item);
-    return {
-      cameraStreamSupportedProtocols: (config.protocols || 'hls,dash,smooth_stream,progressive_mp4')
-        .split(',')
-        .map((s) => s.trim()),
-      cameraStreamNeedAuthToken: config.token ? true : false,
-      cameraStreamNeedDrmEncryption: false
-    };
+  get requiredItemTypes() {
+    return ['String'];
   }
 
-  static get requiredItemTypes() {
-    return ['String'];
+  get attributes() {
+    return {
+      cameraStreamSupportedProtocols: (this.config.protocols || 'hls,dash,smooth_stream,progressive_mp4')
+        .split(',')
+        .map((s) => s.trim()),
+      cameraStreamNeedAuthToken: this.config.token === true,
+      cameraStreamNeedDrmEncryption: false
+    };
   }
 }
 

@@ -2,29 +2,29 @@ const DefaultCommand = require('./default.js');
 const SecuritySystem = require('../devices/securitysystem.js');
 
 class ArmDisarm extends DefaultCommand {
-  static get type() {
+  get type() {
     return 'action.devices.commands.ArmDisarm';
   }
 
-  static validateParams(params) {
-    return 'arm' in params && typeof params.arm === 'boolean';
+  get hasValidParams() {
+    return 'arm' in this.params && typeof this.params.arm === 'boolean';
   }
 
-  static convertParamsToValue(params, _, device) {
-    if (params.armLevel && this.getDeviceType(device) === 'SecuritySystem') {
-      return params.armLevel;
+  convertParamsToValue() {
+    if (this.params.armLevel && this.deviceType === 'SecuritySystem') {
+      return this.params.armLevel;
     }
-    let arm = params.arm;
-    if (this.isInverted(device)) {
+    let arm = this.params.arm;
+    if (this.isInverted) {
       arm = !arm;
     }
     return arm ? 'ON' : 'OFF';
   }
 
-  static getItemName(device, params) {
-    if (this.getDeviceType(device) === 'SecuritySystem') {
-      const members = this.getMembers(device);
-      if (params.armLevel) {
+  get itemName() {
+    if (this.deviceType === 'SecuritySystem') {
+      const members = this.members;
+      if (this.params.armLevel) {
         if (SecuritySystem.armLevelMemberName in members) {
           return members[SecuritySystem.armLevelMemberName];
         }
@@ -35,91 +35,92 @@ class ArmDisarm extends DefaultCommand {
       }
       throw { statusCode: 400 };
     }
-    return device.id;
+    return this.device.id;
   }
 
-  static requiresItem() {
+  get requiresItem() {
     return true;
   }
 
-  static bypassPin(device, params) {
-    return !!(device.customData && device.customData.pinOnDisarmOnly && (params.armLevel || params.arm));
+  get bypassPin() {
+    return !!(this.customData.pinOnDisarmOnly && (this.params.armLevel || this.params.arm));
   }
 
-  static getResponseStates(params) {
+  getResponseStates() {
     const response = {
-      isArmed: params.arm
+      isArmed: this.params.arm
     };
-    if (params.armLevel) {
-      response.currentArmLevel = params.armLevel;
+    if (this.params.armLevel) {
+      response.currentArmLevel = this.params.armLevel;
     }
     return response;
   }
 
-  static get requiresUpdateValidation() {
+  get requiresUpdateValidation() {
     return true;
   }
 
-  static validateStateChange(params, item, device) {
+  validateStateChange(item) {
     let isCurrentlyArmed;
     let currentLevel;
 
-    if (this.getDeviceType(device) === 'SecuritySystem') {
-      const members = SecuritySystem.getMembers(item);
+    if (this.deviceType === 'SecuritySystem') {
+      const members = new SecuritySystem(item).members;
       isCurrentlyArmed =
         (SecuritySystem.armedMemberName in members && members[SecuritySystem.armedMemberName].state) ===
-        (this.isInverted(device) ? 'OFF' : 'ON');
+        (this.isInverted ? 'OFF' : 'ON');
       currentLevel =
         (SecuritySystem.armLevelMemberName in members && members[SecuritySystem.armLevelMemberName].state) || undefined;
     } else {
-      isCurrentlyArmed = item.state === (this.isInverted(device) ? 'OFF' : 'ON');
+      isCurrentlyArmed = item.state === (this.isInverted ? 'OFF' : 'ON');
     }
 
-    if (params.armLevel && this.getDeviceType(device) === 'SecuritySystem') {
-      if (params.arm && isCurrentlyArmed && params.armLevel === currentLevel) {
+    if (this.params.armLevel && this.deviceType === 'SecuritySystem') {
+      if (this.params.arm && isCurrentlyArmed && this.params.armLevel === currentLevel) {
         throw { errorCode: 'alreadyInState' };
       }
       return true;
     }
 
-    if (params.arm && isCurrentlyArmed) {
+    if (this.params.arm && isCurrentlyArmed) {
       throw { errorCode: 'alreadyArmed' };
     }
 
-    if (!params.arm && !isCurrentlyArmed) {
+    if (!this.params.arm && !isCurrentlyArmed) {
       throw { errorCode: 'alreadyDisarmed' };
     }
 
     return true;
   }
 
-  static validateUpdate(params, item, device) {
-    if (this.getDeviceType(device) === 'SecuritySystem') {
-      const members = SecuritySystem.getMembers(item);
-      const isCurrentlyArmed =
-        members[SecuritySystem.armedMemberName].state === (this.isInverted(device) ? 'OFF' : 'ON');
+  // @ts-ignore
+  validateUpdate(item) {
+    if (this.deviceType === 'SecuritySystem') {
+      const securitySystem = new SecuritySystem(item);
+      const members = securitySystem.members;
+      const isCurrentlyArmed = members[SecuritySystem.armedMemberName].state === (this.isInverted ? 'OFF' : 'ON');
       const currentLevel =
         SecuritySystem.armLevelMemberName in members ? members[SecuritySystem.armLevelMemberName].state : '';
-      const armStatusSuccessful = params.arm === isCurrentlyArmed;
-      const armLevelSuccessful = params.armLevel ? params.armLevel === currentLevel : true;
+      const armStatusSuccessful = this.params.arm === isCurrentlyArmed;
+      const armLevelSuccessful = this.params.armLevel ? this.params.armLevel === currentLevel : true;
       if (!armStatusSuccessful || !armLevelSuccessful) {
-        if (!params.arm) {
+        if (!this.params.arm) {
           throw { errorCode: 'disarmFailure' };
         } else {
-          const report = SecuritySystem.getStatusReport(item, members);
+          const report = securitySystem.getStatusReport();
           if (report.length) {
             return {
-              ids: [device.id],
+              ids: [this.device.id],
               status: 'EXCEPTIONS',
-              states: Object.assign({ online: true, currentStatusReport: report }, SecuritySystem.getState(item))
+              states: Object.assign({ online: true, currentStatusReport: report }, securitySystem.state)
             };
           }
           throw { errorCode: 'armFailure' };
         }
       }
     } else {
-      if (params.arm !== (item.state === (this.isInverted(device) ? 'OFF' : 'ON'))) {
-        throw { errorCode: params.arm ? 'armFailure' : 'disarmFailure' };
+      if (this.params.arm !== (item.state === (this.isInverted ? 'OFF' : 'ON'))) {
+        throw { errorCode: this.params.arm ? 'armFailure' : 'disarmFailure' };
       }
     }
   }

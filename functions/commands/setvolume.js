@@ -29,6 +29,14 @@ class SetVolume extends DefaultCommand {
       currentVolume: params.volumeLevel
     };
   }
+
+  static checkCurrentState(target, state) {
+    if (target === state) {
+      throw {
+        errorCode: state === '100' ? 'volumeAlreadyMax' : state === '0' ? 'volumeAlreadyMin' : 'alreadyInState'
+      };
+    }
+  }
 }
 
 module.exports = SetVolume;

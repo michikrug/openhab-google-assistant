@@ -52,6 +52,12 @@ class OnOff extends DefaultCommand {
       on: params.on
     };
   }
+
+  static checkCurrentState(target, state, params) {
+    if (target === state) {
+      throw { errorCode: params.on ? 'alreadyOn' : 'alreadyOff' };
+    }
+  }
 }
 
 module.exports = OnOff;

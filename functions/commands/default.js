@@ -25,13 +25,16 @@ class DefaultCommand {
   }
 
   /**
-   * Is the requested new state valid
-   * @param {object} params Requested change params
-   * @param {object} item Current state of item
-   * @returns {boolean} true if state change is valid otherwise throws error
+   * Is the requested new state change valid?
+   * @param {string} target Requested change params
+   * @param {string} state Current state of item
+   * @param {object} params Parameters of the command
+   * @returns {void} returns if current state is different otherwise throws error
    */
-  static validateStateChange(params, item, device) {
-    return true;
+  static checkCurrentState(target, state, params) {
+    if (target === state) {
+      throw { errorCode: 'alreadyInState' };
+    }
   }
 
   static get requiresUpdateValidation() {
@@ -208,7 +211,6 @@ class DefaultCommand {
    * @param {object} challenge
    */
   static execute(apiHandler, devices, params, challenge) {
-    // console.log(`openhabGoogleAssistant - ${this.type}: ${JSON.stringify({ devices: devices, params: params })}`);
     const commandsResponse = [];
     const promises = devices.map((device) => {
       const authPinResponse = this.handleAuthPin(device, challenge, params);
@@ -223,14 +225,26 @@ class DefaultCommand {
         (device.customData.ackNeeded || device.customData.tfaAck) &&
         !(challenge && challenge.ack);
 
-      let getItemPromise = Promise.resolve({ name: device.id });
-      if (this.requiresItem(device) || ackWithState || this.requiresUpdateValidation) {
+      const shouldCheckState = device.customData && device.customData.checkState;
+
+      let getItemPromise = Promise.resolve({ name: device.id, state: null, members: [] });
+      if (this.requiresItem(device) || ackWithState || shouldCheckState) {
         getItemPromise = apiHandler.getItem(device.id);
       }
 
       return getItemPromise
         .then((item) => {
-          this.validateStateChange(params, item, device);
+          const targetItem = this.getItemName(device, params);
+          const targetValue = this.convertParamsToValue(params, item, device);
+          if (shouldCheckState) {
+            let currentState = item.state;
+            const members = this.getMembers(device);
+            if (members && item.members && item.members.length) {
+              const member = item.members.find((m) => m.name === targetItem);
+              currentState = member.state;
+            }
+            this.checkCurrentState(targetValue, currentState, params);
+          }
 
           const responseStates = this.getResponseStates(params, item, device);
           if (Object.keys(responseStates).length) {
@@ -243,8 +257,6 @@ class DefaultCommand {
             return;
           }
 
-          const targetItem = this.getItemName(device, params);
-          const targetValue = this.convertParamsToValue(params, item, device);
           let sendCommandPromise = Promise.resolve();
           if (typeof targetItem === 'string' && typeof targetValue === 'string') {
             sendCommandPromise = apiHandler.sendCommand(targetItem, targetValue, device.id);

@@ -37,6 +37,13 @@ class DefaultCommand {
     }
   }
 
+  /**
+   * @param {object} item
+   */
+  static getNormalizedState(item) {
+    return item.type.startsWith('Number:') ? item.state.split(' ')[0] : item.state;
+  }
+
   static get requiresUpdateValidation() {
     return false;
   }
@@ -237,11 +244,11 @@ class DefaultCommand {
           const targetItem = this.getItemName(device, params);
           const targetValue = this.convertParamsToValue(params, item, device);
           if (shouldCheckState) {
-            let currentState = item.state;
+            let currentState = this.getNormalizedState(item);
             const members = this.getMembers(device);
             if (members && item.members && item.members.length) {
               const member = item.members.find((m) => m.name === targetItem);
-              currentState = member.state;
+              currentState = this.getNormalizedState(member);
             }
             this.checkCurrentState(targetValue, currentState, params);
           }

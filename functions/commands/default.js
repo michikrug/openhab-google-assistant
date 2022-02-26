@@ -245,10 +245,9 @@ class DefaultCommand {
           const targetValue = this.convertParamsToValue(params, item, device);
           if (shouldCheckState) {
             let currentState = this.getNormalizedState(item);
-            const members = this.getMembers(device);
-            if (members && item.members && item.members.length) {
+            if (targetItem !== device.id && item.members && item.members.length) {
               const member = item.members.find((m) => m.name === targetItem);
-              currentState = this.getNormalizedState(member);
+              currentState = member ? this.getNormalizedState(member) : currentState;
             }
             this.checkCurrentState(targetValue, currentState, params);
           }

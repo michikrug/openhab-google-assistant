@@ -405,15 +405,15 @@ describe('Default Command', () => {
       test('execute with successful checkCurrentState with members', async () => {
         getItemMock.mockReturnValue(
           Promise.resolve({
-            name: 'TestItem',
+            name: 'Item1',
             type: 'Group',
             state: 'NULL',
             metadata: { ga: { value: 'TV' } },
-            members: [{ name: 'Item1', type: 'Switch', state: 'OFF', metadata: { ga: { value: 'tvPower' } } }]
+            members: [{ name: 'PowerItem', type: 'Switch', state: 'OFF', metadata: { ga: { value: 'tvPower' } } }]
           })
         );
         const devices = [{ id: 'Item1', customData: { checkState: true, members: { tvPower: 'Item1' } } }];
-        const result = await TestCommand1.execute(apiHandler, devices, { on: true });
+        const result = await TestCommand2.execute(apiHandler, devices, { on: true });
         expect(checkCurrentStateSpy).toHaveBeenCalledTimes(1);
         expect(checkCurrentStateSpy).toHaveBeenCalledWith('ON', 'OFF', { on: true });
         expect(getItemMock).toHaveBeenCalledTimes(1);
@@ -439,7 +439,7 @@ describe('Default Command', () => {
         ]);
       });
 
-      test('execute with failing checkCurrentState on group', async () => {
+      test('execute with failing checkCurrentState with members', async () => {
         const groupItem = {
           name: 'Item1',
           type: 'Group',

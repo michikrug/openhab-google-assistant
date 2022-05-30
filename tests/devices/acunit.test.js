@@ -195,7 +195,6 @@ describe('ACUnit Device', () => {
       };
       expect(Device.getState(item)).toStrictEqual({
         currentFanSpeedPercent: 20,
-        currentFanSpeedSetting: '20',
         on: true,
         thermostatHumidityAmbient: 50,
         thermostatMode: 'on',
@@ -203,6 +202,47 @@ describe('ACUnit Device', () => {
         thermostatTemperatureSetpoint: 20,
         thermostatTemperatureSetpointHigh: 25,
         thermostatTemperatureSetpointLow: 5
+      });
+    });
+
+    test('getState speeds', () => {
+      const item = {
+        metadata: {
+          ga: {
+            config: {
+              ordered: true,
+              fanSpeeds: '0=null:off,50=slow,100=full:fast',
+              lang: 'en'
+            }
+          }
+        },
+        members: [
+          {
+            name: 'FanSpeed',
+            state: '50',
+            type: 'Number',
+            metadata: {
+              ga: {
+                value: 'fanSpeed'
+              }
+            }
+          },
+          {
+            name: 'FanPower',
+            state: 'ON',
+            type: 'Switch',
+            metadata: {
+              ga: {
+                value: 'fanPower'
+              }
+            }
+          }
+        ]
+      };
+      expect(Device.getState(item)).toStrictEqual({
+        currentFanSpeedPercent: 50,
+        currentFanSpeedSetting: '50',
+        on: true
       });
     });
   });

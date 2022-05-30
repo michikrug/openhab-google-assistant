@@ -326,7 +326,7 @@ describe('Fan Device', () => {
   describe('getState', () => {
     test('getState Dimmer', () => {
       expect(Device.getState({ type: 'Dimmer', state: '50' })).toStrictEqual({
-        currentFanSpeedSetting: '50',
+        currentFanSpeedPercent: 50,
         on: true
       });
     });
@@ -362,7 +362,10 @@ describe('Fan Device', () => {
         type: 'Group',
         metadata: {
           ga: {
-            value: 'FAN'
+            value: 'FAN',
+            config: {
+              fanSpeeds: '0=null:off,50=slow,100=full:fast'
+            }
           }
         },
         members: [

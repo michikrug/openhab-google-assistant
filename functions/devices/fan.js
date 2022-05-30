@@ -117,12 +117,17 @@ class Fan extends DefaultDevice {
   }
 
   static getState(item) {
+    const config = this.getConfig(item);
     const itemType = item.groupType || item.type;
     if (itemType === 'Dimmer') {
-      return {
-        currentFanSpeedSetting: item.state.toString(),
+      const state = {
+        currentFanSpeedPercent: Number(item.state),
         on: Number(item.state) > 0
       };
+      if (config.fanSpeeds) {
+        state.currentFanSpeedSetting = item.state.toString();
+      }
+      return state;
     } else {
       const state = {};
       const config = this.getConfig(item);
@@ -133,8 +138,10 @@ class Fan extends DefaultDevice {
         state.on = Number(members.fanSpeed.state) > 0;
       }
       if ('fanSpeed' in members) {
-        state.currentFanSpeedSetting = members.fanSpeed.state.toString();
         state.currentFanSpeedPercent = Number(members.fanSpeed.state);
+        if (config.fanSpeeds) {
+          state.currentFanSpeedSetting = members.fanSpeed.state.toString();
+        }
       }
       if ('fanMode' in members && config.fanModeName && config.fanModeSettings) {
         const modeNames = config.fanModeName.split(',').map((s) => s.trim());

@@ -12,7 +12,7 @@ describe('OnOff Command', () => {
       expect(Command.getItemName({ id: 'Item', customData: {} })).toBe('Item');
     });
 
-    test('getItemName SpecialColorLight', () => {
+    test('getItemName DynamicModesLight', () => {
       expect(() => {
         Command.getItemName({ id: 'Item', customData: { deviceType: 'DynamicModesLight' } });
       }).toThrow();
@@ -76,6 +76,23 @@ describe('OnOff Command', () => {
       };
       expect(Command.getItemName(device)).toBe('PowerItem');
       expect(Command.getItemName({ id: 'Item', customData: { deviceType: 'Fan', itemType: 'Dimmer' } })).toBe('Item');
+    });
+
+    test('getItemName ACUnit', () => {
+      expect(() => {
+        Command.getItemName({ name: 'Item', customData: { deviceType: 'ACUnit', itemType: 'Group' } });
+      }).toThrow();
+      const device = {
+        id: 'Item',
+        customData: {
+          deviceType: 'ACUnit',
+          itemType: 'Group',
+          members: {
+            fanPower: 'PowerItem'
+          }
+        }
+      };
+      expect(Command.getItemName(device)).toBe('PowerItem');
     });
   });
 

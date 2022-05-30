@@ -11,7 +11,7 @@ class SetFanSpeed extends DefaultCommand {
 
   static getItemName(device) {
     const deviceType = this.getDeviceType(device);
-    if (['AirPurifier', 'Fan', 'Hood'].includes(deviceType) && this.getItemType(device) !== 'Dimmer') {
+    if (['AirPurifier', 'Fan', 'Hood', 'ACUnit'].includes(deviceType) && this.getItemType(device) !== 'Dimmer') {
       const members = this.getMembers(device);
       if ('fanSpeed' in members) {
         return members.fanSpeed;

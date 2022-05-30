@@ -34,7 +34,6 @@ class Fan extends DefaultDevice {
         speeds: [],
         ordered: config.ordered === true
       };
-      attributes.reversible = false;
       config.fanSpeeds.split(',').forEach((speedEntry) => {
         try {
           const [speedName, speedSynonyms] = speedEntry

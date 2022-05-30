@@ -30,6 +30,22 @@ describe('SetFanSpeed Command', () => {
       expect(Command.getItemName(device)).toBe('SpeedItem');
       expect(Command.getItemName({ id: 'Item', customData: { deviceType: 'Fan', itemType: 'Dimmer' } })).toBe('Item');
     });
+
+    test('getItemName ACUnit', () => {
+      expect(() => {
+        Command.getItemName({ id: 'Item', customData: { deviceType: 'ACUnit', itemType: 'Group' } });
+      }).toThrow();
+      const device = {
+        customData: {
+          deviceType: 'ACUnit',
+          itemType: 'Group',
+          members: {
+            fanSpeed: 'SpeedItem'
+          }
+        }
+      };
+      expect(Command.getItemName(device)).toBe('SpeedItem');
+    });
   });
 
   test('convertParamsToValue', () => {

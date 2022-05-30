@@ -29,6 +29,7 @@ class Fan extends DefaultDevice {
     const config = this.getConfig(item);
     const members = this.getMembers(item);
     const attributes = {};
+    attributes.supportsFanSpeedPercent = true;
     if (config.fanSpeeds) {
       attributes.availableFanSpeeds = {
         speeds: [],
@@ -53,8 +54,6 @@ class Fan extends DefaultDevice {
           //
         }
       });
-    } else {
-      attributes.supportsFanSpeedPercent = true;
     }
     if ('fanMode' in members && config.fanModeName && config.fanModeSettings) {
       const modeNames = config.fanModeName.split(',').map((s) => s.trim());
@@ -135,6 +134,7 @@ class Fan extends DefaultDevice {
       }
       if ('fanSpeed' in members) {
         state.currentFanSpeedSetting = members.fanSpeed.state.toString();
+        state.currentFanSpeedPercent = Number(members.fanSpeed.state);
       }
       if ('fanMode' in members && config.fanModeName && config.fanModeSettings) {
         const modeNames = config.fanModeName.split(',').map((s) => s.trim());

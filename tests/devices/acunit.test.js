@@ -86,7 +86,7 @@ describe('ACUnit Device', () => {
       'action.devices.traits.FanSpeed',
       'action.devices.traits.Modes',
       'action.devices.traits.SensorState',
-      "action.devices.traits.TemperatureSetting"
+      'action.devices.traits.TemperatureSetting'
     ]);
   });
 
@@ -194,6 +194,7 @@ describe('ACUnit Device', () => {
         ]
       };
       expect(Device.getState(item)).toStrictEqual({
+        currentFanSpeedPercent: 20,
         currentFanSpeedSetting: '20',
         on: true,
         thermostatHumidityAmbient: 50,

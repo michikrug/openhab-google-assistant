@@ -6,7 +6,10 @@ class SetFanSpeed extends DefaultCommand {
   }
 
   static validateParams(params) {
-    return 'fanSpeed' in params && typeof params.fanSpeed === 'string';
+    return (
+      ('fanSpeed' in params && typeof params.fanSpeed === 'string') ||
+      ('fanSpeedPercent' in params && typeof params.fanSpeedPercent === 'number')
+    );
   }
 
   static getItemName(device) {
@@ -22,12 +25,13 @@ class SetFanSpeed extends DefaultCommand {
   }
 
   static convertParamsToValue(params) {
-    return params.fanSpeed.toString();
+    return (params.fanSpeed || params.fanSpeedPercent).toString();
   }
 
   static getResponseStates(params) {
     return {
-      currentFanSpeedSetting: params.fanSpeed
+      currentFanSpeedSetting: (params.fanSpeed || params.fanSpeedPercent).toString(),
+      currentFanSpeedPercent: params.fanSpeedPercent || Number(params.fanSpeed)
     };
   }
 }

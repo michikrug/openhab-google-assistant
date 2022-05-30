@@ -8,10 +8,7 @@ class ACUnit extends DefaultDevice {
   }
 
   static getTraits(item) {
-    return [
-      ...Fan.getTraits(item),
-      ...Thermostat.getTraits()
-    ];
+    return [...Fan.getTraits(item), ...Thermostat.getTraits()];
   }
 
   static get requiredItemTypes() {
@@ -37,10 +34,7 @@ class ACUnit extends DefaultDevice {
   }
 
   static get supportedMembers() {
-    return [
-      ...Fan.supportedMembers,
-      ...Thermostat.supportedMembers
-    ];
+    return [...Fan.supportedMembers, ...Thermostat.supportedMembers];
   }
 }
 

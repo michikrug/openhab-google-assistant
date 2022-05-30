@@ -192,7 +192,8 @@ describe('Fan Device', () => {
             }
           ],
           ordered: true
-        }
+        },
+        supportsFanSpeedPercent: true
       });
     });
 
@@ -378,6 +379,7 @@ describe('Fan Device', () => {
         ]
       };
       expect(Device.getState(item)).toStrictEqual({
+        currentFanSpeedPercent: 50,
         currentFanSpeedSetting: '50',
         on: true
       });

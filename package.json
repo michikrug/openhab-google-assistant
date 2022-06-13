@@ -35,11 +35,11 @@
     "express": "^4.17.2"
   },
   "devDependencies": {
-    "@types/jest": "^27.4.0",
+    "@types/jest": "^28.1.1",
     "eslint": "^8.6.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "jest": "^27.4.5",
+    "jest": "^28.1.1",
     "nock": "^13.2.1",
     "prettier": "2.5.1"
   }

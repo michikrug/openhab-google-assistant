@@ -1,7 +1,7 @@
 ---
 layout: documentation
 title: Google Assistant
-source: https://github.com/openhab/openhab-google-assistant/blob/master/docs/USAGE.md
+source: https://github.com/openhab/openhab-google-assistant/blob/main/docs/USAGE.md
 description: "Google Assistant is Google's virtual personal assistant and uses Actions on Google as the platform for \"Actions\" (software applications) to extend the functionality of the Google Assistant."
 ---
 
@@ -66,17 +66,17 @@ Dimmer { ga="Light" }
 Color  { ga="Light" [ colorTemperatureRange="2000,9000" ] }
 ```
 
-#### `Light as Group with separate Color and Brightness`
+#### `Light as Group with separate Controls`
 
 | | |
 |---|---|
 | **Device Type** | [Light](https://developers.google.com/assistant/smarthome/guides/light) |
 | **Supported Traits** | [OnOff](https://developers.google.com/assistant/smarthome/traits/onoff), [ColorSetting](https://developers.google.com/assistant/smarthome/traits/colorsetting), [Brightness](https://developers.google.com/assistant/smarthome/traits/brightness) |
-| **Supported Items** | Group as `light` with the following members: (optional) Number or Dimmer as `lightBrightness`, (optional) Number or Dimmer as `lightColorTemperature`, (optional) Color as `lightColor`, (optional) Switch as `lightPower` |
-| **Configuration** | (optional) `useKelvin=true/false`<br>(optional) `checkState=true/false`<br>(optional) `colorTemperatureRange="minK,maxK"`<br>_Hint: if you want to use `lightColorTemperature` you either need to set `useKelvin=true` or `colorTemperatureRange`_ |
+| **Supported Items** | Group as `SpecialColorLight` with the following members: (optional) Number or Dimmer as `lightBrightness`, (optional) Number or Dimmer as `lightColorTemperature`, (optional) Color as `lightColor`, (optional) Switch as `lightPower` |
+| **Configuration** | (optional) `colorUnit=percent/kelvin/mired`<br>(optional) `checkState=true/false`<br>(optional) `colorTemperatureRange="minK,maxK"`<br>_Hint: if you want to use `lightColorTemperature` you either need to set `colorUnit` to `kelvin` or `mired` or define a `colorTemperatureRange` as `colorUnit` defaults to `percent`_ |
 
 ```shell
-Group  lightGroup { ga="Light" [ useKelvin=true, colorTemperatureRange="2000,9000" ] }
+Group  lightGroup { ga="SpecialColorLight" [ colorUnit="kelvin", colorTemperatureRange="2000,9000" ] }
 Switch powerItem            (lightGroup) { ga="lightPower" }
 Dimmer brightnessItem       (lightGroup) { ga="lightBrightness" }
 Color  colorItem            (lightGroup) { ga="lightColor" }

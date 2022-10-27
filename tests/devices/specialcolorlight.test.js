@@ -5,7 +5,7 @@ describe('SpecialColorLight Device', () => {
     const item1 = {
       metadata: {
         ga: {
-          value: 'LIGHT',
+          value: 'SpecialColorLight',
           config: {
             colorTemperatureRange: '1000,4000'
           }
@@ -33,7 +33,7 @@ describe('SpecialColorLight Device', () => {
     const item2 = {
       metadata: {
         ga: {
-          value: 'LIGHT'
+          value: 'SpecialColorLight'
         }
       },
       members: [
@@ -58,9 +58,9 @@ describe('SpecialColorLight Device', () => {
     const item3 = {
       metadata: {
         ga: {
-          value: 'LIGHT',
+          value: 'SpecialColorLight',
           config: {
-            useKelvin: true
+            colorUnit: 'kelvin'
           }
         }
       },
@@ -86,7 +86,7 @@ describe('SpecialColorLight Device', () => {
     const item4 = {
       metadata: {
         ga: {
-          value: 'LIGHT'
+          value: 'SpecialColorLight'
         }
       },
       members: [
@@ -111,7 +111,7 @@ describe('SpecialColorLight Device', () => {
     const item5 = {
       metadata: {
         ga: {
-          value: 'LIGHT'
+          value: 'SpecialColorLight'
         }
       },
       members: [
@@ -136,7 +136,36 @@ describe('SpecialColorLight Device', () => {
     const item6 = {
       metadata: {
         ga: {
-          value: 'LIGHT'
+          value: 'SpecialColorLight'
+        }
+      },
+      members: [
+        {
+          type: 'Number',
+          metadata: {
+            ga: {
+              value: 'lightBrightness'
+            }
+          }
+        },
+        {
+          type: 'Number',
+          metadata: {
+            ga: {
+              value: 'lightColorTemperature'
+            }
+          }
+        }
+      ]
+    };
+    const item7 = {
+      type: 'Group',
+      metadata: {
+        ga: {
+          value: 'SpecialColorLight',
+          config: {
+            colorUnit: 'mired'
+          }
         }
       },
       members: [
@@ -164,6 +193,7 @@ describe('SpecialColorLight Device', () => {
     expect(Device.matchesDeviceType(item4)).toBe(true);
     expect(Device.matchesDeviceType(item5)).toBe(true);
     expect(Device.matchesDeviceType(item6)).toBe(false);
+    expect(Device.matchesDeviceType(item7)).toBe(true);
   });
 
   test('matchesItemType', () => {
@@ -205,6 +235,25 @@ describe('SpecialColorLight Device', () => {
       expect(Device.getAttributes(item1)).toStrictEqual({});
     });
 
+    test('getAttributes colorTemperatureRange with mired', () => {
+      const item = {
+        metadata: {
+          ga: {
+            config: {
+              colorUnit: 'mired',
+              colorTemperatureRange: '250,454'
+            }
+          }
+        }
+      };
+      expect(Device.getAttributes(item)).toStrictEqual({
+        colorTemperatureRange: {
+          temperatureMinK: 2203,
+          temperatureMaxK: 4000
+        }
+      });
+    });
+
     test('getAttributes color', () => {
       const item = {
         metadata: {
@@ -243,7 +292,7 @@ describe('SpecialColorLight Device', () => {
         ga: {
           config: {
             colorTemperatureRange: '1000,2000',
-            useKelvin: true
+            colorUnit: 'kelvin'
           }
         }
       }
@@ -256,7 +305,7 @@ describe('SpecialColorLight Device', () => {
       deviceType: 'SpecialColorLight',
       itemType: 'Group',
       members: {},
-      useKelvin: true
+      colorUnit: 'kelvin'
     });
   });
 
@@ -309,7 +358,7 @@ describe('SpecialColorLight Device', () => {
           ga: {
             value: 'LIGHT',
             config: {
-              useKelvin: true
+              colorUnit: 'kelvin'
             }
           }
         },
@@ -339,6 +388,47 @@ describe('SpecialColorLight Device', () => {
         brightness: 50,
         color: {
           temperatureK: 2000
+        }
+      });
+    });
+
+    test('getState mired', () => {
+      const item = {
+        type: 'Group',
+        metadata: {
+          ga: {
+            value: 'LIGHT',
+            config: {
+              colorUnit: 'mired'
+            }
+          }
+        },
+        members: [
+          {
+            state: '50',
+            type: 'Number',
+            metadata: {
+              ga: {
+                value: 'lightBrightness'
+              }
+            }
+          },
+          {
+            state: '200',
+            type: 'Number',
+            metadata: {
+              ga: {
+                value: 'lightColorTemperature'
+              }
+            }
+          }
+        ]
+      };
+      expect(Device.getState(item)).toStrictEqual({
+        on: true,
+        brightness: 50,
+        color: {
+          temperatureK: 5000
         }
       });
     });
@@ -380,48 +470,6 @@ describe('SpecialColorLight Device', () => {
         brightness: 0,
         color: {
           temperatureK: 3400
-        }
-      });
-    });
-
-    test('getState use kelvin', () => {
-      const item = {
-        type: 'Group',
-        metadata: {
-          ga: {
-            value: 'LIGHT',
-            config: {
-              colorTemperatureRange: '1000,4000',
-              useKelvin: true
-            }
-          }
-        },
-        members: [
-          {
-            state: '50',
-            type: 'Number',
-            metadata: {
-              ga: {
-                value: 'lightBrightness'
-              }
-            }
-          },
-          {
-            state: '2000',
-            type: 'Number',
-            metadata: {
-              ga: {
-                value: 'lightColorTemperature'
-              }
-            }
-          }
-        ]
-      };
-      expect(Device.getState(item)).toStrictEqual({
-        on: true,
-        brightness: 50,
-        color: {
-          temperatureK: 2000
         }
       });
     });

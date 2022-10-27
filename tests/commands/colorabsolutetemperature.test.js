@@ -69,15 +69,13 @@ describe('ColorAbsoluteTemperature Command', () => {
     });
 
     test('convertParamsToValue SpecialColorLight Kelvin', () => {
-      expect(
-        Command.convertParamsToValue(
-          params,
-          {},
-          {
-            customData: { deviceType: 'SpecialColorLight', useKelvin: true }
-          }
-        )
-      ).toBe('2000');
+      const device = { customData: { deviceType: 'SpecialColorLight', colorUnit: 'kelvin' } };
+      expect(Command.convertParamsToValue(params, {}, device)).toBe('2000');
+    });
+
+    test('convertParamsToValue SpecialColorLight Mired', () => {
+      const device = { customData: { deviceType: 'SpecialColorLight', colorUnit: 'mired' } };
+      expect(Command.convertParamsToValue(params, {}, device)).toBe('500');
     });
   });
 

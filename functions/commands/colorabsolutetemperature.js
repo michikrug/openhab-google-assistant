@@ -1,6 +1,5 @@
 const DefaultCommand = require('./default.js');
-const rgb2hsv = require('../utilities.js').rgb2hsv;
-const kelvin2rgb = require('../utilities.js').kelvin2rgb;
+const { convertMired, convertRgbToHsv, convertKelvinToRgb } = require('../utilities.js');
 
 class ColorAbsoluteTemperature extends DefaultCommand {
   static get type() {
@@ -35,8 +34,12 @@ class ColorAbsoluteTemperature extends DefaultCommand {
     if (this.getDeviceType(device) === 'SpecialColorLight') {
       try {
         const customData = device.customData || {};
-        if (customData.useKelvin) {
+        const colorUnit = customData.colorUnit;
+        if (colorUnit === 'kelvin') {
           return params.color.temperature.toString();
+        }
+        if (colorUnit === 'mired') {
+          return convertMired(params.color.temperature).toString();
         }
         const { temperatureMinK, temperatureMaxK } = customData.colorTemperatureRange;
         return (
@@ -47,7 +50,7 @@ class ColorAbsoluteTemperature extends DefaultCommand {
         return '0';
       }
     }
-    const hsv = rgb2hsv(kelvin2rgb(params.color.temperature));
+    const hsv = convertRgbToHsv(convertKelvinToRgb(params.color.temperature));
     const hsvArray = item.state.split(',').map((val) => Number(val));
     return [Math.round(hsv.hue * 100) / 100, Math.round(hsv.saturation * 1000) / 10, hsvArray[2]].join(',');
   }

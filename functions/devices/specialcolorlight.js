@@ -1,4 +1,5 @@
 const DefaultDevice = require('./default.js');
+const convertMired = require('../utilities.js').convertMired;
 
 class SpecialColorLight extends DefaultDevice {
   static get type() {
@@ -16,10 +17,10 @@ class SpecialColorLight extends DefaultDevice {
   static matchesDeviceType(item) {
     const members = this.getMembers(item);
     return !!(
-      super.matchesDeviceType(item) &&
+      item.metadata && item.metadata.ga && item.metadata.ga.value.toLowerCase() == 'specialcolorlight' &&
       Object.keys(members).length > 1 &&
       (!('lightColorTemperature' in members) ||
-        this.useKelvin(item) ||
+        this.getColorUnit(item) !== 'percent' ||
         !!this.getAttributes(item).colorTemperatureRange)
     );
   }
@@ -34,9 +35,10 @@ class SpecialColorLight extends DefaultDevice {
     if ('colorTemperatureRange' in config) {
       const [min, max] = config.colorTemperatureRange.split(',').map((s) => Number(s.trim()));
       if (!isNaN(min) && !isNaN(max)) {
+        const colorUnit = this.getColorUnit(item);
         attributes.colorTemperatureRange = {
-          temperatureMinK: min,
-          temperatureMaxK: max
+          temperatureMinK: colorUnit === 'mired' ? convertMired(max) : min,
+          temperatureMaxK: colorUnit === 'mired' ? convertMired(min) : max
         };
       }
     }
@@ -46,7 +48,7 @@ class SpecialColorLight extends DefaultDevice {
   static getMetadata(item) {
     const metadata = super.getMetadata(item);
     metadata.customData.colorTemperatureRange = this.getAttributes(item).colorTemperatureRange;
-    metadata.customData.useKelvin = this.useKelvin(item);
+    metadata.customData.colorUnit = this.getColorUnit(item);
     return metadata;
   }
 
@@ -85,9 +87,14 @@ class SpecialColorLight extends DefaultDevice {
             break;
           }
           try {
-            if (this.useKelvin(item)) {
+            const colorUnit = this.getColorUnit(item);
+            if (colorUnit === 'kelvin') {
               state.color = {
                 temperatureK: Number(members[member].state)
+              };
+            } else if (colorUnit === 'mired') {
+              state.color = {
+                temperatureK: convertMired(Number(members[member].state))
               };
             } else {
               const { temperatureMinK, temperatureMaxK } = this.getAttributes(item).colorTemperatureRange;
@@ -115,8 +122,9 @@ class SpecialColorLight extends DefaultDevice {
     ];
   }
 
-  static useKelvin(item) {
-    return this.getConfig(item).useKelvin === true;
+  static getColorUnit(item) {
+    const colorUnit = this.getConfig(item).colorUnit || 'percent';
+    return colorUnit.toLowerCase();
   }
 }
 

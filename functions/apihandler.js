@@ -138,7 +138,10 @@ class ApiHandler {
           }
         });
       });
-      req.on('error', reject);
+      req.on('error', (error) => {
+        console.error(`openhabGoogleAssistant - getItem: ERROR ${JSON.stringify(error)}`);
+        reject(error);
+      });
       req.end();
     });
   }
@@ -163,9 +166,12 @@ class ApiHandler {
         }
         delete this._cache[itemName];
         delete this._cache[deviceId];
-        resolve();
+        resolve(null);
       });
-      req.on('error', reject);
+      req.on('error', (error) => {
+        console.error(`openhabGoogleAssistant - sendCommand: ERROR ${JSON.stringify(error)}`);
+        reject(error);
+      });
       req.write(payload);
       req.end();
     });

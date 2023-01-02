@@ -1,6 +1,6 @@
 {
   "name": "openhab.google-assistant-smarthome.cloud-function",
-  "version": "3.4.1",
+  "version": "3.5.2",
   "description": "A Google Assistant, Actions on Google based implementation for openHAB",
   "repository": {
     "type": "git",
@@ -12,9 +12,9 @@
   ],
   "license": "EPL-2.0",
   "dependencies": {
-    "@googleapis/homegraph": "^2.0.0",
+    "@googleapis/homegraph": "^4.0.0",
     "actions-on-google": "^3.0.0",
     "glob": "^8.0.3",
-    "uuid": "^8.3.2"
+    "uuid": "^9.0.0"
   }
 }

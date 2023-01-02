@@ -104,14 +104,8 @@ describe('ApiHandler', () => {
 
     test('getItem failed bad JSON', async () => {
       const scope = nock('https://example.org').get('/items/TestItem?metadata=ga,synonyms').reply(200, 'INVALID');
-      let error = {};
-      try {
-        apiHandler._cache = {};
-        await apiHandler.getItem('TestItem');
-      } catch (e) {
-        error = e;
-      }
-      expect(error).toStrictEqual({
+      apiHandler._cache = {};
+      await expect(apiHandler.getItem('TestItem')).rejects.toStrictEqual({
         message:
           // eslint-disable-next-line max-len
           'getItem - JSON parse failed for path: /items/TestItem?metadata=ga,synonyms - SyntaxError: Unexpected token I in JSON at position 0',
@@ -139,18 +133,20 @@ describe('ApiHandler', () => {
       const scope = nock('https://example.org')
         .get('/items/?metadata=ga,synonyms&fields=groupNames,groupType,name,label,metadata,type,state')
         .reply(400, {});
-      let error = {};
-      try {
-        await apiHandler.getItems();
-      } catch (e) {
-        error = e;
-      }
-      expect(error).toStrictEqual({
+      await expect(apiHandler.getItems()).rejects.toStrictEqual({
         message:
           // eslint-disable-next-line max-len
           'getItem - failed for path: /items/?metadata=ga,synonyms&fields=groupNames,groupType,name,label,metadata,type,state',
         statusCode: 400
       });
+      expect(scope.isDone()).toBe(true);
+    });
+
+    test('getItems error', async () => {
+      const scope = nock('https://example.org')
+        .get('/items/?metadata=ga,synonyms&fields=groupNames,groupType,name,label,metadata,type,state')
+        .replyWithError('could not reach server');
+      await expect(apiHandler.getItems()).rejects.toThrowError('could not reach server');
       expect(scope.isDone()).toBe(true);
     });
   });
@@ -165,22 +161,24 @@ describe('ApiHandler', () => {
         .post('/items/TestItem')
         .reply(200, [{ name: 'TestItem' }]);
       const result = await apiHandler.sendCommand('TestItem', 'OFF', 'TestItem');
-      expect(result).toBeUndefined();
+      expect(result).toBeNull();
       expect(scope.isDone()).toBe(true);
     });
 
     test('sendCommand failed', async () => {
       const scope = nock('https://example.org').post('/items/TestItem').reply(400, {});
-      let error = {};
-      try {
-        await apiHandler.sendCommand('TestItem', 'OFF', 'TestItem');
-      } catch (e) {
-        error = e;
-      }
-      expect(error).toStrictEqual({
+      await expect(apiHandler.sendCommand('TestItem', 'OFF', 'TestItem')).rejects.toStrictEqual({
         message: 'sendCommand - failed for path: /items/TestItem',
         statusCode: 400
       });
+      expect(scope.isDone()).toBe(true);
+    });
+
+    test('sendCommand error', async () => {
+      const scope = nock('https://example.org').post('/items/TestItem').replyWithError('could not reach server');
+      await expect(apiHandler.sendCommand('TestItem', 'OFF', 'TestItem')).rejects.toThrowError(
+        'could not reach server'
+      );
       expect(scope.isDone()).toBe(true);
     });
   });

@@ -317,13 +317,13 @@ describe('SpecialColorLight Device', () => {
           ga: {
             value: 'LIGHT',
             config: {
-              colorTemperatureRange: '1000,4000'
+              colorTemperatureRange: '1234,4567'
             }
           }
         },
         members: [
           {
-            state: '50',
+            state: '50.421',
             type: 'Number',
             metadata: {
               ga: {
@@ -332,7 +332,7 @@ describe('SpecialColorLight Device', () => {
             }
           },
           {
-            state: '20',
+            state: '23',
             type: 'Number',
             metadata: {
               ga: {
@@ -346,7 +346,7 @@ describe('SpecialColorLight Device', () => {
         on: true,
         brightness: 50,
         color: {
-          temperatureK: 3400
+          temperatureK: 3800
         }
       });
     });
@@ -373,7 +373,7 @@ describe('SpecialColorLight Device', () => {
             }
           },
           {
-            state: '2000',
+            state: '2000.345',
             type: 'Number',
             metadata: {
               ga: {

@@ -86,7 +86,7 @@ describe('TV Device', () => {
             }
           },
           {
-            state: 'PLAY',
+            state: 'PLAYING',
             type: 'Player',
             metadata: {
               ga: {
@@ -628,7 +628,7 @@ describe('TV Device', () => {
         },
         members: [
           {
-            state: '50',
+            state: '50.43',
             type: 'Number',
             metadata: {
               ga: {

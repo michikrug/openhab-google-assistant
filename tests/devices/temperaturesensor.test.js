@@ -83,7 +83,6 @@ describe('TemperatureSensor Device', () => {
 
   test('getState', () => {
     expect(Device.getState({ state: '10' })).toStrictEqual({
-      temperatureSetpointCelsius: 10,
       temperatureAmbientCelsius: 10
     });
     const item = {
@@ -97,7 +96,6 @@ describe('TemperatureSensor Device', () => {
       }
     };
     expect(Device.getState(item)).toStrictEqual({
-      temperatureSetpointCelsius: -12.2,
       temperatureAmbientCelsius: -12.2
     });
   });

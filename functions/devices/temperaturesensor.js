@@ -46,7 +46,6 @@ class TemperatureSensor extends DefaultDevice {
       state = convertFahrenheitToCelsius(state);
     }
     return {
-      temperatureSetpointCelsius: state,
       temperatureAmbientCelsius: state
     };
   }

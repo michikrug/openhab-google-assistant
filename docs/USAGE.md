@@ -369,16 +369,40 @@ Number capacityFullItem     (chargerGroup) { ga="chargerCapacityUntilFull" }
 | | |
 |---|---|
 | **Device Type** | [Sensor](https://developers.google.com/assistant/smarthome/guides/sensor) |
-| **Supported Traits** | [TemperatureControl](https://developers.google.com/assistant/smarthome/traits/temperaturecontrol) |
+| **Supported Traits** | [TemperatureSetting](https://developers.google.com/assistant/smarthome/traits/temperaturesetting) |
 | **Supported Items** | Number |
-| **Configuration** | (optional) `useFahrenheit=true/false`<br>(optional) `temperatureRange="-10,50"` |
-
-By default, the temperature range of a temperature sensor is set to -100 °C to 100 °C.
-The reported state values have to fall into that range!
-If you need to adjust the range, please add the config option `temperatureRange="-20,40"` to the item. Keep in mind that those values always have to be provided in Celsius!
+| **Configuration** | (optional) `useFahrenheit=true/false` |
 
 ```shell
-Number { ga="TemperatureSensor" [ useFahrenheit=true, temperatureRange="-20,40" ] }
+Number { ga="TemperatureSensor" [ useFahrenheit=true ] }
+```
+
+### HumiditySensor
+
+| | |
+|---|---|
+| **Device Type** | [Sensor](https://developers.google.com/assistant/smarthome/guides/sensor) |
+| **Supported Traits** | [TemperatureSetting](https://developers.google.com/assistant/smarthome/traits/temperaturesetting) |
+| **Supported Items** | Number |
+| **Configuration** | |
+
+```shell
+Number { ga="HumiditySensor" }
+```
+
+### ClimateSensor
+
+| | |
+|---|---|
+| **Device Type** | [Sensor](https://developers.google.com/assistant/smarthome/guides/sensor) |
+| **Supported Traits** | [TemperatureSetting](https://developers.google.com/assistant/smarthome/traits/temperaturesetting) |
+| **Supported Items** | Group as `ClimateSensor` with the following members:<br>(optional) Number as `thermostatHumidityAmbient`<br>(optional) Number as `thermostatTemperatureAmbient` |
+| **Configuration** | (optional) `useFahrenheit=true/false` |
+
+```shell
+Group  sensorGroup { ga="ClimateSensor" [ useFahrenheit=true ] }
+Number temperatureItem (sensorGroup) { ga="thermostatTemperatureAmbient" }
+Number humidityItem    (sensorGroup) { ga="thermostatHumidityAmbient" }
 ```
 
 ### Thermostat
@@ -406,7 +430,7 @@ However, it is recommended to prefer the `TemperatureSensor` type for simple tem
 
 ```shell
 Group  thermostatGroup { ga="Thermostat" [ modes="off=OFF:WINDOW_OPEN,heat=COMFORT:BOOST,eco=ECO,on=ON,auto", thermostatTemperatureRange="10,30", useFahrenheit=false ] }
-Number ambientItem      (thermostatGroup) { ga="thermostatTemperatureAmbient" }
+Number temperatureItem  (thermostatGroup) { ga="thermostatTemperatureAmbient" }
 Number humidityItem     (thermostatGroup) { ga="thermostatHumidityAmbient" }
 Number setpointItem     (thermostatGroup) { ga="thermostatTemperatureSetpoint" }
 Number setpointItemLow  (thermostatGroup) { ga="thermostatTemperatureSetpointLow" }

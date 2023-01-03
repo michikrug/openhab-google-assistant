@@ -136,6 +136,9 @@ class DefaultDevice {
     return {};
   }
 
+  /**
+   * @returns {Array<object>}
+   */
   static get supportedMembers() {
     return [];
   }

@@ -7,29 +7,14 @@ class TemperatureSensor extends DefaultDevice {
   }
 
   static getTraits() {
-    return ['action.devices.traits.TemperatureControl'];
+    return ['action.devices.traits.TemperatureSetting'];
   }
 
   static getAttributes(item) {
-    const config = this.getConfig(item);
-    const attributes = {
-      queryOnlyTemperatureControl: true,
-      temperatureUnitForUX: config.useFahrenheit === true ? 'F' : 'C',
-      temperatureRange: {
-        minThresholdCelsius: -100,
-        maxThresholdCelsius: 100
-      }
+    return {
+      queryOnlyTemperatureSetting: true,
+      thermostatTemperatureUnit: this.useFahrenheit(item) ? 'F' : 'C'
     };
-    if ('temperatureRange' in config) {
-      const [min, max] = config.temperatureRange.split(',').map((s) => parseFloat(s.trim()));
-      if (!isNaN(min) && !isNaN(max)) {
-        attributes.temperatureRange = {
-          minThresholdCelsius: min,
-          maxThresholdCelsius: max
-        };
-      }
-    }
-    return attributes;
   }
 
   static get requiredItemTypes() {
@@ -42,12 +27,17 @@ class TemperatureSensor extends DefaultDevice {
 
   static getState(item) {
     let state = Number(parseFloat(item.state).toFixed(1));
-    if (this.getConfig(item).useFahrenheit === true) {
+    if (this.useFahrenheit(item)) {
       state = convertFahrenheitToCelsius(state);
     }
     return {
-      temperatureAmbientCelsius: state
+      thermostatTemperatureAmbient: state
     };
+  }
+
+  static useFahrenheit(item) {
+    const config = this.getConfig(item);
+    return config.thermostatTemperatureUnit === 'F' || config.useFahrenheit === true;
   }
 }
 

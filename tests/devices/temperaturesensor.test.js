@@ -31,12 +31,8 @@ describe('TemperatureSensor Device', () => {
         }
       };
       expect(Device.getAttributes(item1)).toStrictEqual({
-        queryOnlyTemperatureControl: true,
-        temperatureUnitForUX: 'C',
-        temperatureRange: {
-          maxThresholdCelsius: 100,
-          minThresholdCelsius: -100
-        }
+        queryOnlyTemperatureSetting: true,
+        thermostatTemperatureUnit: 'C'
       });
     });
 
@@ -51,39 +47,15 @@ describe('TemperatureSensor Device', () => {
         }
       };
       expect(Device.getAttributes(item2)).toStrictEqual({
-        queryOnlyTemperatureControl: true,
-        temperatureUnitForUX: 'F',
-        temperatureRange: {
-          maxThresholdCelsius: 100,
-          minThresholdCelsius: -100
-        }
-      });
-    });
-
-    test('getAttributes temperatureRange', () => {
-      const item1 = {
-        metadata: {
-          ga: {
-            config: {
-              temperatureRange: '-20,40'
-            }
-          }
-        }
-      };
-      expect(Device.getAttributes(item1)).toStrictEqual({
-        queryOnlyTemperatureControl: true,
-        temperatureUnitForUX: 'C',
-        temperatureRange: {
-          maxThresholdCelsius: 40,
-          minThresholdCelsius: -20
-        }
+        queryOnlyTemperatureSetting: true,
+        thermostatTemperatureUnit: 'F'
       });
     });
   });
 
   test('getState', () => {
     expect(Device.getState({ state: '10' })).toStrictEqual({
-      temperatureAmbientCelsius: 10
+      thermostatTemperatureAmbient: 10
     });
     const item = {
       state: '10',
@@ -96,7 +68,7 @@ describe('TemperatureSensor Device', () => {
       }
     };
     expect(Device.getState(item)).toStrictEqual({
-      temperatureAmbientCelsius: -12.2
+      thermostatTemperatureAmbient: -12.2
     });
   });
 });

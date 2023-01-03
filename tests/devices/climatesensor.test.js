@@ -23,7 +23,7 @@ describe('ClimateSensor Device', () => {
             type: 'Number',
             metadata: {
               ga: {
-                value: 'thermostatTemperatureAmbient'
+                value: 'temperatureAmbient'
               }
             }
           }
@@ -42,30 +42,64 @@ describe('ClimateSensor Device', () => {
 
   describe('getAttributes', () => {
     test('getAttributes no config', () => {
-      const item1 = {
+      const item = {
         metadata: {
           ga: {
             config: {}
           }
         }
       };
-      expect(Device.getAttributes(item1)).toStrictEqual({
-        queryOnlyTemperatureSetting: true,
-        thermostatTemperatureUnit: 'C'
+      expect(Device.getAttributes(item)).toStrictEqual({});
+    });
+
+    test('getAttributes humidity', () => {
+      const item = {
+        metadata: {
+          ga: {
+            config: {}
+          }
+        },
+        members: [
+          {
+            name: 'Humidity',
+            state: '60',
+            type: 'Number',
+            metadata: {
+              ga: {
+                value: 'humidityAmbient'
+              }
+            }
+          }
+        ]
+      };
+      expect(Device.getAttributes(item)).toStrictEqual({
+        queryOnlyHumiditySetting: true
       });
     });
 
     test('getAttributes useFahrenheit', () => {
-      const item2 = {
+      const item = {
         metadata: {
           ga: {
             config: {
               useFahrenheit: true
             }
           }
-        }
+        },
+        members: [
+          {
+            name: 'Temperature',
+            state: '20',
+            type: 'Number',
+            metadata: {
+              ga: {
+                value: 'temperatureAmbient'
+              }
+            }
+          }
+        ]
       };
-      expect(Device.getAttributes(item2)).toStrictEqual({
+      expect(Device.getAttributes(item)).toStrictEqual({
         queryOnlyTemperatureSetting: true,
         thermostatTemperatureUnit: 'F'
       });
@@ -81,7 +115,7 @@ describe('ClimateSensor Device', () => {
           type: 'Number',
           metadata: {
             ga: {
-              value: 'thermostatTemperatureAmbient'
+              value: 'temperatureAmbient'
             }
           }
         },
@@ -91,7 +125,7 @@ describe('ClimateSensor Device', () => {
           type: 'Number',
           metadata: {
             ga: {
-              value: 'thermostatHumidityAmbient'
+              value: 'humidityAmbient'
             }
           }
         }
@@ -99,7 +133,7 @@ describe('ClimateSensor Device', () => {
     };
     expect(Device.getState(item1)).toStrictEqual({
       thermostatTemperatureAmbient: 20,
-      thermostatHumidityAmbient: 60
+      humidityAmbientPercent: 60
     });
     const item2 = {
       members: [
@@ -109,7 +143,7 @@ describe('ClimateSensor Device', () => {
           type: 'Number',
           metadata: {
             ga: {
-              value: 'thermostatTemperatureAmbient'
+              value: 'temperatureAmbient'
             }
           }
         }

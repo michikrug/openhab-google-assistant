@@ -24,14 +24,14 @@ describe('HumiditySensor Device', () => {
   describe('getAttributes', () => {
     test('getAttributes no config', () => {
       expect(Device.getAttributes()).toStrictEqual({
-        queryOnlyTemperatureSetting: true
+        queryOnlyHumiditySetting: true
       });
     });
   });
 
   test('getState', () => {
     expect(Device.getState({ state: '10' })).toStrictEqual({
-      thermostatHumidityAmbient: 10
+      humidityAmbientPercent: 10
     });
   });
 });

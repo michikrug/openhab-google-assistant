@@ -6,15 +6,23 @@ class ClimateSensor extends DefaultDevice {
     return 'action.devices.types.SENSOR';
   }
 
-  static getTraits() {
-    return ['action.devices.traits.TemperatureSetting'];
+  static getTraits(item) {
+    const traits = [];
+    const members = this.getMembers(item);x
+    if ('temperatureAmbient' in members) traits.push('action.devices.traits.TemperatureSetting');
+    if ('humidityAmbient' in members) traits.push('action.devices.traits.HumiditySetting');
+    return traits;
   }
 
   static getAttributes(item) {
-    return {
-      queryOnlyTemperatureSetting: true,
-      thermostatTemperatureUnit: this.useFahrenheit(item) === true ? 'F' : 'C'
-    };
+    const attributes = {};
+    const members = this.getMembers(item);
+    if ('temperatureAmbient' in members) {
+      attributes.queryOnlyTemperatureSetting = true;
+      attributes.thermostatTemperatureUnit = this.useFahrenheit(item) === true ? 'F' : 'C';
+    }
+    if ('humidityAmbient' in members) attributes.queryOnlyHumiditySetting = true;
+    return attributes;
   }
 
   static get requiredItemTypes() {
@@ -33,19 +41,23 @@ class ClimateSensor extends DefaultDevice {
   static getState(item) {
     const state = {};
     const members = this.getMembers(item);
-    for (const member in members) {
-      state[member] = Number(parseFloat(members[member].state).toFixed(1));
-      if (member === 'thermostatTemperatureAmbient' && this.useFahrenheit(item)) {
-        state[member] = convertFahrenheitToCelsius(state[member]);
+    if ('temperatureAmbient' in members) {
+      let temperature = Number(parseFloat(members['temperatureAmbient'].state).toFixed(1));
+      if (this.useFahrenheit(item)) {
+        temperature = convertFahrenheitToCelsius(temperature);
       }
+      state.thermostatTemperatureAmbient = temperature;
+    }
+    if ('humidityAmbient' in members) {
+      state.humidityAmbientPercent = Number(parseFloat(members['humidityAmbient'].state).toFixed(1));
     }
     return state;
   }
 
   static get supportedMembers() {
     return [
-      { name: 'thermostatTemperatureAmbient', types: ['Number'] },
-      { name: 'thermostatHumidityAmbient', types: ['Number'] }
+      { name: 'temperatureAmbient', types: ['Number'] },
+      { name: 'humidityAmbient', types: ['Number'] }
     ];
   }
 

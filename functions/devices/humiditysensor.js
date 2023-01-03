@@ -6,12 +6,12 @@ class HumiditySensor extends DefaultDevice {
   }
 
   static getTraits() {
-    return ['action.devices.traits.TemperatureSetting'];
+    return ['action.devices.traits.HumiditySetting'];
   }
 
   static getAttributes() {
     return {
-      queryOnlyTemperatureSetting: true
+      queryOnlyHumiditySetting: true
     };
   }
 
@@ -25,7 +25,7 @@ class HumiditySensor extends DefaultDevice {
 
   static getState(item) {
     return {
-      thermostatHumidityAmbient: Number(parseFloat(item.state).toFixed(1))
+      humidityAmbientPercent: Number(parseFloat(item.state).toFixed(1))
     };
   }
 }

@@ -396,13 +396,13 @@ Number { ga="HumiditySensor" }
 |---|---|
 | **Device Type** | [Sensor](https://developers.google.com/assistant/smarthome/guides/sensor) |
 | **Supported Traits** | [TemperatureSetting](https://developers.google.com/assistant/smarthome/traits/temperaturesetting) |
-| **Supported Items** | Group as `ClimateSensor` with the following members:<br>(optional) Number as `thermostatHumidityAmbient`<br>(optional) Number as `thermostatTemperatureAmbient` |
+| **Supported Items** | Group as `ClimateSensor` with the following members:<br>(optional) Number as `humidityAmbient`<br>(optional) Number as `temperatureAmbient` |
 | **Configuration** | (optional) `useFahrenheit=true/false` |
 
 ```shell
 Group  sensorGroup { ga="ClimateSensor" [ useFahrenheit=true ] }
-Number temperatureItem (sensorGroup) { ga="thermostatTemperatureAmbient" }
-Number humidityItem    (sensorGroup) { ga="thermostatHumidityAmbient" }
+Number temperatureItem (sensorGroup) { ga="temperatureAmbient" }
+Number humidityItem    (sensorGroup) { ga="humidityAmbient" }
 ```
 
 ### Thermostat

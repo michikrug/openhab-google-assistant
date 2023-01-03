@@ -8,7 +8,7 @@ class ClimateSensor extends DefaultDevice {
 
   static getTraits(item) {
     const traits = [];
-    const members = this.getMembers(item);x
+    const members = this.getMembers(item);
     if ('temperatureAmbient' in members) traits.push('action.devices.traits.TemperatureSetting');
     if ('humidityAmbient' in members) traits.push('action.devices.traits.HumiditySetting');
     return traits;

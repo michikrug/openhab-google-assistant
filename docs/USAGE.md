@@ -13,6 +13,10 @@ This guide describes step by step how to use the [openHAB Google Assistant Smart
 
 With the Action you can voice control your openHAB items and it supports lights, plugs, switches, thermostats and many more. The openHAB Action comes with multiple language support like English, German or French language.
 
+::: tip Note
+Please be aware that the graphical user interface in the Google Home app or on Google Nest devices may not fully support interaction with some of the supported device types. We cannot influence this and rely on Google to implement user interfaces for more devices. Nevertheless, interaction via voice or in writing with Google Assistant should always work.
+:::
+
 If you have any issues, questions or an idea for additional features, please take a look at the [repository on GitHub](https://github.com/openhab/openhab-google-assistant).
 
 [[toc]]
@@ -20,10 +24,17 @@ If you have any issues, questions or an idea for additional features, please tak
 ## Latest Changes
 
 ::: tip State of this document
-This documentation refers to release [v3.5.2](https://github.com/openhab/openhab-google-assistant/releases/tag/v3.5.2) of [openHAB Google Assistant](https://github.com/openhab/openhab-google-assistant) published on 2022-12-19
+This documentation refers to release [v3.6.0](https://github.com/openhab/openhab-google-assistant/releases/tag/v3.6.0) of [openHAB Google Assistant](https://github.com/openhab/openhab-google-assistant) published on 2023-01-16
 :::
 
-- `ga="light"` for SpecialColorLight is replaced by `ga="specialcolorlight"`
+### v3.6.0
+
+- Added new device types [`HumiditySensor`](#humiditysensor) & [`ClimateSensor`](#climatesensor)
+- Changed trait of [`TemperatureSensor`](#temperaturesensor) to actually show a UI
+
+### v3.5.0
+
+- `ga="light"` for [`SpecialColorLight`](#light-as-group-with-separate-controls) is replaced by `ga="specialcolorlight"`
 - `useKelvin=true` is replaced by `colorUnit="kelvin"`
 - Support for color temperature in Mired added
 
@@ -42,9 +53,9 @@ More information can be found in the corresponding [docs page](https://www.openh
 
 To expose [items](https://www.openhab.org/docs/concepts/items.html) to Google Assistent you will need to add [metadata](https://www.openhab.org/docs/concepts/items.html#item-metadata) in the `ga` namespace.
 
-Currently the following devices are supported (also depending on Google's API capabilities):
-
 _Hint: The value of `ga` is **not** case-sensitive._
+
+Currently the following devices are supported (also depending on Google's API capabilities):
 
 ### Switch
 
@@ -382,9 +393,8 @@ Number { ga="TemperatureSensor" [ useFahrenheit=true ] }
 | | |
 |---|---|
 | **Device Type** | [Sensor](https://developers.google.com/assistant/smarthome/guides/sensor) |
-| **Supported Traits** | [TemperatureSetting](https://developers.google.com/assistant/smarthome/traits/temperaturesetting) |
+| **Supported Traits** | [HumiditySetting](https://developers.home.google.com/cloud-to-cloud/traits/humiditysetting) |
 | **Supported Items** | Number |
-| **Configuration** | |
 
 ```shell
 Number { ga="HumiditySensor" }
@@ -395,7 +405,7 @@ Number { ga="HumiditySensor" }
 | | |
 |---|---|
 | **Device Type** | [Sensor](https://developers.google.com/assistant/smarthome/guides/sensor) |
-| **Supported Traits** | [TemperatureSetting](https://developers.google.com/assistant/smarthome/traits/temperaturesetting) |
+| **Supported Traits** | [HumiditySetting](https://developers.home.google.com/cloud-to-cloud/traits/humiditysetting), [TemperatureSetting](https://developers.google.com/assistant/smarthome/traits/temperaturesetting) |
 | **Supported Items** | Group as `ClimateSensor` with the following members:<br>(optional) Number as `humidityAmbient`<br>(optional) Number as `temperatureAmbient` |
 | **Configuration** | (optional) `useFahrenheit=true/false` |
 

@@ -156,7 +156,11 @@ class OpenHAB {
           payload.devices[device.id] = {
             status: 'ERROR',
             errorCode:
-              error.statusCode == 404 ? 'deviceNotFound' : error.statusCode == 406 ? 'deviceNotReady' : 'deviceOffline'
+              error.statusCode === 404
+                ? 'deviceNotFound'
+                : error.statusCode === 406
+                ? 'deviceNotReady'
+                : 'deviceOffline'
           };
         })
     );
@@ -219,7 +223,7 @@ class OpenHAB {
       console.log(JSON.stringify(error));
       res.json({
         status: 'ERROR',
-        errorCode: !error.statusCode ? error : error.statusCode == 404 ? 'deviceNotFound' : 'deviceNotReady'
+        errorCode: !error.statusCode ? error : error.statusCode === 404 ? 'deviceNotFound' : 'deviceNotReady'
       });
     }
   }

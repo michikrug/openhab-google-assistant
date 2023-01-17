@@ -68,7 +68,7 @@ module.exports = {
     b = b / 255;
     let v = Math.max(r, g, b),
       n = v - Math.min(r, g, b);
-    let h = n && (v == r ? (g - b) / n : v == g ? 2 + (b - r) / n : 4 + (r - g) / n);
+    let h = n && (v === r ? (g - b) / n : v === g ? 2 + (b - r) / n : 4 + (r - g) / n);
     return {
       hue: Math.round(60 * (h < 0 ? h + 6 : h) * 100) / 100,
       saturation: Math.round(v && (n / v) * 100) / 100,

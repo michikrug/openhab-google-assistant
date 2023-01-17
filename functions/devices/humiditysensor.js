@@ -20,7 +20,7 @@ class HumiditySensor extends DefaultDevice {
   }
 
   static matchesDeviceType(item) {
-    return item.metadata && item.metadata.ga && item.metadata.ga.value.toLowerCase() == 'humiditysensor';
+    return item.metadata && item.metadata.ga && item.metadata.ga.value.toLowerCase() === 'humiditysensor';
   }
 
   static getState(item) {

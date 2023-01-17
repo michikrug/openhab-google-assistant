@@ -33,7 +33,7 @@ class ClimateSensor extends DefaultDevice {
     return (
       item.metadata &&
       item.metadata.ga &&
-      item.metadata.ga.value.toLowerCase() == 'climatesensor' &&
+      item.metadata.ga.value.toLowerCase() === 'climatesensor' &&
       Object.keys(this.getMembers(item)).length > 0
     );
   }

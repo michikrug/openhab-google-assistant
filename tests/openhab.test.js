@@ -24,7 +24,7 @@ describe('OpenHAB', () => {
 
     test('onSync failure', async () => {
       const handleSyncMock = jest.spyOn(openHAB, 'handleSync');
-      handleSyncMock.mockRejectedValue();
+      handleSyncMock.mockRejectedValue(null);
       const result = await openHAB.onSync({ requestId: '1234' }, {});
       expect(handleSyncMock).toBeCalledTimes(1);
       expect(result).toStrictEqual({
@@ -126,23 +126,23 @@ describe('OpenHAB', () => {
           },
           {
             type: 'Group',
-            name: 'TVItem',
-            label: 'TV Item',
-            metadata: { ga: { value: 'TV' } }
+            name: 'LightItem',
+            label: 'Light Item',
+            metadata: { ga: { value: 'SpecialColorLight' } }
+          },
+          {
+            type: 'Color',
+            name: 'LightColor',
+            label: 'Light Color',
+            groupNames: ['LightItem'],
+            metadata: { ga: { value: 'lightColor' } }
           },
           {
             type: 'Switch',
-            name: 'TVMute',
-            label: 'TV Mute',
-            groupNames: ['TVItem'],
-            metadata: { ga: { value: 'tvMute' } }
-          },
-          {
-            type: 'Switch',
-            name: 'TVPower',
-            label: 'TV Power',
-            groupNames: ['TVItem'],
-            metadata: { ga: { value: 'tvPower' } }
+            name: 'LightPower',
+            label: 'Light Power',
+            groupNames: ['LightItem'],
+            metadata: { ga: { value: 'lightPower' } }
           }
         ])
       );
@@ -177,33 +177,38 @@ describe('OpenHAB', () => {
           },
           {
             attributes: {
-              volumeCanMuteAndUnmute: true
+              colorModel: 'hsv'
             },
             customData: {
-              deviceType: 'TV',
+              deviceType: 'SpecialColorLight',
+              colorUnit: 'percent',
               itemType: 'Group',
               members: {
-                tvMute: 'TVMute',
-                tvPower: 'TVPower'
+                lightColor: 'LightColor',
+                lightPower: 'LightPower'
               }
             },
             deviceInfo: {
               manufacturer: 'openHAB',
-              model: 'Group:TVItem',
+              model: 'Group:LightItem',
               hwVersion: '3.0.0',
               swVersion: packageVersion
             },
-            id: 'TVItem',
+            id: 'LightItem',
             name: {
-              defaultNames: ['TV Item'],
-              name: 'TV Item',
-              nicknames: ['TV Item']
+              defaultNames: ['Light Item'],
+              name: 'Light Item',
+              nicknames: ['Light Item']
             },
             notificationSupportedByAgent: true,
             roomHint: undefined,
             structureHint: undefined,
-            traits: ['action.devices.traits.OnOff', 'action.devices.traits.Volume'],
-            type: 'action.devices.types.TV',
+            traits: [
+              'action.devices.traits.OnOff',
+              'action.devices.traits.Brightness',
+              'action.devices.traits.ColorSetting'
+            ],
+            type: 'action.devices.types.LIGHT',
             willReportState: false
           }
         ]
@@ -220,7 +225,7 @@ describe('OpenHAB', () => {
 
     test('onQuery failure', async () => {
       const handleQueryMock = jest.spyOn(openHAB, 'handleQuery');
-      handleQueryMock.mockRejectedValue();
+      handleQueryMock.mockRejectedValue(null);
       const result = await openHAB.onQuery({ requestId: '1234' }, {});
       expect(handleQueryMock).toBeCalledTimes(1);
       expect(handleQueryMock).toBeCalledWith([]);
@@ -404,7 +409,7 @@ describe('OpenHAB', () => {
 
     test('onExecute failure', async () => {
       const handleExecuteMock = jest.spyOn(openHAB, 'handleExecute');
-      handleExecuteMock.mockRejectedValue();
+      handleExecuteMock.mockRejectedValue(null);
       const result = await openHAB.onExecute({ requestId: '1234' }, {});
       expect(handleExecuteMock).toBeCalledTimes(1);
       expect(handleExecuteMock).toBeCalledWith([]);
@@ -484,7 +489,7 @@ describe('OpenHAB', () => {
     });
 
     test('handleExecute OnOff', async () => {
-      sendCommandMock.mockResolvedValue();
+      sendCommandMock.mockResolvedValue(null);
       const commands = [
         {
           devices: [
@@ -615,7 +620,7 @@ describe('OpenHAB', () => {
           ]
         })
       );
-      sendCommandMock.mockResolvedValue();
+      sendCommandMock.mockResolvedValue(null);
       const commands = [
         {
           devices: [
@@ -660,7 +665,7 @@ describe('OpenHAB', () => {
   });
 
   describe('onStateReport', () => {
-    const openHAB = new OpenHAB();
+    const openHAB = new OpenHAB(null);
     const handleStateReportMock = jest.spyOn(openHAB, 'handleStateReport');
 
     beforeEach(() => {

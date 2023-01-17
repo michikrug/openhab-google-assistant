@@ -17,7 +17,9 @@ class SpecialColorLight extends DefaultDevice {
   static matchesDeviceType(item) {
     const members = this.getMembers(item);
     return !!(
-      item.metadata && item.metadata.ga && item.metadata.ga.value.toLowerCase() == 'specialcolorlight' &&
+      item.metadata &&
+      item.metadata.ga &&
+      item.metadata.ga.value.toLowerCase() == 'specialcolorlight' &&
       Object.keys(members).length > 1 &&
       (!('lightColorTemperature' in members) ||
         this.getColorUnit(item) !== 'percent' ||
@@ -47,7 +49,10 @@ class SpecialColorLight extends DefaultDevice {
 
   static getMetadata(item) {
     const metadata = super.getMetadata(item);
-    metadata.customData.colorTemperatureRange = this.getAttributes(item).colorTemperatureRange;
+    const colorTemperatureRange = this.getAttributes(item).colorTemperatureRange;
+    if (colorTemperatureRange) {
+      metadata.customData.colorTemperatureRange = colorTemperatureRange;
+    }
     metadata.customData.colorUnit = this.getColorUnit(item);
     return metadata;
   }

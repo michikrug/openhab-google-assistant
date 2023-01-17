@@ -31,7 +31,9 @@ describe('TemperatureSensor Device', () => {
         }
       };
       expect(Device.getAttributes(item)).toStrictEqual({
+        queryOnlyTemperatureControl: true,
         queryOnlyTemperatureSetting: true,
+        temperatureUnitForUX: 'C',
         thermostatTemperatureUnit: 'C'
       });
     });
@@ -47,7 +49,9 @@ describe('TemperatureSensor Device', () => {
         }
       };
       expect(Device.getAttributes(item)).toStrictEqual({
+        queryOnlyTemperatureControl: true,
         queryOnlyTemperatureSetting: true,
+        temperatureUnitForUX: 'F',
         thermostatTemperatureUnit: 'F'
       });
     });
@@ -55,7 +59,8 @@ describe('TemperatureSensor Device', () => {
 
   test('getState', () => {
     expect(Device.getState({ state: '10' })).toStrictEqual({
-      thermostatTemperatureAmbient: 10
+      thermostatTemperatureAmbient: 10,
+      temperatureAmbientCelsius: 10
     });
     const item = {
       state: '10',
@@ -68,7 +73,8 @@ describe('TemperatureSensor Device', () => {
       }
     };
     expect(Device.getState(item)).toStrictEqual({
-      thermostatTemperatureAmbient: -12.2
+      thermostatTemperatureAmbient: -12.2,
+      temperatureAmbientCelsius: -12.2
     });
   });
 });

@@ -143,6 +143,9 @@ class DefaultDevice {
     return [];
   }
 
+  /**
+   * @returns {object}
+   */
   static getMembers(item) {
     const supportedMembers = this.supportedMembers;
     const members = {};

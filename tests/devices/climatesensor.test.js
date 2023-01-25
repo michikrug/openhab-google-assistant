@@ -136,7 +136,9 @@ describe('ClimateSensor Device', () => {
     expect(Device.getState(item1)).toStrictEqual({
       thermostatTemperatureAmbient: 20,
       temperatureAmbientCelsius: 20,
-      humidityAmbientPercent: 60
+      temperatureSetpointCelsius: 20,
+      humidityAmbientPercent: 60,
+      humiditySetpointPercent: 60
     });
     const item2 = {
       members: [
@@ -161,6 +163,7 @@ describe('ClimateSensor Device', () => {
     };
     expect(Device.getState(item2)).toStrictEqual({
       thermostatTemperatureAmbient: -12.2,
+      temperatureSetpointCelsius: -12.2,
       temperatureAmbientCelsius: -12.2
     });
     const item3 = {
@@ -178,7 +181,8 @@ describe('ClimateSensor Device', () => {
       ]
     };
     expect(Device.getState(item3)).toStrictEqual({
-      humidityAmbientPercent: 30
+      humidityAmbientPercent: 30,
+      humiditySetpointPercent: 30
     });
   });
 });

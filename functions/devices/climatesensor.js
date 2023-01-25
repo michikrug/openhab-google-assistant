@@ -47,15 +47,18 @@ class ClimateSensor extends DefaultDevice {
     const state = {};
     const members = this.getMembers(item);
     if ('temperatureAmbient' in members) {
-      let temperature = Number(parseFloat(members['temperatureAmbient'].state).toFixed(1));
+      let temperature = Number(parseFloat(members.temperatureAmbient.state).toFixed(1));
       if (this.useFahrenheit(item)) {
         temperature = convertFahrenheitToCelsius(temperature);
       }
       state.thermostatTemperatureAmbient = temperature;
       state.temperatureAmbientCelsius = temperature;
+      state.temperatureSetpointCelsius = temperature;
     }
     if ('humidityAmbient' in members) {
-      state.humidityAmbientPercent = Number(parseFloat(members['humidityAmbient'].state).toFixed(1));
+      const humidity = Number(parseFloat(members.humidityAmbient.state).toFixed(1));
+      state.humidityAmbientPercent = humidity;
+      state.humiditySetpointPercent = humidity;
     }
     return state;
   }

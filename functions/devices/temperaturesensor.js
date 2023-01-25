@@ -34,7 +34,8 @@ class TemperatureSensor extends DefaultDevice {
     }
     return {
       thermostatTemperatureAmbient: state,
-      temperatureAmbientCelsius: state
+      temperatureAmbientCelsius: state,
+      temperatureSetpointCelsius: state
     };
   }
 

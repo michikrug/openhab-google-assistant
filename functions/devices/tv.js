@@ -12,7 +12,8 @@ class TV extends DefaultDevice {
     if ('tvMute' in members || 'tvVolume' in members) traits.push('action.devices.traits.Volume');
     if ('tvChannel' in members) traits.push('action.devices.traits.Channel');
     if ('tvInput' in members) traits.push('action.devices.traits.InputSelector');
-    if ('tvTransport' in members) traits.push('action.devices.traits.TransportControl');
+    if ('tvTransport' in members)
+      traits.push('action.devices.traits.TransportControl', 'action.devices.traits.MediaState');
     if ('tvApplication' in members) traits.push('action.devices.traits.AppSelector');
     return traits;
   }
@@ -37,6 +38,7 @@ class TV extends DefaultDevice {
       }
     }
     if ('tvTransport' in members) {
+      attributes.supportPlaybackState = true;
       attributes.transportControlSupportedCommands = ['NEXT', 'PREVIOUS', 'PAUSE', 'RESUME'];
       if ('transportControlSupportedCommands' in config) {
         attributes.transportControlSupportedCommands = config.transportControlSupportedCommands
@@ -103,8 +105,11 @@ class TV extends DefaultDevice {
         case 'tvInput':
           state.currentInput = members[member].state;
           break;
+        case 'tvTransport':
+          state.playbackState = members[member].state;
+          break;
         case 'tvVolume':
-          state.currentVolume = Number(members[member].state) || 0;
+          state.currentVolume = Math.round(Number(members[member].state)) || 0;
           break;
         case 'tvChannel':
           state.channelNumber = members[member].state;

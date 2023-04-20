@@ -8,17 +8,22 @@ class DefaultDevice {
 
   /**
    * @param {object} item
+   * @returns {Array<string>}
    */
   static getTraits(item) {
     return [];
   }
 
+  /**
+   * @returns {Array<string>}
+   */
   static get requiredItemTypes() {
     return [];
   }
 
   /**
    * @param {object} item
+   * @returns {boolean}
    */
   static isCompatible(item) {
     return (
@@ -90,6 +95,9 @@ class DefaultDevice {
     };
     if (config.inverted === true) {
       metadata.customData.inverted = true;
+    }
+    if (config.checkState === true) {
+      metadata.customData.checkState = true;
     }
     if (config.ackNeeded === true || config.tfaAck === true) {
       metadata.customData.ackNeeded = true;

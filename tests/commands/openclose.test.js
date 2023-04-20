@@ -50,4 +50,38 @@ describe('OpenClose Command', () => {
   test('getResponseStates', () => {
     expect(Command.getResponseStates({ openPercent: 10 })).toStrictEqual({ openPercent: 10 });
   });
+
+  describe('checkCurrentState', () => {
+    test('Switch', () => {
+      expect.assertions(8);
+
+      expect(Command.checkCurrentState('ON', 'OFF', { openPercent: 100 })).toBeUndefined();
+      try {
+        Command.checkCurrentState('ON', 'ON', { openPercent: 100 });
+      } catch (e) {
+        expect(e.errorCode).toBe('alreadyOpen');
+      }
+
+      expect(Command.checkCurrentState('OFF', 'ON', { openPercent: 0 })).toBeUndefined();
+      try {
+        Command.checkCurrentState('OFF', 'OFF', { openPercent: 0 });
+      } catch (e) {
+        expect(e.errorCode).toBe('alreadyClosed');
+      }
+
+      expect(Command.checkCurrentState('UP', '100', { openPercent: 100 })).toBeUndefined();
+      try {
+        Command.checkCurrentState('UP', '0', { openPercent: 100 });
+      } catch (e) {
+        expect(e.errorCode).toBe('alreadyOpen');
+      }
+
+      expect(Command.checkCurrentState('DOWN', '0', { openPercent: 0 })).toBeUndefined();
+      try {
+        Command.checkCurrentState('DOWN', '100', { openPercent: 0 });
+      } catch (e) {
+        expect(e.errorCode).toBe('alreadyClosed');
+      }
+    });
+  });
 });

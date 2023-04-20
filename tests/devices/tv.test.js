@@ -75,7 +75,7 @@ describe('TV Device', () => {
             }
           },
           {
-            state: 'PLAY',
+            state: 'PLAYING',
             metadata: {
               ga: {
                 value: 'tvTransport'
@@ -114,6 +114,7 @@ describe('TV Device', () => {
         'action.devices.traits.Channel',
         'action.devices.traits.InputSelector',
         'action.devices.traits.TransportControl',
+        'action.devices.traits.MediaState',
         'action.devices.traits.AppSelector'
       ]);
     });
@@ -145,6 +146,7 @@ describe('TV Device', () => {
         ]
       };
       expect(Device.getAttributes(item)).toStrictEqual({
+        supportPlaybackState: true,
         transportControlSupportedCommands: ['NEXT', 'PREVIOUS', 'PAUSE', 'RESUME'],
         volumeCanMuteAndUnmute: false,
         volumeMaxLevel: 100
@@ -206,6 +208,7 @@ describe('TV Device', () => {
         ]
       };
       expect(Device.getAttributes(item)).toStrictEqual({
+        supportPlaybackState: true,
         transportControlSupportedCommands: ['PAUSE', 'RESUME'],
         volumeCanMuteAndUnmute: true
       });
@@ -512,7 +515,7 @@ describe('TV Device', () => {
             }
           },
           {
-            state: 'PLAY',
+            state: 'PLAYING',
             metadata: {
               ga: {
                 value: 'tvTransport'
@@ -546,6 +549,7 @@ describe('TV Device', () => {
         ]
       };
       expect(Device.getState(item)).toStrictEqual({
+        playbackState: 'PLAYING',
         channelName: 'ARD',
         channelNumber: '1',
         currentInput: 'input1',
@@ -585,7 +589,7 @@ describe('TV Device', () => {
         },
         members: [
           {
-            state: '50',
+            state: '50.43',
             metadata: {
               ga: {
                 value: 'tvVolume'

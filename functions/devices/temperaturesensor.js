@@ -1,5 +1,5 @@
 const DefaultDevice = require('./default.js');
-const convertToCelsius = require('../utilities.js').convertToCelsius;
+const convertFahrenheitToCelsius = require('../utilities.js').convertFahrenheitToCelsius;
 
 class TemperatureSensor extends DefaultDevice {
   static get type() {
@@ -7,13 +7,15 @@ class TemperatureSensor extends DefaultDevice {
   }
 
   static getTraits() {
-    return ['action.devices.traits.TemperatureControl'];
+    return ['action.devices.traits.TemperatureSetting', 'action.devices.traits.TemperatureControl'];
   }
 
   static getAttributes(item) {
     return {
+      queryOnlyTemperatureSetting: true,
+      thermostatTemperatureUnit: this.useFahrenheit(item) ? 'F' : 'C',
       queryOnlyTemperatureControl: true,
-      temperatureUnitForUX: this.getConfig(item).useFahrenheit === true ? 'F' : 'C'
+      temperatureUnitForUX: this.useFahrenheit(item) ? 'F' : 'C'
     };
   }
 
@@ -27,13 +29,19 @@ class TemperatureSensor extends DefaultDevice {
 
   static getState(item) {
     let state = Number(parseFloat(item.state).toFixed(1));
-    if (this.getConfig(item).useFahrenheit === true) {
-      state = convertToCelsius(state);
+    if (this.useFahrenheit(item)) {
+      state = convertFahrenheitToCelsius(state);
     }
     return {
-      temperatureSetpointCelsius: state,
-      temperatureAmbientCelsius: state
+      thermostatTemperatureAmbient: state,
+      temperatureAmbientCelsius: state,
+      temperatureSetpointCelsius: state
     };
+  }
+
+  static useFahrenheit(item) {
+    const config = this.getConfig(item);
+    return config.thermostatTemperatureUnit === 'F' || config.useFahrenheit === true;
   }
 }
 

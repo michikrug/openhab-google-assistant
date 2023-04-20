@@ -23,21 +23,23 @@ describe('TemperatureSensor Device', () => {
 
   describe('getAttributes', () => {
     test('getAttributes no config', () => {
-      const item1 = {
+      const item = {
         metadata: {
           ga: {
             config: {}
           }
         }
       };
-      expect(Device.getAttributes(item1)).toStrictEqual({
+      expect(Device.getAttributes(item)).toStrictEqual({
         queryOnlyTemperatureControl: true,
-        temperatureUnitForUX: 'C'
+        queryOnlyTemperatureSetting: true,
+        temperatureUnitForUX: 'C',
+        thermostatTemperatureUnit: 'C'
       });
     });
 
     test('getAttributes useFahrenheit', () => {
-      const item2 = {
+      const item = {
         metadata: {
           ga: {
             config: {
@@ -46,17 +48,20 @@ describe('TemperatureSensor Device', () => {
           }
         }
       };
-      expect(Device.getAttributes(item2)).toStrictEqual({
+      expect(Device.getAttributes(item)).toStrictEqual({
         queryOnlyTemperatureControl: true,
-        temperatureUnitForUX: 'F'
+        queryOnlyTemperatureSetting: true,
+        temperatureUnitForUX: 'F',
+        thermostatTemperatureUnit: 'F'
       });
     });
   });
 
   test('getState', () => {
     expect(Device.getState({ state: '10' })).toStrictEqual({
-      temperatureSetpointCelsius: 10,
-      temperatureAmbientCelsius: 10
+      thermostatTemperatureAmbient: 10,
+      temperatureAmbientCelsius: 10,
+      temperatureSetpointCelsius: 10
     });
     const item = {
       state: '10',
@@ -69,8 +74,9 @@ describe('TemperatureSensor Device', () => {
       }
     };
     expect(Device.getState(item)).toStrictEqual({
-      temperatureSetpointCelsius: -12.2,
-      temperatureAmbientCelsius: -12.2
+      thermostatTemperatureAmbient: -12.2,
+      temperatureAmbientCelsius: -12.2,
+      temperatureSetpointCelsius: -12.2
     });
   });
 });

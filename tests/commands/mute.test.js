@@ -8,14 +8,12 @@ describe('Mute Command', () => {
 
   test('requiresItem', () => {
     expect(Command.requiresItem({})).toBe(false);
-    expect(Command.requiresItem({ customData: {} })).toBe(false);
     expect(Command.requiresItem({ customData: { deviceType: 'TV' } })).toBe(true);
   });
 
   describe('getItemName', () => {
     test('getItemName', () => {
       expect(Command.getItemName({ name: 'Item' }, {})).toBe('Item');
-      expect(Command.getItemName({ name: 'Item' }, { customData: {} })).toBe('Item');
     });
 
     test('getItemName TV no members', () => {
@@ -62,7 +60,7 @@ describe('Mute Command', () => {
   describe('convertParamsToValue', () => {
     test('convertParamsToValue no Switch', () => {
       expect(Command.convertParamsToValue({ mute: true }, {}, {})).toBe('0');
-      expect(Command.convertParamsToValue({ mute: false }, {}, {})).toBeUndefined();
+      expect(Command.convertParamsToValue({ mute: false }, {}, {})).toBe(null);
     });
 
     test('convertParamsToValue Switch', () => {

@@ -15,7 +15,7 @@ class OpenClose extends DefaultCommand {
       throw { statusCode: 400 };
     }
     let openPercent = params.openPercent;
-    if (this.isInverted(device) === true) {
+    if (this.isInverted(device)) {
       openPercent = 100 - openPercent;
     }
     if (itemType === 'Rollershutter') {
@@ -31,6 +31,13 @@ class OpenClose extends DefaultCommand {
     return {
       openPercent: params.openPercent
     };
+  }
+
+  static checkCurrentState(target, state, params) {
+    const adjustedTarget = target === 'DOWN' ? '100' : target === 'UP' ? '0' : target;
+    if (adjustedTarget === state) {
+      throw { errorCode: params.openPercent === 0 ? 'alreadyClosed' : 'alreadyOpen' };
+    }
   }
 }
 

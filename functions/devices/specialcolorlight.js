@@ -1,4 +1,5 @@
 const DefaultDevice = require('./default.js');
+const convertMired = require('../utilities.js').convertMired;
 
 class SpecialColorLight extends DefaultDevice {
   static get type() {
@@ -9,13 +10,17 @@ class SpecialColorLight extends DefaultDevice {
     return ['action.devices.traits.OnOff', 'action.devices.traits.Brightness', 'action.devices.traits.ColorSetting'];
   }
 
+  static isCompatible(item = {}) {
+    return item.metadata && item.metadata.ga && item.metadata.ga.value.toLowerCase() == 'specialcolorlight';
+  }
+
   static matchesItemType(item) {
     const members = this.getMembers(item);
     return (
       item.type === 'Group' &&
       Object.keys(members).length > 1 &&
       (!('lightColorTemperature' in members) ||
-        this.useKelvin(item) ||
+        this.getColorUnit(item) !== 'percent' ||
         !!this.getAttributes(item).colorTemperatureRange)
     );
   }
@@ -30,9 +35,10 @@ class SpecialColorLight extends DefaultDevice {
     if ('colorTemperatureRange' in config) {
       const [min, max] = config.colorTemperatureRange.split(',').map((s) => Number(s.trim()));
       if (!isNaN(min) && !isNaN(max)) {
+        const colorUnit = this.getColorUnit(item);
         attributes.colorTemperatureRange = {
-          temperatureMinK: min,
-          temperatureMaxK: max
+          temperatureMinK: colorUnit === 'mired' ? convertMired(max) : min,
+          temperatureMaxK: colorUnit === 'mired' ? convertMired(min) : max
         };
       }
     }
@@ -48,7 +54,7 @@ class SpecialColorLight extends DefaultDevice {
           state.on = members[member].state === 'ON';
           break;
         case 'lightBrightness':
-          state.brightness = Number(members[member].state) || 0;
+          state.brightness = Math.round(Number(members[member].state)) || 0;
           if (!('lightPower' in members)) {
             state.on = state.brightness > 0;
           }
@@ -74,16 +80,21 @@ class SpecialColorLight extends DefaultDevice {
             break;
           }
           try {
-            if (this.useKelvin(item)) {
+            const colorUnit = this.getColorUnit(item);
+            if (colorUnit === 'kelvin') {
               state.color = {
-                temperatureK: Number(members[member].state)
+                temperatureK: Math.round(Number(members[member].state))
+              };
+            } else if (colorUnit === 'mired') {
+              state.color = {
+                temperatureK: convertMired(Math.round(Number(members[member].state)))
               };
             } else {
               const { temperatureMinK, temperatureMaxK } = this.getAttributes(item).colorTemperatureRange;
               state.color = {
                 temperatureK:
                   temperatureMinK +
-                  (((temperatureMaxK - temperatureMinK) / 100) * (100 - Number(members[member].state)) || 0)
+                  Math.round(((temperatureMaxK - temperatureMinK) / 100) * (100 - Number(members[member].state)) || 0)
               };
             }
           } catch (error) {
@@ -111,8 +122,9 @@ class SpecialColorLight extends DefaultDevice {
     return members;
   }
 
-  static useKelvin(item) {
-    return this.getConfig(item).useKelvin === true;
+  static getColorUnit(item) {
+    const colorUnit = this.getConfig(item).colorUnit || 'percent';
+    return colorUnit.toLowerCase();
   }
 }
 

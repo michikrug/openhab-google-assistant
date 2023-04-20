@@ -62,5 +62,8 @@ describe('Speaker Device', () => {
     expect(Device.getState({ state: '90' })).toStrictEqual({
       currentVolume: 90
     });
+    expect(Device.getState({ state: '23.1234' })).toStrictEqual({
+      currentVolume: 23
+    });
   });
 });

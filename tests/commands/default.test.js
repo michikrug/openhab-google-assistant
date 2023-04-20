@@ -4,26 +4,32 @@ class TestCommand1 extends Command {
   static get type() {
     return 'action.devices.commands.OnOff';
   }
-  static convertParamsToValue() {
-    return 'TEST';
+  static convertParamsToValue(params) {
+    return params.on ? 'ON' : 'OFF';
   }
   static getResponseStates(params) {
-    return params;
+    return Object.assign({}, params);
   }
 }
 
 class TestCommand2 extends TestCommand1 {
+  static getItemName() {
+    return 'PowerItem';
+  }
+
   static requiresItem() {
     return true;
   }
 }
 
+// @ts-ignore
 class TestCommand3 extends TestCommand1 {
   static convertParamsToValue() {
     return;
   }
 }
 
+// @ts-ignore
 class TestCommand4 extends TestCommand1 {
   static convertParamsToValue() {
     throw { statusCode: 400 };
@@ -62,17 +68,45 @@ describe('Default Command', () => {
   });
 
   test('getItemName', () => {
-    expect(Command.getItemName({ name: 'Item' }, {})).toBe('Item');
+    expect(Command.getItemName({ name: 'Item' }, {}, {})).toBe('Item');
+  });
+
+  test('isInverted', () => {
+    expect(Command.isInverted({})).toBe(false);
+    expect(Command.isInverted({ id: 'Item', customData: {} })).toBe(false);
+    expect(Command.isInverted({ id: 'Item', customData: { inverted: false } })).toBe(false);
+    expect(Command.isInverted({ id: 'Item', customData: { inverted: true } })).toBe(true);
   });
 
   test('requiresItem', () => {
     expect(Command.requiresItem({})).toBe(false);
   });
 
+  test('checkCurrentState', () => {
+    expect.assertions(2);
+
+    expect(Command.checkCurrentState('1', '2', {})).toBeUndefined();
+    try {
+      Command.checkCurrentState('1', '1', {});
+    } catch (e) {
+      expect(e.errorCode).toBe('alreadyInState');
+    }
+  });
+
+  test('getNormalizedState', () => {
+    expect(Command.getNormalizedState({ type: 'Switch', state: 'ON' })).toBe('ON');
+    expect(Command.getNormalizedState({ type: 'Number', state: '1' })).toBe('1');
+    expect(Command.getNormalizedState({ type: 'Number:Temperature', state: '10 °C' })).toBe('10');
+    expect(Command.getNormalizedState({ type: 'Number:DataAmount', state: '3.9375 GB' })).toBe('3.9375');
+    expect(Command.getNormalizedState({ type: 'Number:Energy', state: 'NULL' })).toBe('NULL');
+  });
+
   test('handleAuthPin', () => {
-    expect(Command.handleAuthPin({ id: 'Item', customData: {} }, undefined)).toBeUndefined();
-    expect(Command.handleAuthPin({ id: 'Item', customData: { pinNeeded: '1234' } }, { pin: '1234' })).toBeUndefined();
-    expect(Command.handleAuthPin({ id: 'Item', customData: { pinNeeded: '1234' } }, undefined)).toStrictEqual({
+    expect(Command.handleAuthPin({ id: 'Item', customData: {} }, undefined, {})).toBeUndefined();
+    expect(
+      Command.handleAuthPin({ id: 'Item', customData: { pinNeeded: '1234' } }, { pin: '1234' }, {})
+    ).toBeUndefined();
+    expect(Command.handleAuthPin({ id: 'Item', customData: { pinNeeded: '1234' } }, undefined, {})).toStrictEqual({
       ids: ['Item'],
       status: 'ERROR',
       errorCode: 'challengeNeeded',
@@ -80,17 +114,19 @@ describe('Default Command', () => {
         type: 'pinNeeded'
       }
     });
-    expect(Command.handleAuthPin({ id: 'Item', customData: { pinNeeded: '1234' } }, { pin: '5678' })).toStrictEqual({
-      ids: ['Item'],
-      status: 'ERROR',
-      errorCode: 'challengeNeeded',
-      challengeNeeded: {
-        type: 'challengeFailedPinNeeded'
+    expect(Command.handleAuthPin({ id: 'Item', customData: { pinNeeded: '1234' } }, { pin: '5678' }, {})).toStrictEqual(
+      {
+        ids: ['Item'],
+        status: 'ERROR',
+        errorCode: 'challengeNeeded',
+        challengeNeeded: {
+          type: 'challengeFailedPinNeeded'
+        }
       }
-    });
+    );
     // legacy tfa
-    expect(Command.handleAuthPin({ id: 'Item', customData: { tfaPin: '1234' } }, { pin: '1234' })).toBeUndefined();
-    expect(Command.handleAuthPin({ id: 'Item', customData: { tfaPin: '1234' } }, undefined)).toStrictEqual({
+    expect(Command.handleAuthPin({ id: 'Item', customData: { tfaPin: '1234' } }, { pin: '1234' }, {})).toBeUndefined();
+    expect(Command.handleAuthPin({ id: 'Item', customData: { tfaPin: '1234' } }, undefined, {})).toStrictEqual({
       ids: ['Item'],
       status: 'ERROR',
       errorCode: 'challengeNeeded',
@@ -99,7 +135,9 @@ describe('Default Command', () => {
       }
     });
     // bypasspin
-    expect(TestCommand5.handleAuthPin({ id: 'Item', customData: { pinNeeded: '1234' } }, undefined)).toBeUndefined();
+    expect(
+      TestCommand5.handleAuthPin({ id: 'Item', customData: { pinNeeded: '1234' } }, undefined, {})
+    ).toBeUndefined();
   });
 
   test('handleAuthAck', () => {
@@ -153,12 +191,12 @@ describe('Default Command', () => {
       getItemMock.mockClear();
       sendCommandMock.mockClear();
       sendCommandMock.mockReturnValue(Promise.resolve());
-      getItemMock.mockReturnValue(Promise.resolve({ name: 'TestItem' }));
+      getItemMock.mockReturnValue(Promise.resolve({ name: 'Item1' }));
     });
 
     test('execute without responseStates', async () => {
       const devices = [{ id: 'Item1' }];
-      const result = await TestCommand1.execute(apiHandler, devices, {});
+      const result = await TestCommand1.execute(apiHandler, devices, {}, {});
       expect(getItemMock).toHaveBeenCalledTimes(0);
       expect(sendCommandMock).toHaveBeenCalledTimes(1);
       expect(result).toStrictEqual([
@@ -172,7 +210,7 @@ describe('Default Command', () => {
 
     test('execute without sent command', async () => {
       const devices = [{ id: 'Item1' }];
-      const result = await TestCommand3.execute(apiHandler, devices, { on: true });
+      const result = await TestCommand3.execute(apiHandler, devices, { on: true }, {});
       expect(getItemMock).toHaveBeenCalledTimes(0);
       expect(sendCommandMock).toHaveBeenCalledTimes(0);
       expect(result).toStrictEqual([successResponse]);
@@ -180,7 +218,7 @@ describe('Default Command', () => {
 
     test('execute without getItem', async () => {
       const devices = [{ id: 'Item1' }];
-      const result = await TestCommand1.execute(apiHandler, devices, { on: true });
+      const result = await TestCommand1.execute(apiHandler, devices, { on: true }, {});
       expect(getItemMock).toHaveBeenCalledTimes(0);
       expect(sendCommandMock).toHaveBeenCalledTimes(1);
       expect(result).toStrictEqual([successResponse]);
@@ -188,7 +226,7 @@ describe('Default Command', () => {
 
     test('execute with getItem', async () => {
       const devices = [{ id: 'Item1' }];
-      const result = await TestCommand2.execute(apiHandler, devices, { on: true });
+      const result = await TestCommand2.execute(apiHandler, devices, { on: true }, {});
       expect(getItemMock).toHaveBeenCalledTimes(1);
       expect(sendCommandMock).toHaveBeenCalledTimes(1);
       expect(result).toStrictEqual([successResponse]);
@@ -198,7 +236,7 @@ describe('Default Command', () => {
       const successResponse2 = Object.assign({}, successResponse);
       successResponse2.ids = ['Item2'];
       const devices = [{ id: 'Item1' }, { id: 'Item2' }];
-      const result = await TestCommand2.execute(apiHandler, devices, { on: true });
+      const result = await TestCommand2.execute(apiHandler, devices, { on: true }, {});
       expect(getItemMock).toHaveBeenCalledTimes(2);
       expect(sendCommandMock).toHaveBeenCalledTimes(2);
       expect(result).toStrictEqual([successResponse, successResponse2]);
@@ -206,7 +244,7 @@ describe('Default Command', () => {
 
     test('execute with pinNeeded', async () => {
       const devices = [{ id: 'Item1', customData: { pinNeeded: '1234' } }];
-      const result = await TestCommand1.execute(apiHandler, devices, { on: true });
+      const result = await TestCommand1.execute(apiHandler, devices, { on: true }, {});
       expect(getItemMock).toHaveBeenCalledTimes(0);
       expect(sendCommandMock).toHaveBeenCalledTimes(0);
       expect(result).toStrictEqual([
@@ -231,7 +269,7 @@ describe('Default Command', () => {
 
     test('execute with ackNeeded', async () => {
       const devices = [{ id: 'Item1', customData: { ackNeeded: true } }];
-      const result = await TestCommand1.execute(apiHandler, devices, { on: true });
+      const result = await TestCommand1.execute(apiHandler, devices, { on: true }, {});
       expect(getItemMock).toHaveBeenCalledTimes(1);
       expect(sendCommandMock).toHaveBeenCalledTimes(0);
       expect(result).toStrictEqual([
@@ -252,7 +290,7 @@ describe('Default Command', () => {
 
     test('execute with ackNeeded and state', async () => {
       const devices = [{ id: 'Item1', customData: { ackNeeded: true } }];
-      const result = await TestCommand2.execute(apiHandler, devices, { on: true });
+      const result = await TestCommand2.execute(apiHandler, devices, { on: true }, {});
       expect(getItemMock).toHaveBeenCalledTimes(1);
       expect(sendCommandMock).toHaveBeenCalledTimes(0);
       expect(result).toStrictEqual([
@@ -299,7 +337,7 @@ describe('Default Command', () => {
     test('execute with device not found', async () => {
       getItemMock.mockReturnValue(Promise.reject({ statusCode: '404' }));
       const devices = [{ id: 'Item1' }];
-      const result = await TestCommand2.execute(apiHandler, devices, { on: true });
+      const result = await TestCommand2.execute(apiHandler, devices, { on: true }, {});
       expect(getItemMock).toHaveBeenCalledTimes(1);
       expect(sendCommandMock).toHaveBeenCalledTimes(0);
       expect(result).toStrictEqual([
@@ -313,7 +351,7 @@ describe('Default Command', () => {
 
     test('execute with not supported', async () => {
       const devices = [{ id: 'Item1' }];
-      const result = await TestCommand4.execute(apiHandler, devices, { on: true });
+      const result = await TestCommand4.execute(apiHandler, devices, { on: true }, {});
       expect(getItemMock).toHaveBeenCalledTimes(0);
       expect(sendCommandMock).toHaveBeenCalledTimes(0);
       expect(result).toStrictEqual([
@@ -328,7 +366,7 @@ describe('Default Command', () => {
     test('execute with device offline', async () => {
       sendCommandMock.mockReturnValue(Promise.reject({ statusCode: 500 }));
       const devices = [{ id: 'Item1' }];
-      const result = await TestCommand1.execute(apiHandler, devices, { on: true });
+      const result = await TestCommand1.execute(apiHandler, devices, { on: true }, {});
       expect(getItemMock).toHaveBeenCalledTimes(0);
       expect(sendCommandMock).toHaveBeenCalledTimes(1);
       expect(result).toStrictEqual([
@@ -343,7 +381,7 @@ describe('Default Command', () => {
     test('execute with errorCode', async () => {
       sendCommandMock.mockReturnValue(Promise.reject({ errorCode: 'noAvailableChannel' }));
       const devices = [{ id: 'Item1' }];
-      const result = await TestCommand1.execute(apiHandler, devices, { on: true });
+      const result = await TestCommand1.execute(apiHandler, devices, { on: true }, {});
       expect(getItemMock).toHaveBeenCalledTimes(0);
       expect(sendCommandMock).toHaveBeenCalledTimes(1);
       expect(result).toStrictEqual([
@@ -355,55 +393,149 @@ describe('Default Command', () => {
       ]);
     });
 
-    test('execute with updateValidation', async () => {
-      getItemMock.mockReturnValue(
-        Promise.resolve({ name: 'TestItem', type: 'Switch', state: 'ON', metadata: { ga: { value: 'Switch' } } })
-      );
-      const devices = [{ id: 'Item1' }];
-      const result = await TestCommand5.execute(apiHandler, devices, { on: true });
-      expect(getItemMock).toHaveBeenCalledTimes(2);
-      expect(sendCommandMock).toHaveBeenCalledTimes(1);
-      expect(result).toStrictEqual([successResponse]);
+    describe('execute with checkCurrentState', () => {
+      const checkCurrentStateSpy = jest.spyOn(TestCommand1, 'checkCurrentState');
+      const item = { name: 'Item1', type: 'Switch', state: 'OFF', metadata: { ga: { value: 'Switch' } } };
+
+      afterEach(() => {
+        checkCurrentStateSpy.mockClear();
+      });
+
+      test('execute with successful checkCurrentState', async () => {
+        getItemMock.mockReturnValue(Promise.resolve(item));
+        const devices = [{ id: 'Item1', customData: { checkState: true } }];
+        const result = await TestCommand1.execute(apiHandler, devices, { on: true }, {});
+        expect(checkCurrentStateSpy).toHaveBeenCalledTimes(1);
+        expect(checkCurrentStateSpy).toHaveBeenCalledWith('ON', 'OFF', { on: true });
+        expect(getItemMock).toHaveBeenCalledTimes(1);
+        expect(sendCommandMock).toHaveBeenCalledTimes(1);
+        expect(result).toStrictEqual([successResponse]);
+      });
+
+      test('execute with successful checkCurrentState with members', async () => {
+        getItemMock.mockReturnValue(
+          Promise.resolve({
+            name: 'Item1',
+            type: 'Group',
+            state: 'NULL',
+            metadata: { ga: { value: 'TV' } },
+            members: [{ name: 'PowerItem', type: 'Switch', state: 'OFF', metadata: { ga: { value: 'tvPower' } } }]
+          })
+        );
+        const devices = [{ id: 'Item1', customData: { checkState: true, members: { tvPower: 'Item1' } } }];
+        const result = await TestCommand2.execute(apiHandler, devices, { on: true }, {});
+        expect(checkCurrentStateSpy).toHaveBeenCalledTimes(1);
+        expect(checkCurrentStateSpy).toHaveBeenCalledWith('ON', 'OFF', { on: true });
+        expect(getItemMock).toHaveBeenCalledTimes(1);
+        expect(sendCommandMock).toHaveBeenCalledTimes(1);
+        expect(result).toStrictEqual([successResponse]);
+      });
+
+      test('execute with failing checkCurrentState', async () => {
+        item.state = 'ON';
+        getItemMock.mockReturnValue(Promise.resolve(item));
+        const devices = [{ id: 'Item1', customData: { checkState: true } }];
+        const result = await TestCommand1.execute(apiHandler, devices, { on: true }, {});
+        expect(checkCurrentStateSpy).toHaveBeenCalledTimes(1);
+        expect(checkCurrentStateSpy).toHaveBeenCalledWith('ON', 'ON', { on: true });
+        expect(getItemMock).toHaveBeenCalledTimes(1);
+        expect(sendCommandMock).toHaveBeenCalledTimes(0);
+        expect(result).toStrictEqual([
+          {
+            errorCode: 'alreadyInState',
+            ids: ['Item1'],
+            status: 'ERROR'
+          }
+        ]);
+      });
+
+      test('execute with failing checkCurrentState with members', async () => {
+        getItemMock.mockReturnValue(
+          Promise.resolve({
+            name: 'Item1',
+            type: 'Group',
+            state: 'NULL',
+            metadata: { ga: { value: 'TV' } },
+            members: [{ name: 'PowerItem', type: 'Switch', state: 'ON', metadata: { ga: { value: 'tvPower' } } }]
+          })
+        );
+        const devices = [{ id: 'Item1', customData: { checkState: true } }];
+        const result = await TestCommand2.execute(apiHandler, devices, { on: true }, {});
+        expect(checkCurrentStateSpy).toHaveBeenCalledTimes(1);
+        expect(checkCurrentStateSpy).toHaveBeenCalledWith('ON', 'ON', { on: true });
+        expect(getItemMock).toHaveBeenCalledTimes(1);
+        expect(sendCommandMock).toHaveBeenCalledTimes(0);
+        expect(result).toStrictEqual([
+          {
+            errorCode: 'alreadyInState',
+            ids: ['Item1'],
+            status: 'ERROR'
+          }
+        ]);
+      });
     });
 
-    test('execute with updateValidation and device not found', async () => {
-      const devices = [{ id: 'Item1' }];
-      const result = await TestCommand5.execute(apiHandler, devices, { on: true });
-      expect(getItemMock).toHaveBeenCalledTimes(2);
-      expect(sendCommandMock).toHaveBeenCalledTimes(1);
-      expect(result).toStrictEqual([
-        {
-          errorCode: 'deviceNotFound',
-          ids: ['Item1'],
-          status: 'ERROR'
-        }
-      ]);
-    });
+    describe('execute with validateUpdate', () => {
+      const validateUpdateSpy = jest.spyOn(TestCommand5, 'validateUpdate');
+      const item = { name: 'Item1', type: 'Switch', state: 'ON', metadata: { ga: { value: 'Switch' } } };
 
-    test('execute with failed updateValidation', async () => {
-      getItemMock.mockReturnValue(
-        Promise.resolve({ name: 'TestItem', type: 'Switch', state: 'ON', metadata: { ga: { value: 'Switch' } } })
-      );
-      const devices = [{ id: 'Item1' }];
-      const result = await TestCommand6.execute(apiHandler, devices, { on: true });
-      expect(getItemMock).toHaveBeenCalledTimes(2);
-      expect(sendCommandMock).toHaveBeenCalledTimes(1);
-      expect(result).toStrictEqual([{ someError: true }]);
-    });
+      beforeEach(() => {
+        getItemMock.mockReturnValue(Promise.resolve(item));
+      });
 
-    test('execute with updateValidation and wait time', async () => {
-      const timeoutSpy = jest.spyOn(global, 'setTimeout');
-      timeoutSpy.mockImplementation((fn) => fn());
-      getItemMock.mockReturnValue(
-        Promise.resolve({ name: 'TestItem', type: 'Switch', state: 'ON', metadata: { ga: { value: 'Switch' } } })
-      );
-      const devices = [{ id: 'Item1', customData: { waitForStateChange: 5 } }];
-      const result = await TestCommand5.execute(apiHandler, devices, { on: true });
-      expect(getItemMock).toHaveBeenCalledTimes(2);
-      expect(sendCommandMock).toHaveBeenCalledTimes(1);
-      expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 5000);
-      expect(result).toStrictEqual([successResponse]);
+      afterEach(() => {
+        validateUpdateSpy.mockClear();
+      });
+
+      test('execute with validateUpdate', async () => {
+        const devices = [{ id: 'Item1' }];
+        const result = await TestCommand5.execute(apiHandler, devices, { on: true }, {});
+        expect(getItemMock).toHaveBeenCalledTimes(1);
+        expect(sendCommandMock).toHaveBeenCalledTimes(1);
+        expect(validateUpdateSpy).toHaveBeenCalledTimes(1);
+        expect(validateUpdateSpy).toHaveBeenCalledWith({ on: true }, item, devices[0]);
+        expect(result).toStrictEqual([successResponse]);
+      });
+
+      test('execute with validateUpdate and device not found', async () => {
+        getItemMock.mockReturnValue(Promise.resolve({ name: 'InvalidItem' }));
+        const devices = [{ id: 'Item1' }];
+        const result = await TestCommand5.execute(apiHandler, devices, { on: true }, {});
+        expect(getItemMock).toHaveBeenCalledTimes(1);
+        expect(sendCommandMock).toHaveBeenCalledTimes(1);
+        expect(validateUpdateSpy).toHaveBeenCalledTimes(1);
+        expect(validateUpdateSpy).toHaveBeenCalledWith({ on: true }, { name: 'InvalidItem' }, devices[0]);
+        expect(result).toStrictEqual([
+          {
+            errorCode: 'deviceNotFound',
+            ids: ['Item1'],
+            status: 'ERROR'
+          }
+        ]);
+      });
+
+      test('execute with validateUpdate and wait time', async () => {
+        const timeoutSpy = jest.spyOn(global, 'setTimeout');
+        // @ts-ignore
+        timeoutSpy.mockImplementation((fn) => fn());
+        const devices = [{ id: 'Item1', customData: { waitForStateChange: 5 } }];
+        const result = await TestCommand5.execute(apiHandler, devices, { on: true }, {});
+        expect(getItemMock).toHaveBeenCalledTimes(1);
+        expect(sendCommandMock).toHaveBeenCalledTimes(1);
+        expect(setTimeout).toHaveBeenCalledTimes(1);
+        expect(setTimeout).toHaveBeenCalledWith(expect.any(Function), 5000);
+        expect(validateUpdateSpy).toHaveBeenCalledTimes(1);
+        expect(validateUpdateSpy).toHaveBeenCalledWith({ on: true }, item, devices[0]);
+        expect(result).toStrictEqual([successResponse]);
+      });
+
+      test('execute with failed validateUpdate', async () => {
+        const devices = [{ id: 'Item1' }];
+        const result = await TestCommand6.execute(apiHandler, devices, { on: true }, {});
+        expect(getItemMock).toHaveBeenCalledTimes(1);
+        expect(sendCommandMock).toHaveBeenCalledTimes(1);
+        expect(result).toStrictEqual([{ someError: true }]);
+      });
     });
   });
 });

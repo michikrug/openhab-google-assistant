@@ -54,7 +54,7 @@ describe('ColorAbsoluteTemperature Command', () => {
             }
           }
         )
-      ).toBe('75');
+      ).toBe('25');
       expect(
         Command.convertParamsToValue(
           params,

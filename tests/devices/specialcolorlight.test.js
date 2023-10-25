@@ -355,7 +355,7 @@ describe('SpecialColorLight Device', () => {
             }
           },
           {
-            state: '23',
+            state: '77',
             type: 'Number',
             metadata: {
               ga: {
@@ -478,7 +478,7 @@ describe('SpecialColorLight Device', () => {
             }
           },
           {
-            state: '20',
+            state: '80',
             type: 'Number',
             metadata: {
               ga: {
@@ -528,7 +528,7 @@ describe('SpecialColorLight Device', () => {
             }
           },
           {
-            state: '20',
+            state: '80',
             type: 'Number',
             metadata: {
               ga: {
@@ -632,7 +632,7 @@ describe('SpecialColorLight Device', () => {
             }
           },
           {
-            state: '20',
+            state: '80',
             type: 'Number',
             metadata: {
               ga: {

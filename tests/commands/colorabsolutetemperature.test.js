@@ -77,6 +77,17 @@ describe('ColorAbsoluteTemperature Command', () => {
       const device = { customData: { deviceType: 'SpecialColorLight', colorUnit: 'mired' } };
       expect(Command.convertParamsToValue(params, {}, device)).toBe('500');
     });
+
+    test('convertParamsToValue SpecialColorLight Percent Inverted', () => {
+      const device = {
+        customData: {
+          deviceType: 'SpecialColorLight',
+          colorTemperatureRange: { temperatureMinK: 1000, temperatureMaxK: 5000 },
+          colorTemperatureInverted: true
+        }
+      };
+      expect(Command.convertParamsToValue(params, {}, device)).toBe('75');
+    });
   });
 
   test('getResponseStates', () => {

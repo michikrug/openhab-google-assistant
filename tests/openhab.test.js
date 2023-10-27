@@ -181,7 +181,6 @@ describe('OpenHAB', () => {
             },
             customData: {
               deviceType: 'SpecialColorLight',
-              colorUnit: 'percent',
               itemType: 'Group',
               members: {
                 lightColor: 'LightColor',

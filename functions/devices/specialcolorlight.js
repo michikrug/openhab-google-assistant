@@ -53,7 +53,13 @@ class SpecialColorLight extends DefaultDevice {
     if (colorTemperatureRange) {
       metadata.customData.colorTemperatureRange = colorTemperatureRange;
     }
-    metadata.customData.colorUnit = this.getColorUnit(item);
+    const colorUnit = this.getColorUnit(item);
+    if (colorUnit !== 'percent') {
+      metadata.customData.colorUnit = colorUnit;
+    }
+    if (this.getColorTemperatureInverted(item)) {
+      metadata.customData.colorTemperatureInverted = true;
+    }
     return metadata;
   }
 
@@ -103,10 +109,12 @@ class SpecialColorLight extends DefaultDevice {
               };
             } else {
               const { temperatureMinK, temperatureMaxK } = this.getAttributes(item).colorTemperatureRange;
+              let percent = Number(members[member].state);
+              if (this.getColorTemperatureInverted(item)) {
+                percent = 100 - percent;
+              }
               state.color = {
-                temperatureK:
-                  temperatureMinK +
-                  Math.round(((temperatureMaxK - temperatureMinK) / 100) * Number(members[member].state) || 0)
+                temperatureK: temperatureMinK + Math.round(((temperatureMaxK - temperatureMinK) / 100) * percent || 0)
               };
             }
           } catch (error) {
@@ -130,6 +138,10 @@ class SpecialColorLight extends DefaultDevice {
   static getColorUnit(item) {
     const colorUnit = this.getConfig(item).colorUnit || 'percent';
     return colorUnit.toLowerCase();
+  }
+
+  static getColorTemperatureInverted(item) {
+    return !!this.getConfig(item).colorTemperatureInverted === true;
   }
 }
 

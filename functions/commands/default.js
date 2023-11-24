@@ -290,11 +290,11 @@ class DefaultCommand {
             errorCode:
               typeof error.errorCode === 'string'
                 ? error.errorCode
-                : error.statusCode === 404
-                ? 'deviceNotFound'
-                : error.statusCode === 400
-                ? 'notSupported'
-                : 'deviceOffline'
+                : error.statusCode == 404
+                  ? 'deviceNotFound'
+                  : error.statusCode == 400
+                    ? 'notSupported'
+                    : 'deviceOffline'
           });
         });
     });

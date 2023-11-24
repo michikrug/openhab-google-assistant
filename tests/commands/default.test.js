@@ -4,11 +4,13 @@ class TestCommand1 extends Command {
   static get type() {
     return 'action.devices.commands.OnOff';
   }
+
   static convertParamsToValue(params) {
     return params.on ? 'ON' : 'OFF';
   }
+
   static getResponseStates(params) {
-    return Object.assign({}, params);
+    return { ...params };
   }
 }
 
@@ -22,14 +24,12 @@ class TestCommand2 extends TestCommand1 {
   }
 }
 
-// @ts-ignore
 class TestCommand3 extends TestCommand1 {
   static convertParamsToValue() {
-    return;
+    return null;
   }
 }
 
-// @ts-ignore
 class TestCommand4 extends TestCommand1 {
   static convertParamsToValue() {
     throw { statusCode: 400 };
@@ -40,6 +40,7 @@ class TestCommand5 extends TestCommand1 {
   static get requiresUpdateValidation() {
     return true;
   }
+
   static bypassPin() {
     return true;
   }
@@ -49,6 +50,7 @@ class TestCommand6 extends TestCommand1 {
   static get requiresUpdateValidation() {
     return true;
   }
+
   static validateUpdate() {
     return { someError: true };
   }
@@ -104,6 +106,14 @@ describe('Default Command', () => {
     expect(Command.getNormalizedState({ type: 'Number:Energy', state: 'NULL' })).toBe('NULL');
   });
 
+  test('getNormalizedState', () => {
+    expect(Command.getNormalizedState({ type: 'Switch', state: 'ON' })).toBe('ON');
+    expect(Command.getNormalizedState({ type: 'Number', state: '1' })).toBe('1');
+    expect(Command.getNormalizedState({ type: 'Number:Temperature', state: '10 °C' })).toBe('10');
+    expect(Command.getNormalizedState({ type: 'Number:DataAmount', state: '3.9375 GB' })).toBe('3.9375');
+    expect(Command.getNormalizedState({ type: 'Number:Energy', state: 'NULL' })).toBe('NULL');
+  });
+
   test('checkCurrentState', () => {
     expect.assertions(2);
 
@@ -113,14 +123,6 @@ describe('Default Command', () => {
     } catch (e) {
       expect(e.errorCode).toBe('alreadyInState');
     }
-  });
-
-  test('getNormalizedState', () => {
-    expect(Command.getNormalizedState({ type: 'Switch', state: 'ON' })).toBe('ON');
-    expect(Command.getNormalizedState({ type: 'Number', state: '1' })).toBe('1');
-    expect(Command.getNormalizedState({ type: 'Number:Temperature', state: '10 °C' })).toBe('10');
-    expect(Command.getNormalizedState({ type: 'Number:DataAmount', state: '3.9375 GB' })).toBe('3.9375');
-    expect(Command.getNormalizedState({ type: 'Number:Energy', state: 'NULL' })).toBe('NULL');
   });
 
   test('handleAuthPin', () => {
@@ -255,7 +257,7 @@ describe('Default Command', () => {
     });
 
     test('execute with multiple getItem', async () => {
-      const successResponse2 = Object.assign({}, successResponse);
+      const successResponse2 = { ...successResponse };
       successResponse2.ids = ['Item2'];
       const devices = [{ id: 'Item1' }, { id: 'Item2' }];
       const result = await TestCommand2.execute(apiHandler, devices, { on: true }, {});
@@ -539,7 +541,6 @@ describe('Default Command', () => {
 
       test('execute with validateUpdate and wait time', async () => {
         const timeoutSpy = jest.spyOn(global, 'setTimeout');
-        // @ts-ignore
         timeoutSpy.mockImplementation((fn) => fn());
         const devices = [{ id: 'Item1', customData: { waitForStateChange: 5 } }];
         const result = await TestCommand5.execute(apiHandler, devices, { on: true }, {});

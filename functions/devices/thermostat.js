@@ -78,12 +78,12 @@ class Thermostat extends DefaultDevice {
 
   static getModeMap(item) {
     const config = this.getConfig(item);
-    let modes = ['off', 'heat', 'cool', 'on', 'heatcool', 'auto', 'eco'];
-    if ('modes' in config) {
-      modes = config.modes.split(',').map((s) => s.trim());
+    let thermostatModes = ['off', 'heat', 'cool', 'on', 'heatcool', 'auto', 'eco'];
+    if ('thermostatModes' in config) {
+      thermostatModes = config.thermostatModes.split(',').map((s) => s.trim());
     }
     const modeMap = {};
-    modes.forEach((pair) => {
+    thermostatModes.forEach((pair) => {
       const [key, value] = pair.split('=').map((s) => s.trim());
       modeMap[key] = value ? value.split(':').map((s) => s.trim()) : [key];
     });

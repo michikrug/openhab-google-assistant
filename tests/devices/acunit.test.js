@@ -110,6 +110,7 @@ describe('ACUnit Device', () => {
   describe('getState', () => {
     test('getState', () => {
       const item = {
+        type: 'Group',
         members: [
           {
             name: 'Mode',
@@ -207,6 +208,7 @@ describe('ACUnit Device', () => {
 
     test('getState speeds', () => {
       const item = {
+        type: 'Group',
         metadata: {
           ga: {
             config: {

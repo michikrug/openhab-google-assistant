@@ -18,7 +18,7 @@ class SetModes extends DefaultCommand {
       }
       throw { statusCode: 400 };
     }
-    if (['AirPurifier', 'Fan', 'Hood'].includes(deviceType)) {
+    if (['AirPurifier', 'Fan', 'Hood', 'ACUnit'].includes(deviceType)) {
       if ('fanMode' in members) {
         return members.fanMode;
       }

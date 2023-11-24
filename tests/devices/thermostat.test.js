@@ -79,12 +79,12 @@ describe('Thermostat Device', () => {
       });
     });
 
-    test('getAttributes modes, fahrenheit', () => {
+    test('getAttributes thermostatModes, fahrenheit', () => {
       const item = {
         metadata: {
           ga: {
             config: {
-              modes: 'on=1,off=2',
+              thermostatModes: 'on=1,off=2',
               useFahrenheit: true
             }
           }
@@ -259,7 +259,7 @@ describe('Thermostat Device', () => {
       metadata: {
         ga: {
           config: {
-            modes: 'on=ON:1,off=OFF:2,auto=3'
+            thermostatModes: 'on=ON:1,off=OFF:2,auto=3'
           }
         }
       }
@@ -285,7 +285,7 @@ describe('Thermostat Device', () => {
       metadata: {
         ga: {
           config: {
-            modes: 'on=ON:1,off=OFF:2,auto=3'
+            thermostatModes: 'on=ON:1,off=OFF:2,auto=3'
           }
         }
       }
@@ -302,7 +302,7 @@ describe('Thermostat Device', () => {
       metadata: {
         ga: {
           config: {
-            modes: 'on=ON:1,off=OFF:2,auto=3'
+            thermostatModes: 'on=ON:1,off=OFF:2,auto=3'
           }
         }
       }

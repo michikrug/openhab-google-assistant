@@ -11,12 +11,27 @@ class TemperatureSensor extends DefaultDevice {
   }
 
   static getAttributes(item) {
-    return {
+    const attributes = {
       queryOnlyTemperatureSetting: true,
       thermostatTemperatureUnit: this.useFahrenheit(item) ? 'F' : 'C',
       queryOnlyTemperatureControl: true,
-      temperatureUnitForUX: this.useFahrenheit(item) ? 'F' : 'C'
+      temperatureUnitForUX: this.useFahrenheit(item) ? 'F' : 'C',
+      temperatureRange: {
+        minThresholdCelsius: -100,
+        maxThresholdCelsius: 100
+      }
     };
+    const config = this.getConfig(item);
+    if ('temperatureRange' in config) {
+      const [min, max] = config.temperatureRange.split(',').map((s) => parseFloat(s.trim()));
+      if (!isNaN(min) && !isNaN(max)) {
+        attributes.temperatureRange = {
+          minThresholdCelsius: min,
+          maxThresholdCelsius: max
+        };
+      }
+    }
+    return attributes;
   }
 
   static get requiredItemTypes() {

@@ -14,7 +14,7 @@ class SetFanSpeed extends DefaultCommand {
 
   static getItemName(device) {
     const deviceType = this.getDeviceType(device);
-    if (['AirPurifier', 'Fan', 'Hood', 'ACUnit'].includes(deviceType) && this.getItemType(device) !== 'Dimmer') {
+    if (['AirPurifier', 'Fan', 'Hood', 'ACUnit'].includes(deviceType) && this.getItemType(device) === 'Group') {
       const members = this.getMembers(device);
       if ('fanSpeed' in members) {
         return members.fanSpeed;
@@ -30,7 +30,7 @@ class SetFanSpeed extends DefaultCommand {
 
   static getResponseStates(params) {
     const states = {
-      currentFanSpeedPercent: Number(params.fanSpeedPercent || params.fanSpeed)
+      currentFanSpeedPercent: params.fanSpeedPercent || Number(params.fanSpeed)
     };
     if ('fanSpeed' in params) {
       states.currentFanSpeedSetting = params.fanSpeed;

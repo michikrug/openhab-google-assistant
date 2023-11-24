@@ -42,30 +42,36 @@ describe('ColorAbsoluteTemperature Command', () => {
       expect(Command.convertParamsToValue(params, { state: '100,100,50' }, {})).toBe('30.62,95,50');
     });
 
-    test('convertParamsToValue SpecialColorLight', () => {
-      expect(
-        Command.convertParamsToValue(
-          params,
-          {},
-          {
-            customData: {
-              deviceType: 'SpecialColorLight',
-              colorTemperatureRange: { temperatureMinK: 1000, temperatureMaxK: 5000 }
-            }
-          }
-        )
-      ).toBe('25');
-      expect(
-        Command.convertParamsToValue(
-          params,
-          { state: '100,100,50' },
-          {
-            customData: {
-              deviceType: 'SpecialColorLight'
-            }
-          }
-        )
-      ).toBe('0');
+    test('convertParamsToValue SpecialColorLight Percent', () => {
+      const device = {
+        customData: {
+          deviceType: 'SpecialColorLight',
+          colorUnit: 'percent',
+          colorTemperatureRange: { temperatureMinK: 1000, temperatureMaxK: 5000 }
+        }
+      };
+      expect(Command.convertParamsToValue(params, {}, device)).toBe('25');
+    });
+
+    test('convertParamsToValue SpecialColorLight Percent Inverted', () => {
+      const device = {
+        customData: {
+          deviceType: 'SpecialColorLight',
+          colorUnit: 'percent',
+          colorTemperatureRange: { temperatureMinK: 1000, temperatureMaxK: 5000 },
+          colorTemperatureInverted: true
+        }
+      };
+      expect(Command.convertParamsToValue(params, {}, device)).toBe('75');
+    });
+
+    test('convertParamsToValue SpecialColorLight Invalid', () => {
+      const device = {
+        customData: {
+          deviceType: 'SpecialColorLight'
+        }
+      };
+      expect(Command.convertParamsToValue(params, { state: '100,100,50' }, device)).toBe('0');
     });
 
     test('convertParamsToValue SpecialColorLight Kelvin', () => {
@@ -76,17 +82,6 @@ describe('ColorAbsoluteTemperature Command', () => {
     test('convertParamsToValue SpecialColorLight Mired', () => {
       const device = { customData: { deviceType: 'SpecialColorLight', colorUnit: 'mired' } };
       expect(Command.convertParamsToValue(params, {}, device)).toBe('500');
-    });
-
-    test('convertParamsToValue SpecialColorLight Percent Inverted', () => {
-      const device = {
-        customData: {
-          deviceType: 'SpecialColorLight',
-          colorTemperatureRange: { temperatureMinK: 1000, temperatureMaxK: 5000 },
-          colorTemperatureInverted: true
-        }
-      };
-      expect(Command.convertParamsToValue(params, {}, device)).toBe('75');
     });
   });
 

@@ -116,7 +116,7 @@ class OpenHAB {
 
   handleSync() {
     return this._apiHandler.getItems().then((items) => {
-      let discoveredDevicesList = [];
+      const discoveredDevicesList = [];
       items = items.filter((item) => item.metadata && item.metadata.ga);
       items.forEach((item) => {
         item.members = items.filter((member) => member.groupNames && member.groupNames.includes(item.name));
@@ -149,7 +149,7 @@ class OpenHAB {
           if (item.state === 'NULL' && !DeviceType.supportedMembers.length) {
             throw { statusCode: 406, message: `Item state is NULL: ${item.type} ${item.name}` };
           }
-          payload.devices[device.id] = Object.assign({ status: 'SUCCESS', online: true }, DeviceType.getState(item));
+          payload.devices[device.id] = { status: 'SUCCESS', online: true, ...DeviceType.getState(item) };
         })
         .catch((error) => {
           console.error(`openhabGoogleAssistant - handleQuery - getItem: ERROR ${JSON.stringify(error)}`);
@@ -159,8 +159,8 @@ class OpenHAB {
               error.statusCode === 404
                 ? 'deviceNotFound'
                 : error.statusCode === 406
-                ? 'deviceNotReady'
-                : 'deviceOffline'
+                  ? 'deviceNotReady'
+                  : 'deviceOffline'
           };
         })
     );
@@ -181,9 +181,9 @@ class OpenHAB {
           const SetLow = getCommandType('action.devices.commands.ThermostatTemperatureSetpointLow', execution.params);
           if (SetHigh && SetLow) {
             promises.push(
-              SetHigh.execute(this._apiHandler, command.devices, execution.params, execution.challenge).then(() => {
-                return SetLow.execute(this._apiHandler, command.devices, execution.params, execution.challenge);
-              })
+              SetHigh.execute(this._apiHandler, command.devices, execution.params, execution.challenge).then(() =>
+                SetLow.execute(this._apiHandler, command.devices, execution.params, execution.challenge)
+              )
             );
             return;
           }

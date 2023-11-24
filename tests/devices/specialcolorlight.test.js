@@ -332,6 +332,7 @@ describe('SpecialColorLight Device', () => {
         colorUnit: 'kelvin'
       });
     });
+
     test('getMetadata percent inverted', () => {
       const item = {
         name: 'LightItem',
@@ -513,7 +514,7 @@ describe('SpecialColorLight Device', () => {
             }
           },
           {
-            state: '80',
+            state: '20',
             type: 'Number',
             metadata: {
               ga: {
@@ -527,7 +528,7 @@ describe('SpecialColorLight Device', () => {
         on: false,
         brightness: 0,
         color: {
-          temperatureK: 3400
+          temperatureK: 1600
         }
       });
     });
@@ -563,7 +564,7 @@ describe('SpecialColorLight Device', () => {
             }
           },
           {
-            state: '80',
+            state: '20',
             type: 'Number',
             metadata: {
               ga: {
@@ -577,7 +578,7 @@ describe('SpecialColorLight Device', () => {
         on: false,
         brightness: 50,
         color: {
-          temperatureK: 3400
+          temperatureK: 1600
         }
       });
     });
@@ -667,7 +668,7 @@ describe('SpecialColorLight Device', () => {
             }
           },
           {
-            state: '80',
+            state: '20',
             type: 'Number',
             metadata: {
               ga: {
@@ -681,7 +682,7 @@ describe('SpecialColorLight Device', () => {
         on: true,
         brightness: 50,
         color: {
-          temperatureK: 3400
+          temperatureK: 1600
         }
       });
     });

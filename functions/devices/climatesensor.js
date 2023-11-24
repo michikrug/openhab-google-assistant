@@ -23,6 +23,21 @@ class ClimateSensor extends DefaultDevice {
       attributes.temperatureUnitForUX = this.useFahrenheit(item) ? 'F' : 'C';
       attributes.queryOnlyTemperatureSetting = true;
       attributes.thermostatTemperatureUnit = this.useFahrenheit(item) === true ? 'F' : 'C';
+      attributes.temperatureRange = {
+        minThresholdCelsius: -100,
+        maxThresholdCelsius: 100
+      };
+
+      const config = this.getConfig(item);
+      if ('temperatureRange' in config) {
+        const [min, max] = config.temperatureRange.split(',').map((s) => parseFloat(s.trim()));
+        if (!isNaN(min) && !isNaN(max)) {
+          attributes.temperatureRange = {
+            minThresholdCelsius: min,
+            maxThresholdCelsius: max
+          };
+        }
+      }
     }
     if ('humidityAmbient' in members) {
       attributes.queryOnlyHumiditySetting = true;

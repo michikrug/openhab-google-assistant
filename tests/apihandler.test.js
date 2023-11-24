@@ -1,5 +1,5 @@
-const ApiHandler = require('../functions/apihandler.js');
 const nock = require('nock');
+const ApiHandler = require('../functions/apihandler.js');
 
 describe('ApiHandler', () => {
   const config = {

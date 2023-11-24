@@ -9,27 +9,26 @@ class Fan extends DefaultDevice {
     const traits = [];
     const members = this.getMembers(item);
     const itemType = item.groupType || item.type;
-    if (itemType === 'Dimmer' || 'fanPower' in members) traits.push('action.devices.traits.OnOff');
-    if (itemType === 'Dimmer' || 'fanSpeed' in members) traits.push('action.devices.traits.FanSpeed');
+    if (itemType !== 'Group' || 'fanPower' in members) traits.push('action.devices.traits.OnOff');
+    if (itemType !== 'Group' || 'fanSpeed' in members) traits.push('action.devices.traits.FanSpeed');
     if ('fanMode' in members) traits.push('action.devices.traits.Modes');
     if ('fanFilterLifeTime' in members || 'fanPM25' in members) traits.push('action.devices.traits.SensorState');
     return traits;
   }
 
   static get requiredItemTypes() {
-    return ['Group', 'Dimmer'];
+    return ['Group', 'Dimmer', 'Number'];
   }
 
   static matchesDeviceType(item) {
     const itemType = item.groupType || item.type;
-    return super.matchesDeviceType(item) && (itemType === 'Dimmer' || Object.keys(this.getMembers(item)).length > 0);
+    return super.matchesDeviceType(item) && (itemType !== 'Group' || Object.keys(this.getMembers(item)).length > 0);
   }
 
   static getAttributes(item) {
     const config = this.getConfig(item);
     const members = this.getMembers(item);
-    const attributes = {};
-    attributes.supportsFanSpeedPercent = true;
+    const attributes = { supportsFanSpeedPercent: true };
     if (config.fanSpeeds) {
       attributes.availableFanSpeeds = {
         speeds: [],
@@ -41,7 +40,6 @@ class Fan extends DefaultDevice {
             .trim()
             .split('=')
             .map((s) => s.trim());
-          // @ts-ignore
           attributes.availableFanSpeeds.speeds.push({
             speed_name: speedName,
             speed_values: [
@@ -77,7 +75,6 @@ class Fan extends DefaultDevice {
             .trim()
             .split('=')
             .map((s) => s.trim());
-          // @ts-ignore
           attributes.availableModes[0].settings.push({
             setting_name: settingName,
             setting_values: [
@@ -121,9 +118,9 @@ class Fan extends DefaultDevice {
   static getState(item) {
     const config = this.getConfig(item);
     const itemType = item.groupType || item.type;
-    if (itemType === 'Dimmer') {
+    if (itemType !== 'Group') {
       const state = {
-        currentFanSpeedPercent: Number(item.state),
+        currentFanSpeedPercent: Math.round(Number(item.state)),
         on: Number(item.state) > 0
       };
       if (config.fanSpeeds) {

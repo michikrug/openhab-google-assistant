@@ -31,7 +31,7 @@ describe('ThermostatSetMode Command', () => {
       metadata: {
         ga: {
           config: {
-            modes: 'eco=ECO'
+            thermostatModes: 'eco=ECO'
           }
         }
       }

@@ -36,15 +36,17 @@ class Sensor extends DefaultDevice {
 
   static getState(item) {
     const config = this.getConfig(item);
-    return {
+    const state = {
       currentSensorStateData: [
         {
           name: config.sensorName,
-          currentSensorState: this.translateStateToGoogle(item),
-          rawValue: Number(item.state) || 0
+          currentSensorState: this.translateStateToGoogle(item)
         }
       ]
     };
+    const rawValue = parseFloat(item.state);
+    if (!isNaN(rawValue)) state.currentSensorStateData[0].rawValue = rawValue;
+    return state;
   }
 
   static getNotification(item) {
@@ -64,7 +66,7 @@ class Sensor extends DefaultDevice {
       const states = config.states.split(',').map((s) => s.trim());
       for (const state of states) {
         const [key, value] = state.split('=').map((s) => s.trim());
-        if (value === item.state) {
+        if (value === item.state || value === parseFloat(item.state).toFixed(0)) {
           return key;
         }
       }

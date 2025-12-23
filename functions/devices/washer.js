@@ -35,15 +35,8 @@ class Washer extends DefaultDevice {
     ];
   }
 
-  static getAttributes(item) {
-    const attributes = {};
-    const members = this.getMembers(item);
-
-    if ('washerPower' in members) {
-      attributes.pausable = false;
-    }
-
-    return attributes;
+  static getAttributes() {
+    return { pausable: false };
   }
 
   static getState(item) {

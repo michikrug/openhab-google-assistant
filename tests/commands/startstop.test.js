@@ -81,5 +81,31 @@ describe('StartStop Command', () => {
         Command.getItemName(device);
       }).toThrow();
     });
+
+    test('getItemName - Washer with washerPower member', () => {
+      const device = {
+        id: 'WasherGroup',
+        customData: {
+          deviceType: 'Washer',
+          members: {
+            washerPower: 'WasherPowerSwitch'
+          }
+        }
+      };
+      expect(Command.getItemName(device)).toBe('WasherPowerSwitch');
+    });
+
+    test('getItemName - Washer without washerPower member', () => {
+      const device = {
+        id: 'WasherGroup',
+        customData: {
+          deviceType: 'Washer',
+          members: {}
+        }
+      };
+      expect(() => {
+        Command.getItemName(device);
+      }).toThrow();
+    });
   });
 });

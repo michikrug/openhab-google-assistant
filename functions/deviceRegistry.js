@@ -34,7 +34,6 @@ const Charger = require('./devices/charger.js');
 const ClimateSensor = require('./devices/climatesensor.js');
 const ColorLight = require('./devices/colorlight.js');
 const DimmableLight = require('./devices/dimmablelight.js');
-const RunCycleDevice = require('./devices/runcycle.js');
 const Humidifier = require('./devices/humidifier.js');
 const HumiditySensor = require('./devices/humiditysensor.js');
 const Lock = require('./devices/lock.js');
@@ -49,6 +48,7 @@ const TemperatureSensor = require('./devices/temperaturesensor.js');
 const Thermostat = require('./devices/thermostat.js');
 const TV = require('./devices/tv.js');
 const Vacuum = require('./devices/vacuum.js');
+const Washer = require('./devices/washer.js');
 const Valve = require('./devices/valve.js');
 
 /**
@@ -109,12 +109,10 @@ const DEVICE_REGISTRY = [
   Thermostat,
   TV,
   Vacuum,
+  Washer,
   Valve,
 
-  ...createDeviceVariants(RunCycleDevice, [
-    { type: 'WASHER', name: 'Washer' },
-    { type: 'DISHWASHER', name: 'Dishwasher' }
-  ]),
+  ...createDeviceVariants(Washer, [{ type: 'DISHWASHER', name: 'Dishwasher' }]),
 
   // Base classes (provide fallback matching)
   Switch,

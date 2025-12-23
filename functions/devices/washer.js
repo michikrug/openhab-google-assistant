@@ -1,20 +1,18 @@
 const DefaultDevice = require('./default.js');
 
-class RunCycleDevice extends DefaultDevice {
-  static get devicePrefix() {
-    // action.devices.types.WASHER -> washer
-    return this.type.split('.').pop().toLowerCase();
+class Washer extends DefaultDevice {
+  static get type() {
+    return 'action.devices.types.WASHER';
   }
 
   static getTraits(item) {
     const traits = [];
     const members = this.getMembers(item);
-    const prefix = this.devicePrefix;
 
-    if (`${prefix}Power` in members) {
+    if ('washerPower' in members) {
       traits.push('action.devices.traits.StartStop');
     }
-    if (`${prefix}TimerRemaining` in members || `${prefix}CurrentCycle` in members) {
+    if ('washerTimerRemaining' in members || 'washerCurrentCycle' in members) {
       traits.push('action.devices.traits.RunCycle');
     }
 
@@ -30,20 +28,18 @@ class RunCycleDevice extends DefaultDevice {
   }
 
   static get supportedMembers() {
-    const prefix = this.devicePrefix;
     return [
-      { name: `${prefix}TimerRemaining`, types: ['Number'] },
-      { name: `${prefix}CurrentCycle`, types: ['String'] },
-      { name: `${prefix}Power`, types: ['Switch'] }
+      { name: 'washerTimerRemaining', types: ['Number'] },
+      { name: 'washerCurrentCycle', types: ['String'] },
+      { name: 'washerPower', types: ['Switch'] }
     ];
   }
 
   static getAttributes(item) {
     const attributes = {};
     const members = this.getMembers(item);
-    const prefix = this.devicePrefix;
 
-    if (`${prefix}Power` in members) {
+    if ('washerPower' in members) {
       attributes.pausable = false;
     }
 
@@ -54,10 +50,9 @@ class RunCycleDevice extends DefaultDevice {
     const state = {};
     const config = this.getConfig(item);
     const members = this.getMembers(item);
-    const prefix = this.devicePrefix;
 
-    if (`${prefix}Power` in members) {
-      let isRunning = members[`${prefix}Power`].state === 'ON';
+    if ('washerPower' in members) {
+      let isRunning = members.washerPower.state === 'ON';
       if (config.inverted === true) {
         isRunning = !isRunning;
       }
@@ -65,7 +60,7 @@ class RunCycleDevice extends DefaultDevice {
       state.isPaused = false;
     }
 
-    if (`${prefix}TimerRemaining` in members || `${prefix}CurrentCycle` in members) {
+    if ('washerTimerRemaining' in members || 'washerCurrentCycle' in members) {
       state.currentRunCycle = [
         {
           currentCycle: 'unknown',
@@ -73,12 +68,12 @@ class RunCycleDevice extends DefaultDevice {
         }
       ];
 
-      if (`${prefix}CurrentCycle` in members) {
-        state.currentRunCycle[0].currentCycle = members[`${prefix}CurrentCycle`].state;
+      if ('washerCurrentCycle' in members) {
+        state.currentRunCycle[0].currentCycle = members.washerCurrentCycle.state;
       }
 
-      if (`${prefix}TimerRemaining` in members) {
-        const remaining = parseInt(members[`${prefix}TimerRemaining`].state);
+      if ('washerTimerRemaining' in members) {
+        const remaining = parseInt(members.washerTimerRemaining.state);
         if (!isNaN(remaining)) {
           state.currentTotalRemainingTime = remaining;
           state.currentCycleRemainingTime = remaining;
@@ -90,4 +85,4 @@ class RunCycleDevice extends DefaultDevice {
   }
 }
 
-module.exports = RunCycleDevice;
+module.exports = Washer;

@@ -1,17 +1,9 @@
-const RunCycleDevice = require('../../functions/devices/runcycle.js');
-
-class Washer extends RunCycleDevice {
-  static get type() {
-    return 'action.devices.types.WASHER';
-  }
-}
-
-const Device = Washer;
+const Washer = require('../../functions/devices/washer.js');
 
 describe('Washer Device', () => {
   test('matchesDeviceType without members', () => {
     expect(
-      Device.matchesDeviceType({
+      Washer.matchesDeviceType({
         metadata: {
           ga: {
             value: 'WASHER'
@@ -23,7 +15,7 @@ describe('Washer Device', () => {
 
   test('matchesDeviceType with members', () => {
     expect(
-      Device.matchesDeviceType({
+      Washer.matchesDeviceType({
         metadata: {
           ga: {
             value: 'WASHER'
@@ -42,8 +34,8 @@ describe('Washer Device', () => {
   });
 
   test('matchesItemType', () => {
-    expect(Device.matchesItemType({ type: 'Group' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'Switch' })).toBe(false);
+    expect(Washer.matchesItemType({ type: 'Group' })).toBe(true);
+    expect(Washer.matchesItemType({ type: 'Switch' })).toBe(false);
   });
 
   test('getTraits - Power only', () => {
@@ -57,7 +49,7 @@ describe('Washer Device', () => {
         }
       ]
     };
-    const traits = Device.getTraits(item);
+    const traits = Washer.getTraits(item);
     expect(traits).toContain('action.devices.traits.StartStop');
     expect(traits).not.toContain('action.devices.traits.RunCycle');
   });
@@ -73,7 +65,7 @@ describe('Washer Device', () => {
         }
       ]
     };
-    const traits = Device.getTraits(item);
+    const traits = Washer.getTraits(item);
     expect(traits).toContain('action.devices.traits.RunCycle');
     expect(traits).not.toContain('action.devices.traits.StartStop');
   });
@@ -90,7 +82,7 @@ describe('Washer Device', () => {
         }
       ]
     };
-    const state = Device.getState(item);
+    const state = Washer.getState(item);
     expect(state.currentTotalRemainingTime).toBe(1200);
     expect(state.currentCycleRemainingTime).toBe(1200);
     expect(state.currentRunCycle[0].currentCycle).toBe('unknown');
@@ -108,7 +100,7 @@ describe('Washer Device', () => {
         }
       ]
     };
-    const state = Device.getState(item);
+    const state = Washer.getState(item);
     expect(state.currentRunCycle[0].currentCycle).toBe('rinse');
   });
 
@@ -136,7 +128,7 @@ describe('Washer Device', () => {
         }
       ]
     };
-    const state = Device.getState(item);
+    const state = Washer.getState(item);
     expect(state.currentTotalRemainingTime).toBe(600);
     expect(state.currentCycleRemainingTime).toBe(600);
     expect(state.currentRunCycle[0].currentCycle).toBe('spin');

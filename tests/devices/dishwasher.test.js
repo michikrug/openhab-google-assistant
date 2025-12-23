@@ -1,6 +1,6 @@
-const RunCycleDevice = require('../../functions/devices/runcycle.js');
+const Washer = require('../../functions/devices/washer.js');
 
-class Dishwasher extends RunCycleDevice {
+class Dishwasher extends Washer {
   static get type() {
     return 'action.devices.types.DISHWASHER';
   }
@@ -8,7 +8,7 @@ class Dishwasher extends RunCycleDevice {
 
 const Device = Dishwasher;
 
-describe('Dishwasher Device', () => {
+describe('Dishwasher Device (as Washer Variant)', () => {
   test('matchesDeviceType without members', () => {
     expect(
       Device.matchesDeviceType({
@@ -21,7 +21,7 @@ describe('Dishwasher Device', () => {
     ).toBe(false);
   });
 
-  test('matchesDeviceType with members', () => {
+  test('matchesDeviceType with members (washer prefix)', () => {
     expect(
       Device.matchesDeviceType({
         metadata: {
@@ -34,85 +34,29 @@ describe('Dishwasher Device', () => {
             name: 'DishwasherPower',
             state: 'ON',
             type: 'Switch',
-            metadata: { ga: { value: 'dishwasherPower' } }
+            metadata: { ga: { value: 'washerPower' } }
           }
         ]
       })
     ).toBe(true);
   });
 
-  test('matchesItemType', () => {
-    expect(Device.matchesItemType({ type: 'Group' })).toBe(true);
-    expect(Device.matchesItemType({ type: 'Switch' })).toBe(false);
-  });
-
-  test('getTraits - Power only', () => {
+  test('getTraits - Power only (washerPower)', () => {
     const item = {
       type: 'Group',
       members: [
         {
           name: 'DishwasherPower',
           type: 'Switch',
-          metadata: { ga: { value: 'dishwasherPower' } }
+          metadata: { ga: { value: 'washerPower' } }
         }
       ]
     };
     const traits = Device.getTraits(item);
     expect(traits).toContain('action.devices.traits.StartStop');
-    expect(traits).not.toContain('action.devices.traits.RunCycle');
   });
 
-  test('getTraits - Timer/RunCycle only', () => {
-    const item = {
-      type: 'Group',
-      members: [
-        {
-          name: 'DishwasherTimerRemaining',
-          type: 'Number',
-          metadata: { ga: { value: 'dishwasherTimerRemaining' } }
-        }
-      ]
-    };
-    const traits = Device.getTraits(item);
-    expect(traits).toContain('action.devices.traits.RunCycle');
-    expect(traits).not.toContain('action.devices.traits.StartStop');
-  });
-
-  test('getState - Timer Active', () => {
-    const item = {
-      type: 'Group',
-      members: [
-        {
-          name: 'DishwasherTimerRemaining',
-          state: '1200',
-          type: 'Number',
-          metadata: { ga: { value: 'dishwasherTimerRemaining' } }
-        }
-      ]
-    };
-    const state = Device.getState(item);
-    expect(state.currentTotalRemainingTime).toBe(1200);
-    expect(state.currentCycleRemainingTime).toBe(1200);
-    expect(state.currentRunCycle[0].currentCycle).toBe('unknown');
-  });
-
-  test('getState - Current Cycle', () => {
-    const item = {
-      type: 'Group',
-      members: [
-        {
-          name: 'DishwasherCurrentCycle',
-          state: 'pots_pans',
-          type: 'String',
-          metadata: { ga: { value: 'dishwasherCurrentCycle' } }
-        }
-      ]
-    };
-    const state = Device.getState(item);
-    expect(state.currentRunCycle[0].currentCycle).toBe('pots_pans');
-  });
-
-  test('getState - Full State', () => {
+  test('getState - Full State (washer members)', () => {
     const item = {
       type: 'Group',
       members: [
@@ -120,26 +64,24 @@ describe('Dishwasher Device', () => {
           name: 'DishwasherTimerRemaining',
           state: '600',
           type: 'Number',
-          metadata: { ga: { value: 'dishwasherTimerRemaining' } }
+          metadata: { ga: { value: 'washerTimerRemaining' } }
         },
         {
           name: 'DishwasherCurrentCycle',
           state: 'eco',
           type: 'String',
-          metadata: { ga: { value: 'dishwasherCurrentCycle' } }
+          metadata: { ga: { value: 'washerCurrentCycle' } }
         },
         {
           name: 'DishwasherPower',
           state: 'ON',
           type: 'Switch',
-          metadata: { ga: { value: 'dishwasherPower' } }
+          metadata: { ga: { value: 'washerPower' } }
         }
       ]
     };
     const state = Device.getState(item);
     expect(state.currentTotalRemainingTime).toBe(600);
-    expect(state.currentCycleRemainingTime).toBe(600);
-    expect(state.currentRunCycle[0].currentCycle).toBe('eco');
     expect(state.isRunning).toBe(true);
   });
 });

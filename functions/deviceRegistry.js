@@ -34,6 +34,7 @@ const Charger = require('./devices/charger.js');
 const ClimateSensor = require('./devices/climatesensor.js');
 const ColorLight = require('./devices/colorlight.js');
 const DimmableLight = require('./devices/dimmablelight.js');
+const Dishwasher = require('./devices/dishwasher.js');
 const Humidifier = require('./devices/humidifier.js');
 const HumiditySensor = require('./devices/humiditysensor.js');
 const Lock = require('./devices/lock.js');
@@ -94,6 +95,7 @@ const DEVICE_REGISTRY = [
   ClimateSensor,
   ColorLight,
   DimmableLight,
+  Dishwasher,
   Fan,
   Humidifier,
   HumiditySensor,
@@ -137,7 +139,7 @@ const DEVICE_REGISTRY = [
   ...createDeviceVariants(StartStopSwitch, [
     { type: 'VACUUM', name: 'SimpleVacuum' },
     { type: 'WASHER', name: 'SimpleWasher' },
-    { type: 'DISHWASHER', name: 'Dishwasher' },
+    { type: 'DISHWASHER', name: 'SimpleDishwasher' },
     { type: 'SPRINKLER', name: 'Sprinkler' }
   ]),
 

@@ -107,5 +107,31 @@ describe('StartStop Command', () => {
         Command.getItemName(device);
       }).toThrow();
     });
+
+    test('getItemName - Dishwasher with dishwasherPower member', () => {
+      const device = {
+        id: 'DishwasherGroup',
+        customData: {
+          deviceType: 'Dishwasher',
+          members: {
+            dishwasherPower: 'DishwasherPowerSwitch'
+          }
+        }
+      };
+      expect(Command.getItemName(device)).toBe('DishwasherPowerSwitch');
+    });
+
+    test('getItemName - Dishwasher without dishwasherPower member', () => {
+      const device = {
+        id: 'DishwasherGroup',
+        customData: {
+          deviceType: 'Dishwasher',
+          members: {}
+        }
+      };
+      expect(() => {
+        Command.getItemName(device);
+      }).toThrow();
+    });
   });
 });

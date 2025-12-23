@@ -35,6 +35,13 @@ class StartStop extends DefaultCommand {
       }
       throw { statusCode: 400 };
     }
+    if (this.getDeviceType(device) === 'Dishwasher') {
+      const members = this.getMembers(device);
+      if ('dishwasherPower' in members) {
+        return members.dishwasherPower;
+      }
+      throw { statusCode: 400 };
+    }
     return device.id;
   }
 

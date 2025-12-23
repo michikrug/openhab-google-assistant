@@ -112,8 +112,6 @@ const DEVICE_REGISTRY = [
   Washer,
   Valve,
 
-  ...createDeviceVariants(Washer, [{ type: 'DISHWASHER', name: 'Dishwasher' }]),
-
   // Base classes (provide fallback matching)
   Switch,
 
@@ -133,6 +131,12 @@ const DEVICE_REGISTRY = [
   ...createDeviceVariants(Fan, [
     { type: 'AIRPURIFIER', name: 'AirPurifier' },
     { type: 'HOOD', name: 'Hood' }
+  ]),
+
+  // Simple device type variants - Washer-based devices
+  // eslint-disable-next-line prettier/prettier
+  ...createDeviceVariants(Washer,  [
+    { type: 'DISHWASHER', name: 'Dishwasher' }
   ]),
 
   // Simple device type variants - StartStopSwitch-based devices

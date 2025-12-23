@@ -28,6 +28,14 @@ class StartStop extends DefaultCommand {
       }
       throw { statusCode: 400 };
     }
+    if (this.getDeviceType(device) === 'Washer') {
+      const members = this.getMembers(device);
+      if ('washerPower' in members) {
+        return members.washerPower;
+      }
+      // If it's a new Washer but no washerPower, we probably can't control it via StartStop
+      // unless we want to assume the group itself accepts ON/OFF, but the Washer device requires explicit members.
+    }
     return device.id;
   }
 

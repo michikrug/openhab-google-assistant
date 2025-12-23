@@ -1,18 +1,20 @@
 const DefaultDevice = require('./default.js');
 
-class Dishwasher extends DefaultDevice {
-  static get type() {
-    return 'action.devices.types.DISHWASHER';
+class RunCycleDevice extends DefaultDevice {
+  static get devicePrefix() {
+    // action.devices.types.WASHER -> washer
+    return this.type.split('.').pop().toLowerCase();
   }
 
   static getTraits(item) {
     const traits = [];
     const members = this.getMembers(item);
+    const prefix = this.devicePrefix;
 
-    if ('dishwasherPower' in members) {
+    if (`${prefix}Power` in members) {
       traits.push('action.devices.traits.StartStop');
     }
-    if ('dishwasherTimerRemaining' in members || 'dishwasherCurrentCycle' in members) {
+    if (`${prefix}TimerRemaining` in members || `${prefix}CurrentCycle` in members) {
       traits.push('action.devices.traits.RunCycle');
     }
 
@@ -28,18 +30,20 @@ class Dishwasher extends DefaultDevice {
   }
 
   static get supportedMembers() {
+    const prefix = this.devicePrefix;
     return [
-      { name: 'dishwasherTimerRemaining', types: ['Number'] },
-      { name: 'dishwasherCurrentCycle', types: ['String'] },
-      { name: 'dishwasherPower', types: ['Switch'] }
+      { name: `${prefix}TimerRemaining`, types: ['Number'] },
+      { name: `${prefix}CurrentCycle`, types: ['String'] },
+      { name: `${prefix}Power`, types: ['Switch'] }
     ];
   }
 
   static getAttributes(item) {
     const attributes = {};
     const members = this.getMembers(item);
+    const prefix = this.devicePrefix;
 
-    if ('dishwasherPower' in members) {
+    if (`${prefix}Power` in members) {
       attributes.pausable = false;
     }
 
@@ -50,9 +54,10 @@ class Dishwasher extends DefaultDevice {
     const state = {};
     const config = this.getConfig(item);
     const members = this.getMembers(item);
+    const prefix = this.devicePrefix;
 
-    if ('dishwasherPower' in members) {
-      let isRunning = members.dishwasherPower.state === 'ON';
+    if (`${prefix}Power` in members) {
+      let isRunning = members[`${prefix}Power`].state === 'ON';
       if (config.inverted === true) {
         isRunning = !isRunning;
       }
@@ -60,7 +65,7 @@ class Dishwasher extends DefaultDevice {
       state.isPaused = false;
     }
 
-    if ('dishwasherTimerRemaining' in members || 'dishwasherCurrentCycle' in members) {
+    if (`${prefix}TimerRemaining` in members || `${prefix}CurrentCycle` in members) {
       state.currentRunCycle = [
         {
           currentCycle: 'unknown',
@@ -68,12 +73,12 @@ class Dishwasher extends DefaultDevice {
         }
       ];
 
-      if ('dishwasherCurrentCycle' in members) {
-        state.currentRunCycle[0].currentCycle = members.dishwasherCurrentCycle.state;
+      if (`${prefix}CurrentCycle` in members) {
+        state.currentRunCycle[0].currentCycle = members[`${prefix}CurrentCycle`].state;
       }
 
-      if ('dishwasherTimerRemaining' in members) {
-        const remaining = parseInt(members.dishwasherTimerRemaining.state);
+      if (`${prefix}TimerRemaining` in members) {
+        const remaining = parseInt(members[`${prefix}TimerRemaining`].state);
         if (!isNaN(remaining)) {
           state.currentTotalRemainingTime = remaining;
           state.currentCycleRemainingTime = remaining;
@@ -85,4 +90,4 @@ class Dishwasher extends DefaultDevice {
   }
 }
 
-module.exports = Dishwasher;
+module.exports = RunCycleDevice;

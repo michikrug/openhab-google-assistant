@@ -1,4 +1,12 @@
-const Device = require('../../functions/devices/washer.js');
+const RunCycleDevice = require('../../functions/devices/runcycle.js');
+
+class Washer extends RunCycleDevice {
+  static get type() {
+    return 'action.devices.types.WASHER';
+  }
+}
+
+const Device = Washer;
 
 describe('Washer Device', () => {
   test('matchesDeviceType without members', () => {

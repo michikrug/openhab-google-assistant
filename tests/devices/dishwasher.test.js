@@ -1,4 +1,12 @@
-const Device = require('../../functions/devices/dishwasher.js');
+const RunCycleDevice = require('../../functions/devices/runcycle.js');
+
+class Dishwasher extends RunCycleDevice {
+  static get type() {
+    return 'action.devices.types.DISHWASHER';
+  }
+}
+
+const Device = Dishwasher;
 
 describe('Dishwasher Device', () => {
   test('matchesDeviceType without members', () => {

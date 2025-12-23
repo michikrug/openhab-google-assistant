@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2019 Contributors to the openHAB project
+ * Copyright (c) 2010-2025 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -31,9 +31,9 @@
  * path
  *    Base URL path for openHAB items
  *
- **/
+ * */
 module.exports = {
-  //userpass: process.env.OH_USERPASS || 'user@foo.com:Password1',
+  // userpass: process.env.OH_USERPASS || 'user@foo.com:Password1',
   host: process.env.OH_HOST || '<YOUR-CLOUD-HOST>',
   port: parseInt(process.env.OH_PORT) || 443,
   path: process.env.OH_PATH || '/YOUR/REST/ENDPOINT'

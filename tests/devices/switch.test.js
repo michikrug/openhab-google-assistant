@@ -1,9 +1,9 @@
 const Device = require('../../functions/devices/switch.js');
 
 describe('Switch Device', () => {
-  test('isCompatible', () => {
+  test('matchesDeviceType', () => {
     expect(
-      Device.isCompatible({
+      Device.matchesDeviceType({
         metadata: {
           ga: {
             value: 'SWITCH'
@@ -46,6 +46,27 @@ describe('Switch Device', () => {
     item.state = 'OFF';
     expect(Device.getState(item)).toStrictEqual({
       on: true
+    });
+  });
+
+  test('getAttributes', () => {
+    expect(Device.getAttributes({})).toStrictEqual({
+      queryOnlyOnOff: false
+    });
+  });
+
+  test('getAttributes queryOnly', () => {
+    const item = {
+      metadata: {
+        ga: {
+          config: {
+            queryOnly: true
+          }
+        }
+      }
+    };
+    expect(Device.getAttributes(item)).toStrictEqual({
+      queryOnlyOnOff: true
     });
   });
 });

@@ -24,8 +24,48 @@ If you have any issues, questions or an idea for additional features, please tak
 ## Latest Changes
 
 ::: tip State of this document
-This documentation refers to release [v3.8.1](https://github.com/openhab/openhab-google-assistant/releases/tag/v3.8.1) of [openHAB Google Assistant](https://github.com/openhab/openhab-google-assistant) published on 2023-11-26
+This documentation refers to release [v5.0.2](https://github.com/openhab/openhab-google-assistant/releases/tag/v5.0.2) of [openHAB Google Assistant](https://github.com/openhab/openhab-google-assistant) published on 2025-12-21
 :::
+
+### v5.0.1
+
+- Added [`Humidifier`](#humidifier) device type with humidity control and fan speed support
+- Added extended [`Vacuum`](#vacuum-as-group-with-advanced-functionality) device with dock, locate, battery status and cycle information
+- Added [Rotation trait](https://developers.home.google.com/cloud-to-cloud/traits/rotation) support to Awning, Blinds, Curtain, Pergola and Shutter devices
+
+### v4.1.0
+
+- Added `queryOnly=true` option to [`Switch`](#switch) devices indicating that the device can only be queried for state information and not be controlled
+
+### v4.0.0
+
+- **Breaking Changes**
+  - Group members are now stored in customData. This means existing (group) devices will only work after a new SYNC
+  - The `modes` configuration for Thermostats has been renamed to `thermostatModes`
+  - The `speeds` configuration for Fans will be renamed to `fanSpeeds`
+  - As item types of group members will then be validated, users might see devices disappearing in Google Home if they used an unsupported item within a group device
+  - Please take a look at [Migration Guide](https://github.com/openhab/openhab-google-assistant/discussions/558) and check your configuration against the new constraints
+- **More details and other changes**
+  - Item names for group members will be stored in customData to save a query request to openHAB when executing commands
+    - For commands that need the current state the query request is still needed (thermostat commands or relative volume)
+    - Also some other configuration options are stored in customData
+    - Item types of group members will now be validated
+  - Add a lot of new functionality to Fan devices (AirPurifier, Fan, Hood)
+    - OnOff (separate power switch if used as a group)
+    - FanSpeed (separate fan speed if used as a group)
+    - Modes (yes, for the first time modes are available)
+    - SensorState (for FilterLifeTime and PM2.5 - no clue how to query those)
+  - Add AC Unit device
+    - Basically just a combination of the extended Fan and the Thermostat with all control and config options of both
+- **Potential Issues**
+  - As customData is limited to 512 bytes it could be an issue to store very long item names e.g. for devices with a lot of members like thermostat
+
+### v3.9.0
+
+- Prepared available configuration options for the upcoming rollout of v4
+- Users can start adjusting their setup to use the new configuration options:
+  - [`Thermostat`](#thermostat): `modes` has been renamed to `thermostatModes`
+  - [`Fan`](#fan-hood-airpurifier-only-onoff-or-fan-speed-control): `speeds` has been renamed to `fanSpeeds`
 
 ### v3.8.0
 
@@ -33,7 +73,7 @@ This documentation refers to release [v3.8.1](https://github.com/openhab/openhab
   
 ### v3.7.0
 
-- Adjusted [`Fan`](#fan-hood-airpurifier) to use `supportsFanSpeedPercent` option
+- Adjusted [`Fan`](#fan-hood-airpurifier-only-onoff-or-fan-speed-control) to use `supportsFanSpeedPercent` option
 - Inverted `lightColorTemperature` percentage range when using `colorUnit="percent"` with [`SpecialColorLight`](#light-as-group-with-separate-controls)
 
 ### v3.6.0
@@ -73,7 +113,7 @@ Currently the following devices are supported (also depending on Google's API ca
 | **Device Type** | [Switch](https://developers.home.google.com/cloud-to-cloud/guides/switch) |
 | **Supported Traits** | [OnOff](https://developers.home.google.com/cloud-to-cloud/traits/onoff) |
 | **Supported Items** | Switch |
-| **Configuration** | (optional) `inverted=true/false`<br>(optional) `checkState=true/false` |
+| **Configuration** | (optional) `queryOnly=true/false`<br>(optional) `inverted=true/false`<br>(optional) `checkState=true/false` |
 
 **Example:**
 
@@ -162,7 +202,7 @@ Switch { ga="Scene" [ sceneReversible=false ] }
 
 | | |
 |---|---|
-| **Device Type** | [Outlet](https://developers.home.google.com/cloud-to-cloud/guides/outlet), [Coffee_Maker](https://developers.home.google.com/cloud-to-cloud/guides/coffeemaker), [WaterHeater](https://developers.home.google.com/cloud-to-cloud/guides/outlet), [Fireplace](https://developers.home.google.com/cloud-to-cloud/guides/fireplace) |
+| **Device Type** | [Outlet](https://developers.home.google.com/cloud-to-cloud/guides/outlet), [Coffee_Maker](https://developers.home.google.com/cloud-to-cloud/guides/coffeemaker), [WaterHeater](https://developers.home.google.com/cloud-to-cloud/guides/waterheater), [Fireplace](https://developers.home.google.com/cloud-to-cloud/guides/fireplace) |
 | **Supported Traits** | [OnOff](https://developers.home.google.com/cloud-to-cloud/traits/onoff) |
 | **Supported Items** | Switch |
 | **Configuration** | (optional) `inverted=true/false`<br>(optional) `checkState=true/false` |
@@ -187,7 +227,7 @@ Switch { ga="Fireplace" }
 Switch { ga="Valve" [ inverted=true ] }
 ```
 
-### Sprinkler, Vacuum
+### Sprinkler, Vacuum, Washer, Dishwasher
 
 | | |
 |---|---|
@@ -199,6 +239,26 @@ Switch { ga="Valve" [ inverted=true ] }
 ```shell
 Switch { ga="Sprinkler" [ inverted=true ] }
 Switch { ga="Vacuum" [ inverted=false ] }
+Switch { ga="Washer" [ inverted=false ] }
+Switch { ga="Dishwasher" [ inverted=false ] }
+```
+
+### Vacuum as Group with advanced functionality
+
+| | |
+|---|---|
+| **Device Type** | [Vacuum](https://developers.home.google.com/cloud-to-cloud/guides/vacuum) |
+| **Supported Traits** | [StartStop](https://developers.home.google.com/cloud-to-cloud/traits/startstop), [Dock](https://developers.home.google.com/cloud-to-cloud/traits/dock), [Locator](https://developers.home.google.com/cloud-to-cloud/traits/locator), [RunCycle](https://developers.home.google.com/cloud-to-cloud/traits/runcycle), [EnergyStorage](https://developers.home.google.com/cloud-to-cloud/traits/energystorage) |
+| **Supported Items** | Group as `Vacuum` with the following members:<br>(required) Switch as `vacuumPower`<br>(optional) Switch as `vacuumDock`<br>(optional) Switch as `vacuumLocate`<br>(optional) Number or Dimmer as `vacuumBattery`<br>(optional) String as `vacuumCurrentCycle` |
+| **Configuration** | (optional) `inverted=true/false`<br>(optional) `checkState=true/false` |
+
+```shell
+Group  vacuumRobot { ga="Vacuum" [ checkState=true ] }
+Switch vacuumPowerItem     (vacuumRobot) { ga="vacuumPower" }
+Switch vacuumDockItem      (vacuumRobot) { ga="vacuumDock" }
+Switch vacuumLocateItem    (vacuumRobot) { ga="vacuumLocate" }
+Number vacuumBatteryItem   (vacuumRobot) { ga="vacuumBattery" }
+String vacuumCycleItem     (vacuumRobot) { ga="vacuumCurrentCycle" }
 ```
 
 ### Lock
@@ -308,7 +368,7 @@ Dimmer { ga="Speaker" [ volumeDefaultPercentage="50", levelStepSize="10", volume
 |---|---|
 | **Device Type** | [TV](https://developers.home.google.com/cloud-to-cloud/guides/tv) |
 | **Supported Traits** | [OnOff](https://developers.home.google.com/cloud-to-cloud/traits/onoff), [Volume](https://developers.home.google.com/cloud-to-cloud/traits/volume), [TransportControl](https://developers.home.google.com/cloud-to-cloud/traits/transportcontrol), [InputSelector](https://developers.home.google.com/cloud-to-cloud/traits/inputselector), [AppSelector](https://developers.home.google.com/cloud-to-cloud/traits/appselector), [Channel](https://developers.home.google.com/cloud-to-cloud/traits/channel) (depending on used members) |
-| **Supported Items** | Group as `TV` with the following members:<br>(optional) Switch as `tvPower`<br>(optional) Switch as `tvMute`<br>(optional) Dimmer as `tvVolume`<br>(optional) String as `tvChannel`<br>(optional) String as `tvInput`<br>(optional) String as `tvApplication`<br>(optional) Player as `tvTransport` |
+| **Supported Items** | Group as `TV` with the following members:<br>(optional) Switch as `tvPower`<br>(optional) Switch as `tvMute`<br>(optional) Dimmer or Number as `tvVolume`<br>(optional) String or Number as `tvChannel`<br>(optional) String or Number as `tvInput`<br>(optional) String or Number as `tvApplication`<br>(optional) Player as `tvTransport` |
 | **Configuration** | (optional) `checkState=true/false`<br>(optional) `volumeDefaultPercentage="20"`<br>(optional) `levelStepSize="5"`<br>(optional) `volumeMaxLevel="100"`<br>(optional) `transportControlSupportedCommands="NEXT,PREVIOUS,PAUSE,RESUME"`<br>(optional) `availableChannels="channelNumber=channelId=channelName:channelSynonym:...,..."`<br>(optional) `availableInputs="inputKey=inputName:inputSynonym:...,..."`<br>(optional) `availableApplications="applicationKey=applicationName:applicationSynonym:...,..."`<br>(optional) `lang="en"` |
 
 ```shell
@@ -322,31 +382,119 @@ String applicationItem (tvGroup) { ga="tvApplication" }
 Player transportItem   (tvGroup) { ga="tvTransport" }
 ```
 
-### Fan, Hood, AirPurifier
+### Fan, Hood, AirPurifier (only on/off or fan speed control)
 
 | | |
 |---|---|
 | **Device Type** | [Fan](https://developers.home.google.com/cloud-to-cloud/guides/fan), [Hood](https://developers.home.google.com/cloud-to-cloud/guides/hood), [AirPurifier](https://developers.home.google.com/cloud-to-cloud/guides/airpurifier) |
 | **Supported Traits** | [OnOff](https://developers.home.google.com/cloud-to-cloud/traits/OnOff), [FanSpeed](https://developers.home.google.com/cloud-to-cloud/traits/fanspeed) (depending on used item type) |
-| **Supported Items** | Switch (no speed control), Dimmer |
-| **Configuration** | (optional) `checkState=true/false`<br>(optional) `speeds="0=away:zero,50=default:standard:one,100=high:two"`<br>(optional) `lang="en"`<br>(optional) `ordered=true/false` |
+| **Supported Items** | Switch (no speed control), Dimmer, Number |
+| **Configuration** | (optional) `checkState=true/false`<br>(optional) `fanSpeeds="0=away:zero,50=default:standard:one,100=high:two"`<br>(optional) `lang="en"`<br>(optional) `ordered=true/false` |
 
 Fans (and similar device types, like AirPurifier or Hood) support the `FanSpeed` trait.
-If you do not specify the `speeds` option, Google will use and expect percentage values for the fan speed.
+If you do not specify the `fanSpeeds` option, Google will use and expect percentage values for the fan speed.
 Otherwise, you will be able to set up and use human speakable modes, e.g. "fast" for 100% or "slow" for 25%.
 
-`speeds` will be a comma-separated list of modes, where the mode value corresponds to the speed value to be passed to the device. The mode or value is followed by an equal sign to list different aliases separated by a colon sign.
+`fanSpeeds` will be a comma-separated list of modes, where the mode value corresponds to the speed value to be passed to the device. The mode or value is followed by an equal sign to list different aliases separated by a colon sign.
 So in the example stated below both "high" and "two" would set the speed to 100%.
-Some devices may expect a specific value instead of a percentage, like "1" or "2" as speed values. In this case, you can adjust the configuration and replace the percentage values with the values that the device expects. (e.g.: `speeds="0=away:zero,1=default:standard:one,2=high:two"`).
+Some devices may expect a specific value instead of a percentage, like "1" or "2" as speed values. In this case, you can adjust the configuration and replace the percentage values with the values that the device expects. (e.g.: `fanSpeeds="0=away:zero,1=default:standard:one,2=high:two"`).
 You are also able to define the language of those aliases.
 The option `ordered` will tell the system that your list is ordered and you will then be able to also say "faster" or "slower" and Google will use the next or previous speed.
 
 ```shell
-Dimmer { ga="Fan" [ speeds="0=away:zero,50=default:standard:one,100=high:two", lang="en", ordered=true ] } # Using specific percentage values for the speed
+Dimmer { ga="Fan" [ fanSpeeds="0=away:zero,50=default:standard:one,100=high:two", lang="en", ordered=true ] } # Using specific percentage values for the speed
 Switch { ga="Hood" } # No speed control - only on/off
 Dimmer { ga="AirPurifier" } # Using percentage values for the speed
-Dimmer { ga="AirPurifier" [ speeds="0=away:zero,1=low:one,2=medium:two,3=high:three,4=turbo:four", lang="en", ordered=true ] } # Using specific speed modes/values, which differ from percentage
+Dimmer { ga="AirPurifier" [ fanSpeeds="0=away:zero,1=low:one,2=medium:two,3=high:three,4=turbo:four", lang="en", ordered=true ] } # Using specific speed modes/values, which differ from percentage
 Switch { ga="AirPurifier" } # No speed control - only on/off
+```
+
+### Fan, Hood, AirPurifier (extended control options)
+
+| | |
+|---|---|
+| **Device Type** | [Fan](https://developers.google.com/assistant/smarthome/guides/fan), [Hood](https://developers.google.com/assistant/smarthome/guides/hood), [AirPurifier](https://developers.google.com/assistant/smarthome/guides/airpurifier) |
+| **Supported Traits** | [OnOff](https://developers.google.com/assistant/smarthome/traits/OnOff), [FanSpeed](https://developers.google.com/assistant/smarthome/traits/fanspeed), [Modes](https://developers.google.com/assistant/smarthome/traits/modes),  [SensorState](https://developers.google.com/assistant/smarthome/traits/sensorstate) |
+| **Supported Items** | Group as `Fan`, `Hood` or `AirPurifier` with the following members:<br>(optional) Switch as `fanPower`<br>(optional) Dimmer or Number as `fanSpeed`<br>(optional) Number or String as `fanMode`<br>(optional) Number as `fanFilterLifeTime`<br>(optional) Number as `fanPM25` |
+| **Configuration** | (optional) `checkState=true/false`<br>(optional) `fanSpeeds="0=away:zero,50=default:standard:one,100=high:two"`<br>(optional) `fanModeName="OperationMode,Modus"`<br>(optional) `fanModeSettings="1=Low:Silent,2=Normal,3=High:Night"`<br>(optional) `lang="en"`<br>(optional) `ordered=true/false` |
+
+When configuring a Fan (or similar device) as a group with the above listed members, you will gain more options to control the device.
+In addition to control power and speeds, you will also be able to set modes and query sensor information (if supported by Google).
+
+For more information on the `fanSpeeds` configuration option, please take a look at the simple `Fan` device type.
+
+With the `fanModeName` and `fanModeSettings` you can control specific modes. Currently, one mode type per device is supported that you can configure with a name and a list of settings. The first entry in the names field is used internally while any other following separated by comma will be a synonym to be used in commands. The settings list is a comma-separated list of `value=name` pairs. The name can also contain synonyms separated by a colon. In the listed example you could then say "Set OperationMode to Normal".
+
+_Hint:_ At the moment, sensor values will only be queriable by voice and will not show up anywhere in the Google Home app.
+
+```shell
+Group  fanGroup { ga="Fan" [ fanSpeeds="0=away:zero,50=default:standard:one,100=high:two", fanModeName="OperationMode,Modus", fanModeSettings="1=Silent,2=Normal,3=Night", lang="en", ordered=true ] }
+Switch powerItem    (fanGroup) { ga="fanPower" }
+Dimmer speedItem    (fanGroup) { ga="fanSpeed" }
+String modeItem     (fanGroup) { ga="fanMode" }
+Number lifetimeItem (fanGroup) { ga="fanFilterLifeTime" }
+Number pm25Item     (fanGroup) { ga="fanPM25" }
+```
+
+### AC_Unit
+
+| | |
+|---|---|
+| **Device Type** | [AC_Unit](https://developers.google.com/assistant/smarthome/guides/acunit) |
+| **Supported Traits** | [OnOff](https://developers.google.com/assistant/smarthome/traits/OnOff), [FanSpeed](https://developers.google.com/assistant/smarthome/traits/fanspeed), [TemperatureSetting](https://developers.google.com/assistant/smarthome/traits/temperaturesetting), [Modes](https://developers.google.com/assistant/smarthome/traits/modes),  [SensorState](https://developers.google.com/assistant/smarthome/traits/sensorstate) |
+| **Supported Items** | Group as `AC_Unit` with the following members:<br>(optional) Switch as `fanPower`<br>(optional) Dimmer or Number as `fanSpeed`<br>(optional) Number or String as `fanMode`<br>(optional) Number as `fanFilterLifeTime`<br>(optional) Number as `fanPM25`<br>(optional) Number as `thermostatTemperatureAmbient`<br>(optional) Number as `thermostatTemperatureSetpoint`<br>(optional) Number as `thermostatTemperatureSetpointLow`<br>(optional) Number as `thermostatTemperatureSetpointHigh`<br>(optional) Number as `thermostatHumidityAmbient`<br>(optional) String or Number or Switch as `thermostatMode` |
+| **Configuration** | (optional) `checkState=true/false`<br>(optional) `fanSpeeds="0=away:zero,50=default:standard:one,100=high:two"`<br>(optional) `fanModeName="OperationMode,Modus"`<br>(optional) `fanModeSettings="1=Low:Silent,2=Normal,3=High:Night"`<br>(optional) `useFahrenheit=true/false`<br>(optional) `maxHumidity=1-100`<br>(optional) `thermostatTemperatureRange="10,30"`<br>(optional) `thermostatModes="off=OFF:WINDOW_OPEN,heat=COMFORT:BOOST,eco=ECO,on=ON,auto"`<br>(optional) `lang="en"`<br>(optional) `ordered=true/false` |
+
+The AC_Unit device is basically the combination of the Fan and the Thermostat device. For explanation on configuration options please take a look at both of them.
+
+```shell
+Group  acunitGroup { ga="AC_Unit" [ fanSpeeds="0=null:off,50=slow,100=full:fast", fanModeName="OperationMode,Modus", fanModeSettings="1=Silent,2=Normal,3=Night", thermostatModes="off=OFF:WINDOW_OPEN,heat=COMFORT:BOOST,eco=ECO,on=ON,auto", thermostatTemperatureRange="10,30", useFahrenheit=false, lang="en", ordered=true ] }
+Switch powerItem        (acunitGroup) { ga="fanPower" }
+Dimmer speedItem        (acunitGroup) { ga="fanSpeed" }
+String modeItem         (acunitGroup) { ga="fanMode" }
+Number lifetimeItem     (acunitGroup) { ga="fanFilterLifeTime" }
+Number pm25Item         (acunitGroup) { ga="fanPM25" }
+Number ambientItem      (acunitGroup) { ga="thermostatTemperatureAmbient" }
+Number humidityItem     (acunitGroup) { ga="thermostatHumidityAmbient" }
+Number setpointItem     (acunitGroup) { ga="thermostatTemperatureSetpoint" }
+Number setpointItemLow  (acunitGroup) { ga="thermostatTemperatureSetpointLow" }
+Number setpointItemHigh (acunitGroup) { ga="thermostatTemperatureSetpointHigh" }
+String modeItem         (acunitGroup) { ga="thermostatMode" }
+```
+
+### Humidifier
+
+| | |
+|---|---|
+| **Device Type** | [Humidifier](https://developers.home.google.com/cloud-to-cloud/guides/humidifier) |
+| **Supported Traits** | [OnOff](https://developers.home.google.com/cloud-to-cloud/traits/onoff) (all devices), [HumiditySetting](https://developers.home.google.com/cloud-to-cloud/traits/humiditysetting) (Dimmer/Number items and Groups with humidity setpoint), [FanSpeed](https://developers.home.google.com/cloud-to-cloud/traits/fanspeed) (Groups with fan speed member) |
+| **Supported Items** | Switch (on/off only), Dimmer, Number, or Group as `Humidifier` with the following members:<br>(optional) Switch as `humidifierPower`<br>(optional) Number or Dimmer as `humidifierHumiditySetpoint`<br>(optional) Number as `humidifierHumidityAmbient`<br>(optional) Number or Dimmer as `humidifierFanSpeed` |
+| **Configuration** | (optional) `inverted=true/false`<br>(optional) `checkState=true/false`<br>(optional) `maxHumidity=1-100`<br>(optional) `humidityRange="30,80"`<br>(optional) `fanSpeeds="low=Low:Slow,high=High:Fast"`<br>(optional) `ordered=true/false`<br>(optional) `lang="en"` |
+
+For simple humidifiers, you can use:
+
+- **Switch**: Basic on/off control only (no humidity percentage)
+- **Dimmer/Number**: Full humidity control with setpoint
+
+For advanced functionality, use a Group with specific members.
+
+- `maxHumidity=100` defines the maximum value of your humidity items if they don't use percentage (0-100). For example, if your sensor reports 0.0-1.0, set `maxHumidity=1`.
+- `humidityRange="30,80"` defines the supported humidity range for the setpoint (defaults to 0-100%).
+- `fanSpeeds` allows you to define named fan speeds with synonyms.
+
+Google Commands: "_Hey Google, turn on the humidifier_", "_Hey Google, set humidifier to 60 percent_" (Dimmer/Number/Group only), "_Hey Google, set humidifier fan speed to high_" (Group with fan speed only).
+
+```shell
+# Simple humidifier
+Switch { ga="Humidifier" }
+Dimmer { ga="Humidifier" [ maxHumidity=1 ] }
+
+# Advanced humidifier with humidity control and fan speed
+Group  humidifierGroup { ga="Humidifier" [ humidityRange="30,80", fanSpeeds="low=Low:Slow,high=High:Fast", maxHumidity=100 ] }
+Switch humidifierPowerItem     (humidifierGroup) { ga="humidifierPower" }
+Number humidifierSetpointItem  (humidifierGroup) { ga="humidifierHumiditySetpoint" }
+Number humidifierAmbientItem   (humidifierGroup) { ga="humidifierHumidityAmbient" }
+Dimmer humidifierFanSpeedItem  (humidifierGroup) { ga="humidifierFanSpeed" }
 ```
 
 ### Awning, Blinds, Curtain, Door, Garage, Gate, Pergola, Shutter, Window
@@ -354,9 +502,9 @@ Switch { ga="AirPurifier" } # No speed control - only on/off
 | | |
 |---|---|
 | **Device Type** | [Awning](https://developers.home.google.com/cloud-to-cloud/guides/awning), [Blinds](https://developers.home.google.com/cloud-to-cloud/guides/blinds), [Curtain](https://developers.home.google.com/cloud-to-cloud/guides/curtain), [Door](https://developers.home.google.com/cloud-to-cloud/guides/door), [Garage](https://developers.home.google.com/cloud-to-cloud/guides/garage), [Gate](https://developers.home.google.com/cloud-to-cloud/guides/gate), [Pergola](https://developers.home.google.com/cloud-to-cloud/guides/pergola), [Shutter](https://developers.home.google.com/cloud-to-cloud/guides/shutter), [Window](https://developers.home.google.com/cloud-to-cloud/guides/window) |
-| **Supported Traits** | [OpenClose](https://developers.home.google.com/cloud-to-cloud/traits/openclose), [StartStop](https://developers.home.google.com/cloud-to-cloud/traits/startstop) |
-| **Supported Items** | Contact (no device control), Switch (no open percentage), Rollershutter |
-| **Configuration** | (optional) `discreteOnly=true/false`<br>(optional) `queryOnly=true/false`<br>(optional) `inverted=true/false`<br>(optional) `checkState=true/false` |
+| **Supported Traits** | [OpenClose](https://developers.home.google.com/cloud-to-cloud/traits/openclose), [StartStop](https://developers.home.google.com/cloud-to-cloud/traits/startstop), [Rotation](https://developers.home.google.com/cloud-to-cloud/traits/rotation) (awning, blinds, curtain, pergola, shutter - requires group configuration) |
+| **Supported Items** | Contact (no device control), Switch (no open percentage), Rollershutter, Group (for rotation support) |
+| **Configuration** | (optional) `discreteOnly=true/false`<br>(optional) `queryOnly=true/false`<br>(optional) `inverted=true/false`<br>(optional) `checkState=true/false`<br>**Rotation Support (Groups with shutterRotation only):**<br>(optional) `supportsDegrees=true/false` (default: true)<br>(optional) `supportsContinuousRotation=true/false` (default: false)<br>(optional) `rotationDegreesRange="min,max"` (default: "0,90") |
 
 Blinds and similar devices should always use the `Rollershutter` item type for proper functionality.
 Since Google and openHAB use the opposite percentage value for "opened" and "closed", the action will translate this automatically.
@@ -365,7 +513,63 @@ If the values are still inverted in your case, you can state the `inverted=true`
 Since Google only tells the open percentage (and not the verb "close" or "down"), it can not be differentiated between saying "set blind to 100%" or "open blind".
 Therefore, it is not possible to "not invert" the verbs, if the user chooses to invert the numbers.
 
+#### Rotation Support for Awning, Blinds, Curtain, Pergola, and Shutter
+
+Awnings, blinds, curtains, pergolas, and shutters support the [Rotation trait](https://developers.home.google.com/cloud-to-cloud/traits/rotation), allowing control of slat tilt/rotation in addition to opening/closing. This feature is only available for group-based configurations with separate position and rotation controls.
+
+**Group Configuration for Rotation:**
+For devices with separate items for position and rotation control:
+
 ```shell
+Group blindsGroup { ga="Blinds" }
+  Rollershutter blindsPosition  { ga="shutterPosition" }
+  Number        blindsRotation  { ga="shutterRotation" }
+```
+
+**Voice Commands:**
+
+- "Open the shutters to 50%"
+- "Tilt the shutters to 30 degrees"
+- "Set the blinds to 75%"
+- "Rotate the blinds to 45 degrees"
+
+**Group Members:**
+
+- `shutterPosition`: Controls the opening/closing position (Rollershutter, Dimmer, Number)
+- `shutterRotation`: Controls the slat rotation/tilt (Rollershutter, Dimmer, Number)
+
+**Configuration Options:**
+The rotation trait supports the following optional configuration parameters:
+
+- `supportsDegrees=true/false` (default: true) - Enable degree-based control (percentage is always supported)
+  - Set to `false` if you only want percentage-based control without degree conversion
+- `supportsContinuousRotation=true/false` (default: false) - Enable continuous rotation beyond limits
+- `rotationDegreesRange="min,max"` (default: "0,90") - Rotation range in degrees as comma-separated values (only used when supportsDegrees is true)
+
+::: tip Note
+openHAB items always store rotation as percentages (0-100). When `supportsDegrees=true`, the percentage is converted to/from degrees using the configured range for Google Assistant commands and state responses.
+:::
+
+```shell
+Group shutterGroup { ga="Shutter" [ rotationDegreesRange="-45,45" ] }
+  Rollershutter shutterPosition  { ga="shutterPosition" }
+  Number        shutterRotation  { ga="shutterRotation" }
+
+# Example with continuous rotation support
+Group blindsGroup { ga="Blinds" [ supportsContinuousRotation=true, rotationDegreesRange="0,360" ] }
+  Rollershutter blindsCover     { ga="shutterPosition" }
+  Number        blindsRotation  { ga="shutterRotation" }
+
+# Example with percentage-only control (no degree conversion)
+Group awningGroup { ga="Awning" [ supportsDegrees=false ] }
+  Rollershutter awningPosition  { ga="shutterPosition" }
+  Dimmer        awningSlats     { ga="shutterRotation" }
+```
+
+**Basic Examples:**
+
+```shell
+# Simple devices (no rotation)
 Rollershutter { ga="Awning" }
 Rollershutter { ga="Blinds" [ inverted=true ] }
 Rollershutter { ga="Curtain" }
@@ -375,6 +579,15 @@ Contact       { ga="Gate" }
 Rollershutter { ga="Pergola" }
 Rollershutter { ga="Shutter" }
 Rollershutter { ga="Window" }
+
+# Advanced devices with rotation support
+Group shutterGroup { ga="Shutter" }
+  Rollershutter ShutterPosition  { ga="shutterPosition" }
+  Number        ShutterTilt      { ga="shutterRotation" }
+
+Group blindsGroup { ga="Blinds" [ rotationDegreesRange="0,180" ] }
+  Rollershutter blindsPosition  { ga="shutterPosition" }
+  Rollershutter blindsSlats     { ga="shutterRotation" }
 ```
 
 ### Charger
@@ -407,10 +620,16 @@ Number capacityFullItem     (chargerGroup) { ga="chargerCapacityUntilFull" }
 | **Device Type** | [Sensor](https://developers.home.google.com/cloud-to-cloud/guides/sensor) |
 | **Supported Traits** | [TemperatureControl](https://developers.home.google.com/cloud-to-cloud/traits/temperaturecontrol), [TemperatureSetting](https://developers.home.google.com/cloud-to-cloud/traits/temperaturesetting) |
 | **Supported Items** | Number |
-| **Configuration** | (optional) `useFahrenheit=true/false` |
+| **Configuration** | (optional) `useFahrenheit=true/false`<br>(optional) `temperatureRange="-10,50"` |
+
+By default, the temperature range of a temperature sensor is set to -100 °C to 100 °C.
+The reported state values have to fall into that range!
+If you need to adjust the range, please add the config option `temperatureRange="-20,40"` to the item. Keep in mind that those values always have to be provided in Celsius!
+
+_Hint:_ At the moment, sensor values will only be queriable by voice and will not show up anywhere in the Google Home app.
 
 ```shell
-Number { ga="TemperatureSensor" [ useFahrenheit=true ] }
+Number { ga="TemperatureSensor" [ useFahrenheit=true, temperatureRange="-20,40" ] }
 ```
 
 ### HumiditySensor
@@ -420,6 +639,7 @@ Number { ga="TemperatureSensor" [ useFahrenheit=true ] }
 | **Device Type** | [Sensor](https://developers.home.google.com/cloud-to-cloud/guides/sensor) |
 | **Supported Traits** | [HumiditySetting](https://developers.home.google.com/cloud-to-cloud/traits/humiditysetting) |
 | **Supported Items** | Number |
+| **Configuration** | (optional) `maxHumidity=1-100` |
 
 ```shell
 Number { ga="HumiditySensor" }
@@ -432,10 +652,14 @@ Number { ga="HumiditySensor" }
 | **Device Type** | [Sensor](https://developers.home.google.com/cloud-to-cloud/guides/sensor) |
 | **Supported Traits** | [HumiditySetting](https://developers.home.google.com/cloud-to-cloud/traits/humiditysetting), [TemperatureControl](https://developers.home.google.com/cloud-to-cloud/traits/temperaturecontrol), [TemperatureSetting](https://developers.home.google.com/cloud-to-cloud/traits/temperaturesetting) |
 | **Supported Items** | Group as `ClimateSensor` with the following members:<br>(optional) Number as `humidityAmbient`<br>(optional) Number as `temperatureAmbient` |
-| **Configuration** | (optional) `useFahrenheit=true/false` |
+| **Configuration** | (optional) `useFahrenheit=true/false`<br>(optional) `maxHumidity=1-100`<br>(optional) `temperatureRange="-10,50"` |
+
+By default, the temperature range of a climate sensor is set to -100 °C to 100 °C.
+The reported state values have to fall into that range!
+If you need to adjust the range, please add the config option `temperatureRange="-20,40"` to the item. Keep in mind that those values always have to be provided in Celsius!
 
 ```shell
-Group  sensorGroup { ga="ClimateSensor" [ useFahrenheit=true ] }
+Group  sensorGroup { ga="ClimateSensor" [ useFahrenheit=true, temperatureRange="0,40" ] }
 Number temperatureItem (sensorGroup) { ga="temperatureAmbient" }
 Number humidityItem    (sensorGroup) { ga="humidityAmbient" }
 ```
@@ -446,8 +670,8 @@ Number humidityItem    (sensorGroup) { ga="humidityAmbient" }
 |---|---|
 | **Device Type** | [Thermostat](https://developers.home.google.com/cloud-to-cloud/guides/thermostat) |
 | **Supported Traits** | [TemperatureSetting](https://developers.home.google.com/cloud-to-cloud/traits/temperaturesetting) |
-| **Supported Items** | Group as `Thermostat` with the following members:<br>String or Number as `thermostatMode`<br>(optional) Number as `thermostatHumidityAmbient`<br>(optional) Number as `thermostatTemperatureAmbient`<br>(optional) Number as `thermostatTemperatureSetpoint`<br>(optional) Number as `thermostatTemperatureSetpointLow`<br>(optional) Number as `thermostatTemperatureSetpointHigh` |
-| **Configuration** | (optional) `checkState=true/false`<br>(optional) `useFahrenheit=true/false`<br>(optional) `thermostatTemperatureRange="10,30"`<br>(optional) `modes="off=OFF:WINDOW_OPEN,heat=COMFORT:BOOST,eco=ECO,on=ON,auto"` |
+| **Supported Items** | Group as `Thermostat` with the following members<br>(optional) Number as `thermostatTemperatureAmbient`<br>(optional) Number as `thermostatTemperatureSetpoint`<br>(optional) Number as `thermostatTemperatureSetpointLow`<br>(optional) Number as `thermostatTemperatureSetpointHigh`<br>(optional) Number as `thermostatHumidityAmbient`<br>(optional) String or Number or Switch as `thermostatMode` |
+| **Configuration** | (optional) `checkState=true/false`<br>(optional) `useFahrenheit=true/false`<br>(optional) `maxHumidity=1-100`<br>(optional) `thermostatTemperatureRange="10,30"`<br>(optional) `thermostatModes="off=OFF:WINDOW_OPEN,heat=COMFORT:BOOST,eco=ECO,on=ON,auto"` |
 
 Thermostat requires a group of items to be properly configured to be used with Google Assistant. The default temperature unit is Celsius.
 To change the temperature unit to Fahrenheit, add the config option `useFahrenheit=true` to the thermostat group.
@@ -456,16 +680,16 @@ If your thermostat supports a range for the setpoint you can use both `thermosta
 
 If your thermostat does not have a mode, you should create one and manually assign a value (e.g. heat, cool, on, etc.) to have proper functionality.
 
-To map the [default thermostat modes of Google](https://developers.home.google.com/cloud-to-cloud/traits/temperaturesetting.html) (on, off, heat, cool, etc.) to custom ones for your specific setup, you can use the `modes` config option on the thermostat group.
-E.g. `[ modes="off=OFF:WINDOW_OPEN,heat=COMFORT:BOOST,eco=ECO,on=ON,auto" ]` will enable the following five modes in Google Home `"off, heat, eco, on, auto"` that will be translated to `"OFF, COMFORT, ECO, ON, auto"`. You can specify alternative conversions using the colon sign, so that in the former example "BOOST" in openHAB would also be translated to "heat" in Google. For the translation of Google modes to openHAB always the first option after the equal sign is used.
-By default the integration will provide `"off,heat,cool,on,heatcool,auto,eco"`.
+To map the [default thermostat modes of Google](https://developers.home.google.com/cloud-to-cloud/traits/temperaturesetting.html) (on, off, heat, cool, etc.) to custom ones for your specific setup, you can use the `thermostatModes` config option on the thermostat group.
+E.g. `[ thermostatModes="off=OFF:WINDOW_OPEN,heat=COMFORT:BOOST,eco=ECO,on=ON,auto" ]` will enable the following five modes in Google Home `"off, heat, eco, on, auto"` that will be translated to `"OFF, COMFORT, ECO, ON, auto"`. You can specify alternative conversions using the colon sign, so that in the former example "BOOST" in openHAB would also be translated to "heat" in Google. For the translation of Google modes to openHAB always the first option after the equal sign is used.
+By default, the integration will provide `"off,heat,cool,on,heatcool,auto,eco"`.
 
 You can also set up a Thermostat for using it as a temperature sensor. To do so, create a Thermostat group and only add one item member as "thermostatTemperatureAmbient".
 However, it is recommended to prefer the `TemperatureSensor` type for simple temperature reports (but currently there is no UI support in Google Home).
 
 ```shell
-Group  thermostatGroup { ga="Thermostat" [ modes="off=OFF:WINDOW_OPEN,heat=COMFORT:BOOST,eco=ECO,on=ON,auto", thermostatTemperatureRange="10,30", useFahrenheit=false ] }
-Number temperatureItem  (thermostatGroup) { ga="thermostatTemperatureAmbient" }
+Group  thermostatGroup { ga="Thermostat" [ thermostatModes="off=OFF:WINDOW_OPEN,heat=COMFORT:BOOST,eco=ECO,on=ON,auto", thermostatTemperatureRange="10,30", useFahrenheit=false ] }
+Number ambientItem      (thermostatGroup) { ga="thermostatTemperatureAmbient" }
 Number humidityItem     (thermostatGroup) { ga="thermostatHumidityAmbient" }
 Number setpointItem     (thermostatGroup) { ga="thermostatTemperatureSetpoint" }
 Number setpointItemLow  (thermostatGroup) { ga="thermostatTemperatureSetpointLow" }
@@ -501,10 +725,11 @@ Furthermore, you can state synonyms for the device name: `Switch KitchenLight "K
 
 To ease setting up new devices you can add a room hint: `[ roomHint="Living Room" ]`.
 
-For devices supporting the OpenClose trait, the attributes `[ discreteOnly=false, queryOnly=false ]` can be configured.
+For devices supporting the `OnOff` trait, the attribute `[ queryOnly=true ]` can be configured.
+For devices supporting the `OpenClose` trait, the attributes `[ queryOnly=true, discreteOnly=true ]` can be configured.
 
-- `discreteOnly` defaults to false. When set to true, this indicates that the device must either be fully open or fully closed (that is, it does not support values between 0% and 100%). An example of such a device may be a valve.
-- `queryOnly` defaults to false. Is set to true for `Contact` items. Indicates if the device can only be queried for state information and cannot be controlled. Sensors that can only report open state should set this field to true.
+- `queryOnly` defaults to `false`. Is set to `true` for `Contact` items. Indicates if the device can only be queried for state information and cannot be controlled. Sensors that can only report open state should set this field to `true`.
+- `discreteOnly` defaults to `false`. When set to `true`, this indicates that the device must either be fully open or fully closed (that is, it does not support values between 0% and 100%). An example of such a device may be a valve.
 
 All device types support checking the current state before sending an updated state by a command. This can be enabled by setting `[ checkState=true ]` in the metadata. When this is enabled, the current state of the target item is queried and compared to the potential new state triggered by the command. If it is identical, a special error message is triggered and communicated to the user.
 

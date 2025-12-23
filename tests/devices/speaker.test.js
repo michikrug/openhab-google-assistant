@@ -1,9 +1,9 @@
 const Device = require('../../functions/devices/speaker.js');
 
 describe('Speaker Device', () => {
-  test('isCompatible', () => {
+  test('matchesDeviceType', () => {
     expect(
-      Device.isCompatible({
+      Device.matchesDeviceType({
         metadata: {
           ga: {
             value: 'SPEAKER'
@@ -35,12 +35,13 @@ describe('Speaker Device', () => {
       });
     });
 
-    test('getAttributes volumeDefaultPercentage, levelStepSize', () => {
+    test('getAttributes volumeDefaultPercentage, volumeMaxLevel, levelStepSize', () => {
       const item = {
         metadata: {
           ga: {
             config: {
               volumeDefaultPercentage: '20',
+              volumeMaxLevel: '90',
               levelStepSize: '10'
             }
           }
@@ -48,7 +49,7 @@ describe('Speaker Device', () => {
       };
       expect(Device.getAttributes(item)).toStrictEqual({
         volumeCanMuteAndUnmute: false,
-        volumeMaxLevel: 100,
+        volumeMaxLevel: 90,
         volumeDefaultPercentage: 20,
         levelStepSize: 10
       });

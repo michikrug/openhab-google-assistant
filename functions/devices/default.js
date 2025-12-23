@@ -25,11 +25,9 @@ class DefaultDevice {
    * @param {object} item
    * @returns {boolean}
    */
-  static isCompatible(item) {
-    return (
-      item.metadata &&
-      item.metadata.ga &&
-      this.type.toLowerCase() === `action.devices.types.${item.metadata.ga.value}`.toLowerCase()
+  static matchesDeviceType(item) {
+    return !!(
+      item.metadata?.ga && this.type.toLowerCase() === `action.devices.types.${item.metadata.ga.value}`.toLowerCase()
     );
   }
 
@@ -37,7 +35,7 @@ class DefaultDevice {
    * @param {object} item
    */
   static matchesItemType(item) {
-    return (
+    return !!(
       !this.requiredItemTypes.length ||
       this.requiredItemTypes.includes((item.groupType || item.type || '').split(':')[0])
     );
@@ -54,7 +52,7 @@ class DefaultDevice {
    * @param {object} item
    */
   static getConfig(item) {
-    return (item && item.metadata && item.metadata.ga && item.metadata.ga.config) || {};
+    return item?.metadata?.ga?.config || {};
   }
 
   /**
@@ -73,9 +71,7 @@ class DefaultDevice {
         defaultNames: [deviceName],
         nicknames: [
           deviceName,
-          ...(item.metadata && item.metadata.synonyms
-            ? item.metadata.synonyms.value.split(',').map((s) => s.trim())
-            : [])
+          ...(item.metadata?.synonyms ? item.metadata.synonyms.value.split(',').map((s) => s.trim()) : [])
         ]
       },
       willReportState: false,
@@ -111,6 +107,13 @@ class DefaultDevice {
     if (config.waitForStateChange) {
       metadata.customData.waitForStateChange = parseInt(config.waitForStateChange);
     }
+    if (this.supportedMembers.length) {
+      const members = this.getMembers(item);
+      metadata.customData.members = {};
+      for (const member in members) {
+        metadata.customData.members[member] = members[member].name;
+      }
+    }
     return metadata;
   }
 
@@ -119,6 +122,48 @@ class DefaultDevice {
    */
   static getState(item) {
     return {};
+  }
+
+  /**
+   * @returns {Array<object>}
+   */
+  static get supportedMembers() {
+    return [];
+  }
+
+  /**
+   * Gets supported members from an openHAB group item
+   * @param {object} item - The openHAB item with potential members
+   * @returns {object} Mapped members with their names and states
+   */
+  static getMembers(item) {
+    const supportedMembers = this.supportedMembers;
+    const members = {};
+    // Early return if no members or supportedMembers
+    if (!item.members?.length || !supportedMembers.length) {
+      return members;
+    }
+    item.members.forEach((member) => {
+      // Skip members without Google Assistant metadata
+      if (!member.metadata?.ga?.value) {
+        return;
+      }
+      const memberType = (member.groupType || member.type || '').split(':')[0];
+      const gaValue = member.metadata.ga.value.toLowerCase();
+      // Find matching supported member by type and name
+      const matchedType = supportedMembers.find(
+        (supportedMember) =>
+          supportedMember.types.includes(memberType) && supportedMember.name.toLowerCase() === gaValue
+      );
+      if (matchedType) {
+        members[matchedType.name] = {
+          name: member.name,
+          state: member.state,
+          type: memberType
+        };
+      }
+    });
+    return members;
   }
 }
 

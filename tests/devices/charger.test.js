@@ -1,33 +1,42 @@
 const Device = require('../../functions/devices/charger.js');
 
 describe('Charger Device', () => {
-  test('isCompatible', () => {
+  test('matchesDeviceType', () => {
     expect(
-      Device.isCompatible({
+      Device.matchesDeviceType({
+        type: 'Group',
         metadata: {
           ga: {
             value: 'Charger'
           }
         }
       })
+    ).toBe(false);
+    expect(
+      Device.matchesDeviceType({
+        type: 'Group',
+        metadata: {
+          ga: {
+            value: 'Charger'
+          }
+        },
+        members: [
+          {
+            type: 'Switch',
+            metadata: {
+              ga: {
+                value: 'chargerCharging'
+              }
+            }
+          }
+        ]
+      })
     ).toBe(true);
   });
 
   test('matchesItemType', () => {
-    const item = {
-      type: 'Group',
-      members: [
-        {
-          metadata: {
-            ga: {
-              value: 'chargerCharging'
-            }
-          }
-        }
-      ]
-    };
-    expect(Device.matchesItemType(item)).toBe(true);
-    expect(Device.matchesItemType({ type: 'Group' })).toBe(false);
+    expect(Device.matchesItemType({ type: 'Group' })).toBe(true);
+    expect(Device.matchesItemType({ type: 'Switch' })).toBe(false);
   });
 
   describe('getAttributes', () => {
@@ -40,6 +49,7 @@ describe('Charger Device', () => {
         },
         members: [
           {
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'chargerCapacityRemaining'
@@ -63,6 +73,7 @@ describe('Charger Device', () => {
         },
         members: [
           {
+            type: 'Switch',
             metadata: {
               ga: {
                 value: 'chargerCharging'
@@ -88,6 +99,7 @@ describe('Charger Device', () => {
         },
         members: [
           {
+            type: 'Switch',
             metadata: {
               ga: {
                 value: 'chargerCharging'
@@ -111,6 +123,7 @@ describe('Charger Device', () => {
         {
           name: 'Charging',
           state: 'ON',
+          type: 'Switch',
           metadata: {
             ga: {
               value: 'chargerCharging'
@@ -120,6 +133,7 @@ describe('Charger Device', () => {
         {
           name: 'CapacityRemaining',
           state: '40',
+          type: 'Number',
           metadata: {
             ga: {
               value: 'chargerCapacityRemaining'
@@ -129,6 +143,7 @@ describe('Charger Device', () => {
         {
           name: 'CapacityUntilFull',
           state: '60',
+          type: 'Number',
           metadata: {
             ga: {
               value: 'chargerCapacityUntilFull'
@@ -140,15 +155,18 @@ describe('Charger Device', () => {
     expect(Device.getMembers(item)).toStrictEqual({
       chargerCharging: {
         name: 'Charging',
-        state: 'ON'
+        state: 'ON',
+        type: 'Switch'
       },
       chargerCapacityRemaining: {
         name: 'CapacityRemaining',
-        state: '40'
+        state: '40',
+        type: 'Number'
       },
       chargerCapacityUntilFull: {
         name: 'CapacityUntilFull',
-        state: '60'
+        state: '60',
+        type: 'Number'
       }
     });
   });
@@ -167,6 +185,7 @@ describe('Charger Device', () => {
           {
             name: 'Charging',
             state: 'ON',
+            type: 'Switch',
             metadata: {
               ga: {
                 value: 'chargerCharging'
@@ -176,6 +195,7 @@ describe('Charger Device', () => {
           {
             name: 'CapacityRemaining',
             state: '60',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'chargerCapacityRemaining'
@@ -185,6 +205,7 @@ describe('Charger Device', () => {
           {
             name: 'CapacityUntilFull',
             state: '40',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'chargerCapacityUntilFull'
@@ -298,6 +319,7 @@ describe('Charger Device', () => {
           {
             name: 'Charging',
             state: 'OFF',
+            type: 'Switch',
             metadata: {
               ga: {
                 value: 'chargerCharging'
@@ -307,6 +329,7 @@ describe('Charger Device', () => {
           {
             name: 'PluggedIn',
             state: 'ON',
+            type: 'Switch',
             metadata: {
               ga: {
                 value: 'chargerPluggedIn'
@@ -316,6 +339,7 @@ describe('Charger Device', () => {
           {
             name: 'CapacityRemaining',
             state: '4000.123 wh',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'chargerCapacityRemaining'
@@ -325,6 +349,7 @@ describe('Charger Device', () => {
           {
             name: 'CapacityUntilFull',
             state: '6000.123',
+            type: 'Number',
             metadata: {
               ga: {
                 value: 'chargerCapacityUntilFull'

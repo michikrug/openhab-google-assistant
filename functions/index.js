@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2010-2019 Contributors to the openHAB project
+ * Copyright (c) 2010-2025 Contributors to the openHAB project
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information.
@@ -18,10 +18,10 @@
  * @author Michael Krug - Rework
  *
  */
+const app = require('actions-on-google').smarthome();
 const OpenHAB = require('./openhab.js');
 const ApiHandler = require('./apihandler.js');
 const config = require('./config.js');
-const app = require('actions-on-google').smarthome();
 
 const apiHandler = new ApiHandler(config);
 const openHAB = new OpenHAB(apiHandler);

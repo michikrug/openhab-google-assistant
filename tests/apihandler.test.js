@@ -1,5 +1,5 @@
-const ApiHandler = require('../functions/apihandler.js');
 const nock = require('nock');
+const ApiHandler = require('../functions/apihandler.js');
 
 describe('ApiHandler', () => {
   const config = {
@@ -40,7 +40,7 @@ describe('ApiHandler', () => {
         },
         hostname: 'example.org',
         method: 'GET',
-        path: '/items/?metadata=ga,synonyms&fields=groupNames,groupType,name,label,metadata,type',
+        path: '/items/?metadata=ga,synonyms&fields=groupNames,groupType,name,label,metadata,type,state',
         port: 443
       });
     });
@@ -64,7 +64,8 @@ describe('ApiHandler', () => {
           Accept: 'application/json',
           Authorization: 'Bearer token',
           'Content-Length': 10,
-          'Content-Type': 'text/plain'
+          'Content-Type': 'text/plain',
+          'X-OpenHAB-Source': 'org.openhab.googleassistant'
         },
         hostname: 'example.org',
         method: 'POST',
@@ -107,7 +108,7 @@ describe('ApiHandler', () => {
       await expect(apiHandler.getItem('TestItem')).rejects.toStrictEqual({
         message:
           // eslint-disable-next-line max-len
-          'getItem - JSON parse failed for path: /items/TestItem?metadata=ga,synonyms - SyntaxError: Unexpected token I in JSON at position 0',
+          'getItem - JSON parse failed for path: /items/TestItem?metadata=ga,synonyms - SyntaxError: Unexpected token \'I\', "INVALID" is not valid JSON',
         statusCode: 415
       });
       expect(scope.isDone()).toBe(true);
@@ -121,7 +122,7 @@ describe('ApiHandler', () => {
 
     test('getItems', async () => {
       const scope = nock('https://example.org')
-        .get('/items/?metadata=ga,synonyms&fields=groupNames,groupType,name,label,metadata,type')
+        .get('/items/?metadata=ga,synonyms&fields=groupNames,groupType,name,label,metadata,type,state')
         .reply(200, [{ name: 'TestItem' }]);
       const result = await apiHandler.getItems();
       expect(result).toStrictEqual([{ name: 'TestItem' }]);
@@ -130,12 +131,12 @@ describe('ApiHandler', () => {
 
     test('getItems failed', async () => {
       const scope = nock('https://example.org')
-        .get('/items/?metadata=ga,synonyms&fields=groupNames,groupType,name,label,metadata,type')
+        .get('/items/?metadata=ga,synonyms&fields=groupNames,groupType,name,label,metadata,type,state')
         .reply(400, {});
       await expect(apiHandler.getItems()).rejects.toStrictEqual({
         message:
           // eslint-disable-next-line max-len
-          'getItem - failed for path: /items/?metadata=ga,synonyms&fields=groupNames,groupType,name,label,metadata,type',
+          'getItem - failed for path: /items/?metadata=ga,synonyms&fields=groupNames,groupType,name,label,metadata,type,state',
         statusCode: 400
       });
       expect(scope.isDone()).toBe(true);
@@ -143,9 +144,9 @@ describe('ApiHandler', () => {
 
     test('getItems error', async () => {
       const scope = nock('https://example.org')
-        .get('/items/?metadata=ga,synonyms&fields=groupNames,groupType,name,label,metadata,type')
+        .get('/items/?metadata=ga,synonyms&fields=groupNames,groupType,name,label,metadata,type,state')
         .replyWithError('could not reach server');
-      await expect(apiHandler.getItems()).rejects.toThrowError('could not reach server');
+      await expect(apiHandler.getItems()).rejects.toThrow('could not reach server');
       expect(scope.isDone()).toBe(true);
     });
   });
@@ -160,7 +161,7 @@ describe('ApiHandler', () => {
         .post('/items/TestItem')
         .reply(200, [{ name: 'TestItem' }]);
       const result = await apiHandler.sendCommand('TestItem', 'OFF');
-      expect(result).toBeNull();
+      expect(result).toBe(true);
       expect(scope.isDone()).toBe(true);
     });
 
@@ -175,7 +176,7 @@ describe('ApiHandler', () => {
 
     test('sendCommand error', async () => {
       const scope = nock('https://example.org').post('/items/TestItem').replyWithError('could not reach server');
-      await expect(apiHandler.sendCommand('TestItem', 'OFF')).rejects.toThrowError('could not reach server');
+      await expect(apiHandler.sendCommand('TestItem', 'OFF')).rejects.toThrow('could not reach server');
       expect(scope.isDone()).toBe(true);
     });
   });

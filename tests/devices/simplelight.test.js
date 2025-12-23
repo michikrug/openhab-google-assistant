@@ -1,9 +1,17 @@
-const Device = require('../../functions/devices/simplelight.js');
+const { DEVICE_REGISTRY } = require('../../functions/deviceRegistry.js');
+
+// Find SimpleLight in the registry
+const Device = DEVICE_REGISTRY.find((d) => d.name === 'SimpleLight');
 
 describe('SimpleLight Device', () => {
-  test('isCompatible', () => {
+  test('device exists in registry', () => {
+    expect(Device).toBeDefined();
+    expect(Device.name).toBe('SimpleLight');
+  });
+
+  test('matchesDeviceType', () => {
     expect(
-      Device.isCompatible({
+      Device.matchesDeviceType({
         metadata: {
           ga: {
             value: 'LIGHT'
@@ -11,5 +19,15 @@ describe('SimpleLight Device', () => {
         }
       })
     ).toBe(true);
+  });
+
+  test('getMetadata', () => {
+    const metadata = Device.getMetadata({
+      type: 'Switch',
+      name: 'TestLight',
+      label: 'Test Light',
+      metadata: { ga: { value: 'LIGHT' } }
+    });
+    expect(metadata.customData.deviceType).toBe('SimpleLight');
   });
 });

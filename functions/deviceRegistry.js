@@ -136,6 +136,7 @@ const DEVICE_REGISTRY = [
   // Simple device type variants - StartStopSwitch-based devices
   ...createDeviceVariants(StartStopSwitch, [
     { type: 'VACUUM', name: 'SimpleVacuum' },
+    { type: 'WASHER', name: 'SimpleWasher' },
     { type: 'DISHWASHER', name: 'Dishwasher' },
     { type: 'SPRINKLER', name: 'Sprinkler' }
   ]),

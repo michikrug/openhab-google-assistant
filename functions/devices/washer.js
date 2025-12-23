@@ -9,11 +9,11 @@ class Washer extends DefaultDevice {
     const traits = [];
     const members = this.getMembers(item);
 
-    if ('washerTimerRemaining' in members) {
-      traits.push('action.devices.traits.Timer');
-    }
     if ('washerPower' in members) {
       traits.push('action.devices.traits.StartStop');
+    }
+    if ('washerTimerRemaining' in members || 'washerCurrentCycle' in members) {
+      traits.push('action.devices.traits.RunCycle');
     }
 
     return traits;
@@ -30,8 +30,7 @@ class Washer extends DefaultDevice {
   static get supportedMembers() {
     return [
       { name: 'washerTimerRemaining', types: ['Number'] },
-      { name: 'washerTimerPaused', types: ['Switch'] },
-      { name: 'washerTimerTotal', types: ['Number'] },
+      { name: 'washerCurrentCycle', types: ['String'] },
       { name: 'washerPower', types: ['Switch'] }
     ];
   }
@@ -39,11 +38,6 @@ class Washer extends DefaultDevice {
   static getAttributes(item) {
     const attributes = {};
     const members = this.getMembers(item);
-
-    if ('washerTimerRemaining' in members) {
-      attributes.maxTimerLimitSeconds = 86400; // 24 hours default max
-      attributes.commandOnlyTimer = false;
-    }
 
     if ('washerPower' in members) {
       attributes.pausable = false;
@@ -57,34 +51,34 @@ class Washer extends DefaultDevice {
     const config = this.getConfig(item);
     const members = this.getMembers(item);
 
-    if ('washerTimerRemaining' in members) {
-      const remaining = parseInt(members.washerTimerRemaining.state);
-      if (!isNaN(remaining)) {
-        state.timerRemainingSec = remaining;
-      } else {
-        state.timerRemainingSec = -1;
-      }
-
-      state.timerPaused = false;
-      if ('washerTimerPaused' in members) {
-        state.timerPaused = members.washerTimerPaused.state === 'ON';
-      }
-
-      if ('washerTimerTotal' in members) {
-        const total = parseInt(members.washerTimerTotal.state);
-        if (!isNaN(total)) {
-          state.totalDurationSec = total;
-        }
-      }
-    }
-
     if ('washerPower' in members) {
       let isRunning = members.washerPower.state === 'ON';
       if (config.inverted === true) {
         isRunning = !isRunning;
       }
       state.isRunning = isRunning;
-      state.isPaused = state.timerPaused || false;
+      state.isPaused = false;
+    }
+
+    if ('washerTimerRemaining' in members || 'washerCurrentCycle' in members) {
+      state.currentRunCycle = [
+        {
+          currentCycle: 'unknown',
+          lang: 'en'
+        }
+      ];
+
+      if ('washerCurrentCycle' in members) {
+        state.currentRunCycle[0].currentCycle = members.washerCurrentCycle.state;
+      }
+
+      if ('washerTimerRemaining' in members) {
+        const remaining = parseInt(members.washerTimerRemaining.state);
+        if (!isNaN(remaining)) {
+          state.currentTotalRemainingTime = remaining;
+          state.currentCycleRemainingTime = remaining;
+        }
+      }
     }
 
     return state;

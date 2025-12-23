@@ -51,10 +51,10 @@ describe('Washer Device', () => {
     };
     const traits = Device.getTraits(item);
     expect(traits).toContain('action.devices.traits.StartStop');
-    expect(traits).not.toContain('action.devices.traits.Timer');
+    expect(traits).not.toContain('action.devices.traits.RunCycle');
   });
 
-  test('getTraits - Timer only', () => {
+  test('getTraits - Timer/RunCycle only', () => {
     const item = {
       type: 'Group',
       members: [
@@ -66,7 +66,7 @@ describe('Washer Device', () => {
       ]
     };
     const traits = Device.getTraits(item);
-    expect(traits).toContain('action.devices.traits.Timer');
+    expect(traits).toContain('action.devices.traits.RunCycle');
     expect(traits).not.toContain('action.devices.traits.StartStop');
   });
 
@@ -79,22 +79,32 @@ describe('Washer Device', () => {
           state: '1200',
           type: 'Number',
           metadata: { ga: { value: 'washerTimerRemaining' } }
-        },
-        {
-          name: 'WasherTimerTotal',
-          state: '3600',
-          type: 'Number',
-          metadata: { ga: { value: 'washerTimerTotal' } }
         }
       ]
     };
     const state = Device.getState(item);
-    expect(state.timerRemainingSec).toBe(1200);
-    expect(state.totalDurationSec).toBe(3600);
-    expect(state.timerPaused).toBe(false);
+    expect(state.currentTotalRemainingTime).toBe(1200);
+    expect(state.currentCycleRemainingTime).toBe(1200);
+    expect(state.currentRunCycle[0].currentCycle).toBe('unknown');
   });
 
-  test('getState - Timer Paused', () => {
+  test('getState - Current Cycle', () => {
+    const item = {
+      type: 'Group',
+      members: [
+        {
+          name: 'WasherCurrentCycle',
+          state: 'rinse',
+          type: 'String',
+          metadata: { ga: { value: 'washerCurrentCycle' } }
+        }
+      ]
+    };
+    const state = Device.getState(item);
+    expect(state.currentRunCycle[0].currentCycle).toBe('rinse');
+  });
+
+  test('getState - Full State', () => {
     const item = {
       type: 'Group',
       members: [
@@ -105,31 +115,23 @@ describe('Washer Device', () => {
           metadata: { ga: { value: 'washerTimerRemaining' } }
         },
         {
-          name: 'WasherTimerPaused',
+          name: 'WasherCurrentCycle',
+          state: 'spin',
+          type: 'String',
+          metadata: { ga: { value: 'washerCurrentCycle' } }
+        },
+        {
+          name: 'WasherPower',
           state: 'ON',
           type: 'Switch',
-          metadata: { ga: { value: 'washerTimerPaused' } }
+          metadata: { ga: { value: 'washerPower' } }
         }
       ]
     };
     const state = Device.getState(item);
-    expect(state.timerRemainingSec).toBe(600);
-    expect(state.timerPaused).toBe(true);
-  });
-
-  test('getAttributes', () => {
-    const item = {
-        type: 'Group',
-        members: [
-          {
-            name: 'WasherTimerRemaining',
-            type: 'Number',
-            metadata: { ga: { value: 'washerTimerRemaining' } }
-          }
-        ]
-      };
-    const attributes = Device.getAttributes(item);
-    expect(attributes.maxTimerLimitSeconds).toBe(86400);
-    expect(attributes.commandOnlyTimer).toBe(false);
+    expect(state.currentTotalRemainingTime).toBe(600);
+    expect(state.currentCycleRemainingTime).toBe(600);
+    expect(state.currentRunCycle[0].currentCycle).toBe('spin');
+    expect(state.isRunning).toBe(true);
   });
 });

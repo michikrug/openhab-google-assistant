@@ -32,7 +32,7 @@ Deploy the `openhabGoogleAssistant` (openHAB home automation) function:
 
 * Create a storage bucket (<https://console.cloud.google.com/storage/browser>)
 * `cd openhab-google-assistant/functions`
-* `gcloud beta functions deploy openhabGoogleAssistant --runtime nodejs20 --stage-bucket <BUCKET_NAME> --trigger-http --project <PROJECT ID>`
+* `gcloud functions deploy openhabGoogleAssistant --runtime nodejs22 --stage-bucket <BUCKET_NAME> --trigger-http --project <PROJECT ID>`
 * This commands will deploy the function to Google Cloud and give you the endpoint address.
 
 Keep the address somewhere, you'll need it (something like `https://us-central1-<PROJECT ID>.cloudfunctions.net/openhabGoogleAssistant`).
@@ -202,6 +202,7 @@ gcloud beta functions logs read openhabGoogleAssistant
 
 * Sometimes the Account Linkage needs to be done twice and repeated
 * Google Assistant does not respond to querying the current brightness of an item
+* Report State (`reportStateAndNotification`) is not implemented yet; devices currently advertise `willReportState: false`
 
 ## References
 

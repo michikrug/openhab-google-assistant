@@ -13,8 +13,8 @@ This repository implements a Google Assistant Smart Home Action for OpenHAB, ena
 ## Build & Development Process
 
 ### Prerequisites
-- Node.js 20.x (specified in CI/CD workflow)
-- npm 11.6.4+ (specified as packageManager)
+- Node.js 22.x (specified in CI/CD workflow)
+- npm 11.12.1+ (specified as packageManager)
 - Google Cloud SDK (for deployment)
 
 ### Essential Commands (Run in Order)
@@ -117,14 +117,6 @@ The project uses a **registry-based command architecture** for managing Google A
 - **Total Commands**: 28 command implementations covering all Google Assistant Smart Home intents
 
 **Adding New Commands**: Update `functions/commandRegistry.js` to add entries to `COMMAND_REGISTRY`
-- **Device Matching**: Device discovery logic is in `functions/deviceMatcher.js`
-- **Factory Functions**: Simple device type variants are generated from base classes using factory functions
-- **Device Categories**:
-  - **Base Classes (4)**: `Switch`, `StartStopSwitch`, `OpenCloseDevice`, `Fan`
-  - **Complex Devices (24)**: Custom implementations with unique logic (e.g., `Thermostat`, `ACUnit`, `Camera`)
-  - **Generated Variants (27)**: Simple type wrappers created via `createDeviceVariant()` factory
-
-**Adding New Device Types**: Update `functions/deviceRegistry.js` to add entries to `DEVICE_REGISTRY`
 
 ### Configuration Files
 - `eslint.config.mjs`: ESLint 9.x flat config + Prettier (printWidth: 120, singleQuote: true)
@@ -136,7 +128,7 @@ The project uses a **registry-based command architecture** for managing Google A
 
 ### GitHub Workflows
 1. **Markdown Checks** (PRs only): Linting, spell check, grammar check
-2. **Unit Testing**: Node.js 20.x, install deps, lint, test with coverage
+2. **Unit Testing**: Node.js 22.x, install deps, lint, test with coverage
 3. **Code Analysis**: CodeQL security scanning
 4. **Deployment**: Auto-deploy to Google Cloud Functions on tags/releases
 
@@ -145,10 +137,10 @@ The project uses a **registry-based command architecture** for managing Google A
 2. `npm run lint` (ESLint validation)
 3. `npm run test-ci` (Jest with coverage)
 4. Coverage upload to artifacts
-5. Google Cloud Functions deployment (nodejs20 runtime)
+5. Google Cloud Functions deployment (nodejs22 runtime)
 
 ### Deployment Configuration
-- **Runtime**: nodejs20
+- **Runtime**: nodejs22
 - **Entry Point**: openhabGoogleAssistant
 - **Region**: us-central1
 - **Memory**: 256MB
@@ -179,10 +171,13 @@ The project uses a **registry-based command architecture** for managing Google A
 - Parameter types and ranges MUST conform to Google's specifications
 
 **Error Handling:**
+- Use `GoogleAssistantError` class for all error propagation (located in `functions/googleErrorCodes.js`)
 - Use Google's official error codes (e.g., `deviceOffline`, `valueOutOfRange`, `notSupported`)
+- Include human-readable message as second parameter to GoogleAssistantError for debugString
 - Error responses MUST follow Google's error response format
 - Include appropriate `debugString` for troubleshooting
 - Handle unsupported commands gracefully with `notSupported` error
+- Example: `throw new GoogleAssistantError(ERROR_CODES.DEVICE_NOT_FOUND, 'Device not found')`
 
 **Reference Implementation:**
 - Check existing device implementations in `/functions/devices/` for compliance patterns
@@ -191,15 +186,18 @@ The project uses a **registry-based command architecture** for managing Google A
 
 ### Testing Requirements
 - **ALWAYS** run `npm install` in both root and `functions/` directories
-- Tests require >96% coverage across all metrics
+- Tests require >96% coverage across all metrics (currently 637+ tests)
 - Test environment uses mock OpenHAB host (test.host:1234)
 - Jest setup file: `tests/setenv.js` configures test environment
+- **Integration Tests**: Full command flow tests in `tests/openhab.test.js` verify error propagation, state checking, and challenge handling
+- **Unit Tests**: Individual component tests verify specific functionality and edge cases
 
 ### Code Standards
 - **Line Length**: 120 characters max
 - **Style**: Prettier with single quotes, no trailing commas
 - **ES Version**: ES2020 with Node.js modules
-- **Error Handling**: Empty catch blocks allowed (allowEmptyCatch: true)
+- **Optional Chaining**: Prefer `?.` over long conditional chains (e.g., `obj?.prop?.nested || fallback`)
+- **Error Handling**: Use `GoogleAssistantError` class for consistent error propagation; empty catch blocks allowed (allowEmptyCatch: true)
 - **ESLint**: v9.x with flat config format (`eslint.config.mjs`)
 - **Unused Variables**: Allowed in catch blocks (`caughtErrors: 'none'`)
 
@@ -295,6 +293,52 @@ test('method behavior', async () => {
 - Environment variables set in `tests/setenv.js` (auto-loaded by Jest)
 - Mock OpenHAB host: `test.host:1234`
 - Use `nock.cleanAll()` in `afterEach()` for HTTP mocks
+
+## Advanced Patterns
+
+### State Checking with `checkCurrentState`
+
+Commands can validate current device state before executing to prevent redundant operations:
+
+**Usage:**
+- Add `checkState: true` to device's `customData` in sync response
+- Command's `checkCurrentState(target, currentState, params)` is called during execute
+- Throws `GoogleAssistantError` if state is already at target (e.g., light already on)
+- Useful for commands like `OnOff`, `RotateAbsolute` to improve user experience
+
+**Example Implementation:**
+
+```javascript
+static checkCurrentState(target, state, params) {
+  if (target === state) {
+    throw new GoogleAssistantError(
+      ERROR_CODES.ALREADY_IN_STATE,
+      `Device is already at target state`
+    );
+  }
+}
+```
+
+### Challenge Handling (PIN and ACK)
+
+Supports Google Assistant challenge flows for security-sensitive operations:
+
+**PIN Challenge:**
+- Set `pinNeeded: '1234'` in device's `customData`
+- Google sends challenge with PIN, command validates and proceeds if correct
+- Returns `challengeNeeded: { type: 'pinNeeded' }` if PIN not provided
+- Returns `challengeNeeded: { type: 'challengeFailedPinNeeded' }` if wrong PIN provided
+
+**ACK Challenge:**
+- Set `ackNeeded: true` in device's `customData`
+- Command fetches item state and includes it in challenge response
+- Google prompts user for acknowledgment
+- Returns `challengeNeeded: { type: 'ackNeeded' }` with current state
+- Executes only when `challenge?.ack === true`
+
+**Bypass PIN:**
+- Override `bypassPin(device, params)` to return `true` for selective bypass
+- Example: Security system may bypass PIN for arming but require for disarming
 
 ## Trust These Instructions
 

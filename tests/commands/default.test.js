@@ -1,4 +1,5 @@
 const Command = require('../../functions/commands/default.js');
+const { ERROR_CODES, GoogleAssistantError } = require('../../functions/googleErrorCodes.js');
 
 class TestCommand1 extends Command {
   static get type() {
@@ -32,7 +33,7 @@ class TestCommand3 extends TestCommand1 {
 
 class TestCommand4 extends TestCommand1 {
   static convertParamsToValue() {
-    throw { statusCode: 400 };
+    throw new GoogleAssistantError(ERROR_CODES.NOT_SUPPORTED, 'Test command does not support this operation');
   }
 }
 
@@ -289,8 +290,7 @@ describe('Default Command', () => {
           },
           errorCode: 'challengeNeeded',
           states: {
-            on: true,
-            online: true
+            on: true
           },
           status: 'ERROR'
         }
@@ -310,8 +310,7 @@ describe('Default Command', () => {
           },
           errorCode: 'challengeNeeded',
           states: {
-            on: true,
-            online: true
+            on: true
           },
           status: 'ERROR'
         }
@@ -365,6 +364,7 @@ describe('Default Command', () => {
       expect(sendCommandMock).toHaveBeenCalledTimes(0);
       expect(result).toStrictEqual([
         {
+          debugString: 'Test command does not support this operation',
           errorCode: 'notSupported',
           ids: ['Item1'],
           status: 'ERROR'
@@ -415,26 +415,25 @@ describe('Default Command', () => {
         const devices = [{ id: 'Item1', customData: { checkState: true } }];
         const result = await TestCommand1.execute(apiHandler, devices, { on: true }, {});
         expect(checkCurrentStateSpy).toHaveBeenCalledTimes(1);
-        expect(checkCurrentStateSpy).toHaveBeenCalledWith('ON', 'OFF', { on: true });
+        expect(checkCurrentStateSpy).toHaveBeenCalledWith('ON', 'OFF', { on: true }, item);
         expect(getItemMock).toHaveBeenCalledTimes(1);
         expect(sendCommandMock).toHaveBeenCalledTimes(1);
         expect(result).toStrictEqual([successResponse]);
       });
 
       test('execute with successful checkCurrentState with members', async () => {
-        getItemMock.mockReturnValue(
-          Promise.resolve({
-            name: 'Item1',
-            type: 'Group',
-            state: 'NULL',
-            metadata: { ga: { value: 'TV' } },
-            members: [{ name: 'PowerItem', type: 'Switch', state: 'OFF', metadata: { ga: { value: 'tvPower' } } }]
-          })
-        );
+        const groupItem = {
+          name: 'Item1',
+          type: 'Group',
+          state: 'NULL',
+          metadata: { ga: { value: 'TV' } },
+          members: [{ name: 'PowerItem', type: 'Switch', state: 'OFF', metadata: { ga: { value: 'tvPower' } } }]
+        };
+        getItemMock.mockReturnValue(Promise.resolve(groupItem));
         const devices = [{ id: 'Item1', customData: { checkState: true, members: { tvPower: 'Item1' } } }];
         const result = await TestCommand2.execute(apiHandler, devices, { on: true }, {});
         expect(checkCurrentStateSpy).toHaveBeenCalledTimes(1);
-        expect(checkCurrentStateSpy).toHaveBeenCalledWith('ON', 'OFF', { on: true });
+        expect(checkCurrentStateSpy).toHaveBeenCalledWith('ON', 'OFF', { on: true }, groupItem);
         expect(getItemMock).toHaveBeenCalledTimes(1);
         expect(sendCommandMock).toHaveBeenCalledTimes(1);
         expect(result).toStrictEqual([successResponse]);
@@ -446,12 +445,13 @@ describe('Default Command', () => {
         const devices = [{ id: 'Item1', customData: { checkState: true } }];
         const result = await TestCommand1.execute(apiHandler, devices, { on: true }, {});
         expect(checkCurrentStateSpy).toHaveBeenCalledTimes(1);
-        expect(checkCurrentStateSpy).toHaveBeenCalledWith('ON', 'ON', { on: true });
+        expect(checkCurrentStateSpy).toHaveBeenCalledWith('ON', 'ON', { on: true }, item);
         expect(getItemMock).toHaveBeenCalledTimes(1);
         expect(sendCommandMock).toHaveBeenCalledTimes(0);
         expect(result).toStrictEqual([
           {
             errorCode: 'alreadyInState',
+            debugString: 'Device is already in the requested state',
             ids: ['Item1'],
             status: 'ERROR'
           }
@@ -472,12 +472,13 @@ describe('Default Command', () => {
         const devices = [{ id: 'Item1', customData: { checkState: true } }];
         const result = await TestCommand2.execute(apiHandler, devices, { on: true }, {});
         expect(checkCurrentStateSpy).toHaveBeenCalledTimes(1);
-        expect(checkCurrentStateSpy).toHaveBeenCalledWith('ON', 'ON', { on: true });
+        expect(checkCurrentStateSpy).toHaveBeenCalledWith('ON', 'ON', { on: true }, groupItem);
         expect(getItemMock).toHaveBeenCalledTimes(1);
         expect(sendCommandMock).toHaveBeenCalledTimes(0);
         expect(result).toStrictEqual([
           {
             errorCode: 'alreadyInState',
+            debugString: 'Device is already in the requested state',
             ids: ['Item1'],
             status: 'ERROR'
           }
@@ -517,6 +518,7 @@ describe('Default Command', () => {
         expect(validateUpdateSpy).toHaveBeenCalledWith({ on: true }, { name: 'InvalidItem' }, devices[0]);
         expect(result).toStrictEqual([
           {
+            debugString: 'Device type could not be resolved for item',
             errorCode: 'deviceNotFound',
             ids: ['Item1'],
             status: 'ERROR'
